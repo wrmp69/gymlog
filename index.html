@@ -210,9 +210,10 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
     <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:var(--mu);font-size:13px;">Pas encore de données pour cet exercice.</div>
   </div>
   <div class="card">
-    <div class="dl-lbl" style="margin-bottom:10px;">Exporter vers Google Sheets</div>
-    <p style="font-size:13px;color:var(--mu);margin-bottom:12px;line-height:1.6;">Télécharge le fichier CSV puis importe-le dans Google Sheets via Fichier → Importer.</p>
-    <button class="btn-ghost green" onclick="exportCSV()">⬇ Télécharger CSV</button>
+    <div class="dl-lbl" style="margin-bottom:6px;">Envoyer vers Google Sheets</div>
+    <p style="font-size:13px;color:var(--mu);margin-bottom:12px;line-height:1.6;">Envoie tout l'historique directement dans ta feuille Google. Les nouvelles séances s'ajoutent à la suite.</p>
+    <button class="btn-ghost green" id="export-all-btn" onclick="sendAllToSheets()">↗ Envoyer tout l'historique</button>
+    <div id="export-status" style="font-size:12px;margin-top:8px;text-align:center;display:none;"></div>
   </div>
 </div>
 
@@ -220,8 +221,9 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
 <div class="save-bar" id="bar-seance">
   <div class="btn-row">
     <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder</button>
-    <button class="btn-ghost green" onclick="exportTodayCSV()">⬇ Export CSV</button>
+    <button class="btn-ghost green" id="send-today-btn" onclick="sendTodayToSheets()">↗ Sheets</button>
   </div>
+  <div id="send-today-status" style="font-size:12px;margin-top:6px;text-align:center;display:none;color:var(--ac);"></div>
 </div>
 
 </div><!-- /app -->
@@ -341,7 +343,13 @@ function saveSession(){
   btn.className='btn-ghost ok';btn.textContent='✓ Sauvegardé !';
 }
 
-function todayKey(){return new Date().toISOString().split('T')[0];}
+function todayKey(){
+  var d=new Date();
+  var y=d.getFullYear();
+  var m=String(d.getMonth()+1).padStart(2,'0');
+  var j=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+j;
+}
 function fmtDate(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
 function fmtDateLong(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 
@@ -490,35 +498,63 @@ function setFilter(days,btn){
   renderStats();
 }
 
-function buildCSV(data){
-  const rows=[['Date','Exercice','Poids (kg)','Séries','Reps','Volume (kg)']];
-  Object.entries(data).sort().forEach(([key,entries])=>{
-    entries.forEach(e=>{
-      rows.push([fmtDateLong(key),e.nom,e.poids,e.series,e.reps,vol(e)]);
+const SHEETS_URL='https://script.google.com/macros/s/AKfycbwmOimhbg5hUHLz1QOXRHUePJdo5w-QE-Oc8BF0GKG_iFPN0DwGpyIOHQNNXYRWw9r4Cg/exec';
+
+function buildRows(data){
+  const rows=[];
+  Object.entries(data).sort().forEach(function(entry){
+    var key=entry[0], entries=entry[1];
+    entries.forEach(function(e){
+      rows.push([fmtDateLong(key),e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e)]);
     });
   });
-  return rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  return rows;
 }
 
-function exportCSV(){
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+function sendToSheets(rows,statusEl,btn,btnLabel){
+  if(!rows.length){alert('Aucune donnée à envoyer.');return;}
+  statusEl.style.display='block';
+  statusEl.style.color='var(--mu)';
+  statusEl.textContent='Envoi en cours...';
+  btn.disabled=true;
+  fetch(SHEETS_URL,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({rows:rows})
+  }).then(function(){
+    statusEl.style.color='var(--ac)';
+    statusEl.textContent='Envoyé dans Google Sheets !';
+    btn.textContent=btnLabel+' ok';
+    setTimeout(function(){
+      statusEl.style.display='none';
+      btn.textContent=btnLabel;
+      btn.disabled=false;
+    },3000);
+  }).catch(function(){
+    statusEl.style.color='var(--rd)';
+    statusEl.textContent='Erreur réseau. Vérifie ta connexion.';
+    btn.disabled=false;
+  });
+}
+
+function sendAllToSheets(){
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   if(!Object.keys(h).length){alert('Aucune séance sauvegardée.');return;}
-  download('gymlog_historique.csv',buildCSV(h));
+  var rows=buildRows(h);
+  var btn=document.getElementById('export-all-btn');
+  var status=document.getElementById('export-status');
+  sendToSheets(rows,status,btn,'Envoyer tout');
 }
 
-function exportTodayCSV(){
+function sendTodayToSheets(){
   if(!session.length){alert('Aucun exercice dans la séance.');return;}
-  const data={[todayKey()]:session};
-  download('gymlog_seance_'+todayKey()+'.csv',buildCSV(data));
-}
-
-function download(filename,text){
-  const bom='\uFEFF';
-  const blob=new Blob([bom+text],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;a.click();
-  URL.revokeObjectURL(url);
+  var today={};
+  today[todayKey()]=session;
+  var rows=buildRows(today);
+  var btn=document.getElementById('send-today-btn');
+  var status=document.getElementById('send-today-status');
+  sendToSheets(rows,status,btn,'Sheets');
 }
 
 function showTab(name){
