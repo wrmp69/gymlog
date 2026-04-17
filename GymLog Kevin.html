@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GymLog K&J">
+<meta name="theme-color" content="#0f0f0f">
+<title>GymLog K&J</title>
+<link rel="manifest" href="data:application/json,{%22name%22:%22GymLog%20K%26J%22,%22short_name%22:%22GymLog%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230f0f0f%22,%22theme_color%22:%22%230f0f0f%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230f0f0f'/%3E%3Ctext x='256' y='320' font-size='300' text-anchor='middle' fill='%23c8ff00' font-family='sans-serif' font-weight='900'%3EK%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#242424;--bd:#2e2e2e;--ac:#c8ff00;--tx:#f0f0f0;--mu:#888;--rd:#ff4444;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overscroll-behavior:none;}
+.app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;}
+.header{padding:1rem 1.2rem 0.6rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.date-badge{font-size:12px;color:var(--mu);background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:4px 12px;}
+.tabs{display:flex;margin:0 1.2rem 0.8rem;gap:4px;background:var(--s1);border-radius:12px;padding:4px;flex-shrink:0;}
+.tab{flex:1;text-align:center;padding:7px 4px;font-size:12px;font-weight:500;border-radius:9px;cursor:pointer;color:var(--mu);border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.tab.active{background:var(--ac);color:#0f0f0f;font-weight:700;}
+.page{display:none;flex:1;overflow-y:auto;padding:0 1.2rem 6rem;}
+.page.active{display:block;}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
+.lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:6px;display:block;}
+select{width:100%;padding:11px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);}
+select:focus{outline:2px solid var(--ac);border-color:transparent;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field{margin-bottom:12px;}
+.field:last-of-type{margin-bottom:0;}
+.btn-ac{width:100%;padding:13px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;background:var(--ac);color:#0f0f0f;border:none;border-radius:12px;cursor:pointer;margin-top:6px;}
+.btn-ac:active{opacity:.8;}
+.btn-ghost{width:100%;padding:12px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:12px;cursor:pointer;transition:background .15s;}
+.btn-ghost:active{background:var(--s2);}
+.btn-ghost.ok{border-color:var(--ac);color:var(--ac);}
+.btn-ghost.green{border-color:#22c55e;color:#22c55e;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.stitle{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.scount{font-size:12px;color:var(--mu);}
+.clr{font-size:12px;color:var(--rd);background:none;border:none;cursor:pointer;}
+.entry{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:7px;animation:si .18s ease;}
+@keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.eico{font-size:20px;flex-shrink:0;}
+.einfo{flex:1;min-width:0;}
+.ename{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.etags{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--bd);color:var(--mu);}
+.tag.ac{border-color:var(--ac);color:var(--ac);}
+.tag.vol{border-color:#a78bfa;color:#a78bfa;}
+.del{background:none;border:none;color:var(--bd);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0;}
+.del:active{color:var(--rd);}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--mu);font-size:14px;line-height:2;}
+.eico-lg{font-size:36px;display:block;margin-bottom:6px;}
+.vol-summary{background:var(--s2);border-radius:12px;padding:12px 14px;margin-top:10px;}
+.vol-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.vol-row:last-child{border-bottom:none;}
+.vol-name{color:var(--mu);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-right:8px;}
+.vol-val{color:var(--ac);font-weight:500;white-space:nowrap;}
+.vol-total{display:flex;justify-content:space-between;padding:10px 14px;margin-top:8px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;}
+.vol-total span:first-child{font-size:13px;color:var(--mu);}
+.vol-total span:last-child{font-size:15px;font-weight:700;color:var(--ac);}
+.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:.8rem 1.2rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;}
+.save-bar>*{pointer-events:all;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dl{font-family:'Syne',sans-serif;font-size:13px;}
+.dl-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px;}
+.day-label{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:8px;}
+.day-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.day-card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;overflow:hidden;margin-bottom:1rem;}
+.day-head{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--bd);}
+.day-exo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid var(--bd);}
+.day-exo:last-child{border-bottom:none;}
+.dexo-name{font-size:13px;font-weight:500;flex:1;}
+.dtags{display:flex;gap:4px;flex-wrap:wrap;}
+.dtag{font-size:11px;color:var(--mu);background:var(--s2);border-radius:6px;padding:2px 6px;}
+.dtag.dv{color:#a78bfa;background:transparent;border:1px solid #a78bfa33;}
+.delbtn{font-size:11px;color:var(--rd);background:none;border:1px solid var(--rd)33;border-radius:7px;padding:3px 8px;cursor:pointer;margin-left:6px;}
+.chart-wrap{position:relative;height:220px;margin-top:8px;}
+.chart-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.cf-btn{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--bd);background:none;color:var(--mu);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.cf-btn.active{background:var(--ac);color:#0f0f0f;border-color:var(--ac);}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem;}
+.stat{background:var(--s2);border-radius:12px;padding:10px 12px;text-align:center;}
+.stat-val{font-size:20px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ac);}
+.stat-lbl{font-size:11px;color:var(--mu);margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <svg width="160" height="52" viewBox="0 0 260 82" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;margin-left:2px;">
+    <rect x="8" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+    <rect x="11" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
+    <text x="33" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">K</text>
+    <rect x="8" y="54" width="50" height="4" rx="2" fill="#c8ff00"/>
+    <text x="72" y="37" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="22" fill="#c8ff00">&amp;</text>
+    <rect x="86" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+    <rect x="89" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
+    <text x="111" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">J</text>
+    <rect x="86" y="54" width="50" height="4" rx="2" fill="#c8ff00"/>
+    <text x="33" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1.5">KÉVIN</text>
+    <text x="111" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1">JÉRÉMY</text>
+  </svg>
+  <div class="date-badge" id="header-date"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('seance')">Séance</button>
+  <button class="tab" onclick="showTab('historique')">Historique</button>
+  <button class="tab" onclick="showTab('stats')">Stats</button>
+</div>
+
+<!-- SÉANCE -->
+<div class="page active" id="page-seance">
+  <div class="card">
+    <div class="field">
+      <span class="lbl">Machine / exercice</span>
+      <select id="sel-machine" onchange="updatePoids()">
+        <option value="">— Choisir —</option>
+        <option value="0">Presse à cuisses</option>
+        <option value="1">Leg curl couché</option>
+        <option value="2">Leg extension</option>
+        <option value="3">Tirage poulie haute</option>
+        <option value="4">Rowing buste penché</option>
+        <option value="5">Développé épaules machine</option>
+        <option value="6">Pec deck (papillon)</option>
+        <option value="7">Développé couché machine</option>
+        <option value="8">Curl biceps machine</option>
+        <option value="9">Extension triceps poulie</option>
+        <option value="10">Mollets debout machine</option>
+        <option value="11">Abducteurs machine</option>
+        <option value="12">Adducteurs machine</option>
+        <option value="13">Hip thrust machine</option>
+        <option value="14">Squat guidé (Smith)</option>
+        <option value="15">Crunch abdos machine</option>
+        <option value="16">Poulie basse (rowing)</option>
+      </select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <span class="lbl">Poids</span>
+        <select id="sel-poids"><option value="">—</option></select>
+      </div>
+      <div class="field">
+        <span class="lbl">Séries</span>
+        <select id="sel-series">
+          <option>1</option><option>2</option><option>3</option>
+          <option selected>4</option><option>5</option><option>6</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl">Répétitions / série</span>
+      <select id="sel-reps">
+        <option>5</option><option>6</option><option>7</option><option>8</option>
+        <option>9</option><option selected>10</option><option>12</option>
+        <option>15</option><option>20</option>
+      </select>
+    </div>
+    <button class="btn-ac" onclick="addEntry()">+ Ajouter</button>
+  </div>
+
+  <div>
+    <div class="sh">
+      <span class="stitle">Séance du jour</span>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="scount" id="entry-count">0 exo</span>
+        <button class="clr" onclick="clearSession()">Effacer</button>
+      </div>
+    </div>
+    <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
+    <div id="vol-block" style="display:none;">
+      <div class="sh" style="margin-top:14px;">
+        <span class="stitle">Volume total</span>
+      </div>
+      <div class="vol-summary" id="vol-list"></div>
+      <div class="vol-total" id="vol-total"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIQUE -->
+<div class="page" id="page-historique">
+  <div id="history-list"><div class="empty"><span class="eico-lg">📋</span>Pas encore d'historique.<br>Sauvegarde ta première séance !</div></div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="page-stats">
+  <div class="stat-row" id="stat-row">
+    <div class="stat"><div class="stat-val" id="st-seances">0</div><div class="stat-lbl">Séances</div></div>
+    <div class="stat"><div class="stat-val" id="st-exos">0</div><div class="stat-lbl">Exercices</div></div>
+    <div class="stat"><div class="stat-val" id="st-vol">0</div><div class="stat-lbl">Vol. total (kg)</div></div>
+  </div>
+  <div class="card">
+    <div class="dl-lbl">Évolution par exercice</div>
+    <div class="field" style="margin-bottom:10px;">
+      <select id="sel-chart-exo" onchange="renderStats()">
+        <option value="">— Choisir un exercice —</option>
+      </select>
+    </div>
+    <div class="chart-filter">
+      <button class="cf-btn active" onclick="setFilter(7,this)">7j</button>
+      <button class="cf-btn" onclick="setFilter(30,this)">30j</button>
+      <button class="cf-btn" onclick="setFilter(0,this)">Tout</button>
+    </div>
+    <div class="chart-wrap"><canvas id="myChart"></canvas></div>
+    <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:var(--mu);font-size:13px;">Pas encore de données pour cet exercice.</div>
+  </div>
+  <div class="card" id="sheets-config-card">
+    <div class="dl-lbl" style="margin-bottom:6px;">Mon Google Sheets</div>
+    <div id="sheets-not-configured">
+      <p style="font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6;">Colle ici ton URL Apps Script personnel pour envoyer tes données dans ton propre Google Sheet.</p>
+      <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px 12px;font-size:13px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:10px;">
+      <input type="url" id="input-sheet-url" placeholder="URL de ta feuille Google Sheets (optionnel)" style="width:100%;padding:10px 12px;font-size:13px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:10px;">
+      <button class="btn-ghost green" onclick="saveSheetConfig()">Enregistrer ma configuration</button>
+    </div>
+    <div id="sheets-configured" style="display:none;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <span style="font-size:18px;">✓</span>
+        <span style="font-size:13px;color:var(--ac);">Feuille personnelle configurée</span>
+        <button onclick="resetSheetConfig()" style="margin-left:auto;font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;text-decoration:underline;">Changer</button>
+      </div>
+      <button class="btn-ghost green" id="export-all-btn" onclick="sendAllToSheets()" style="margin-bottom:8px;">↗ Envoyer tout historique</button>
+      <div id="export-status" style="font-size:12px;margin-top:4px;text-align:center;display:none;"></div>
+      <button class="btn-ghost" id="open-sheet-btn" onclick="openMySheet()" style="margin-top:8px;">Ouvrir ma feuille Google Sheets</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE BAR (séance only) -->
+<div class="save-bar" id="bar-seance">
+  <div class="btn-row">
+    <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder</button>
+    <button class="btn-ghost green" id="send-today-btn" onclick="sendTodayToSheets()">↗ Sheets</button>
+  </div>
+  <div id="send-today-status" style="font-size:12px;margin-top:6px;text-align:center;display:none;color:var(--ac);"></div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+const machines=[
+  {nom:"Presse à cuisses",icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120,140,160]},
+  {nom:"Leg curl couché",icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Leg extension",icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50]},
+  {nom:"Tirage poulie haute",icon:"💪",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
+  {nom:"Rowing buste penché",icon:"💪",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Développé épaules machine",icon:"🏋️",poids:[5,10,15,20,25,30,35,40,45,50]},
+  {nom:"Pec deck (papillon)",icon:"🏋️",poids:[10,15,20,25,30,35,40,45,50,55,60,65,70]},
+  {nom:"Développé couché machine",icon:"🏋️",poids:[20,30,40,50,60,70,80,90,100]},
+  {nom:"Curl biceps machine",icon:"💪",poids:[5,10,15,20,25,30,35,40]},
+  {nom:"Extension triceps poulie",icon:"💪",poids:[5,10,15,20,25,30,35,40,45]},
+  {nom:"Mollets debout machine",icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Abducteurs machine",icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Adducteurs machine",icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Hip thrust machine",icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
+  {nom:"Squat guidé (Smith)",icon:"🏋️",poids:[20,30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Crunch abdos machine",icon:"🔥",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Poulie basse (rowing)",icon:"💪",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+];
+
+let session=JSON.parse(localStorage.getItem('gl_session')||'[]');
+let chartDays=7;
+let myChart=null;
+
+document.getElementById('header-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+
+const selM=document.getElementById('sel-machine');
+
+function updatePoids(){
+  const idx=parseInt(selM.value);
+  const sel=document.getElementById('sel-poids');
+  sel.innerHTML='';
+  if(isNaN(idx))return;
+  machines[idx].poids.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p;o.textContent=p+' kg';sel.appendChild(o);
+  });
+}
+updatePoids();
+
+function vol(e){return parseInt(e.poids)*parseInt(e.series)*parseInt(e.reps);}
+
+function addEntry(){
+  const idx=parseInt(selM.value);
+  if(isNaN(idx)){selM.focus();return;}
+  const m=machines[idx];
+  const poids=document.getElementById('sel-poids').value;
+  const series=document.getElementById('sel-series').value;
+  const reps=document.getElementById('sel-reps').value;
+  session.push({nom:m.nom,icon:m.icon,poids,series,reps,id:Date.now()});
+  localStorage.setItem('gl_session',JSON.stringify(session));
+  document.getElementById('save-btn').className='btn-ghost';
+  document.getElementById('save-btn').textContent='💾 Sauvegarder';
+  renderSheetsConfig();
+renderSession();
+}
+
+function removeEntry(id){
+  session=session.filter(e=>e.id!==id);
+  localStorage.setItem('gl_session',JSON.stringify(session));
+  renderSheetsConfig();
+renderSession();
+}
+
+function clearSession(){
+  if(!session.length)return;
+  if(!confirm('Effacer la séance ?'))return;
+  session=[];localStorage.removeItem('gl_session');renderSheetsConfig();
+renderSession();
+}
+
+function renderSession(){
+  const list=document.getElementById('entry-list');
+  document.getElementById('entry-count').textContent=session.length+' exo';
+  if(!session.length){
+    list.innerHTML='<div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div>';
+    document.getElementById('vol-block').style.display='none';
+    return;
+  }
+  list.innerHTML=session.map(e=>`
+    <div class="entry">
+      <div class="eico">${e.icon}</div>
+      <div class="einfo">
+        <div class="ename">${e.nom}</div>
+        <div class="etags">
+          <span class="tag ac">${e.poids} kg</span>
+          <span class="tag">${e.series} séries · ${e.reps} reps</span>
+          <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
+        </div>
+      </div>
+      <button class="del" onclick="removeEntry(${e.id})">×</button>
+    </div>`).join('');
+  renderVolume();
+  document.getElementById('vol-block').style.display='block';
+}
+
+function renderVolume(){
+  const byName={};
+  session.forEach(e=>{byName[e.nom]=(byName[e.nom]||0)+vol(e);});
+  const totalVol=session.reduce((a,e)=>a+vol(e),0);
+  document.getElementById('vol-list').innerHTML=Object.entries(byName).map(([n,v])=>`
+    <div class="vol-row">
+      <span class="vol-name">${n}</span>
+      <span class="vol-val">${v.toLocaleString('fr-FR')} kg</span>
+    </div>`).join('');
+  document.getElementById('vol-total').innerHTML=`<span>Volume total séance</span><span>${totalVol.toLocaleString('fr-FR')} kg</span>`;
+}
+
+function saveSession(){
+  if(!session.length){alert('Ajoute au moins un exercice.');return;}
+  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  h[todayKey()]=[...session];
+  localStorage.setItem('gl_history',JSON.stringify(h));
+  const btn=document.getElementById('save-btn');
+  btn.className='btn-ghost ok';btn.textContent='✓ Sauvegardé !';
+}
+
+function todayKey(){
+  var d=new Date();
+  var y=d.getFullYear();
+  var m=String(d.getMonth()+1).padStart(2,'0');
+  var j=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+j;
+}
+function fmtDate(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
+function fmtDateLong(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
+
+function deleteDay(key){
+  if(!confirm('Supprimer la séance du '+fmtDateLong(key)+' ?'))return;
+  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  delete h[key];localStorage.setItem('gl_history',JSON.stringify(h));
+  renderHistory();renderStats();
+}
+
+function renderHistory(){
+  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  const keys=Object.keys(h).sort().reverse();
+  const c=document.getElementById('history-list');
+  if(!keys.length){c.innerHTML='<div class="empty"><span class="eico-lg">📋</span>Pas encore d\'historique.<br>Sauvegarde ta première séance !</div>';return;}
+  c.innerHTML=keys.map(key=>{
+    const totalV=h[key].reduce((a,e)=>a+vol(e),0);
+    return`<div class="day-label">${fmtDateLong(key)}</div>
+    <div class="day-card">
+      <div class="day-head">
+        <span style="font-size:13px;font-weight:500;">${h[key].length} exercice(s) · <span style="color:#a78bfa">${totalV.toLocaleString('fr-FR')} kg vol.</span></span>
+        <button class="delbtn" onclick="deleteDay('${key}')">Supprimer</button>
+      </div>
+      ${h[key].map(e=>`
+        <div class="day-exo">
+          <span style="font-size:17px">${e.icon}</span>
+          <span class="dexo-name">${e.nom}</span>
+          <div class="dtags">
+            <span class="dtag">${e.poids} kg</span>
+            <span class="dtag">${e.series}s · ${e.reps}r</span>
+            <span class="dtag dv">${vol(e).toLocaleString('fr-FR')} kg</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function populateChartExoSelect(){
+  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  const exoSet=new Set();
+  Object.values(h).forEach(entries=>entries.forEach(e=>exoSet.add(e.nom)));
+  const sel=document.getElementById('sel-chart-exo');
+  const current=sel.value;
+  sel.innerHTML='<option value="">— Choisir un exercice —</option>';
+  [...exoSet].sort().forEach(nom=>{
+    const o=document.createElement('option');
+    o.value=nom;o.textContent=nom;
+    if(nom===current)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function renderStats(){
+  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  const keys=Object.keys(h).sort();
+  const totalExos=keys.reduce((a,k)=>a+h[k].length,0);
+  const totalVol=keys.reduce((a,k)=>a+h[k].reduce((b,e)=>b+vol(e),0),0);
+  document.getElementById('st-seances').textContent=keys.length;
+  document.getElementById('st-exos').textContent=totalExos;
+  document.getElementById('st-vol').textContent=(totalVol/1000).toFixed(1)+'t';
+
+  populateChartExoSelect();
+  const selExo=document.getElementById('sel-chart-exo').value;
+  const emptyEl=document.getElementById('chart-empty');
+  const chartWrap=document.querySelector('.chart-wrap');
+
+  if(myChart){myChart.destroy();myChart=null;}
+
+  if(!selExo){
+    chartWrap.style.display='none';emptyEl.style.display='block';
+    emptyEl.textContent='Choisis un exercice pour voir son évolution.';
+    return;
+  }
+
+  const now=new Date();
+  const filtered=keys.filter(k=>{
+    const hasExo=h[k].some(e=>e.nom===selExo);
+    if(!hasExo)return false;
+    if(chartDays===0)return true;
+    const d=new Date(k+'T00:00:00');
+    return(now-d)/(1000*60*60*24)<=chartDays;
+  });
+
+  if(!filtered.length){
+    chartWrap.style.display='none';emptyEl.style.display='block';
+    emptyEl.textContent='Pas encore de données pour cet exercice sur cette période.';
+    return;
+  }
+
+  chartWrap.style.display='block';emptyEl.style.display='none';
+  const labels=filtered.map(k=>fmtDate(k));
+  const dataVol=filtered.map(k=>h[k].filter(e=>e.nom===selExo).reduce((a,e)=>a+vol(e),0));
+  const dataPoids=filtered.map(k=>{
+    const exos=h[k].filter(e=>e.nom===selExo);
+    return exos.length?Math.max(...exos.map(e=>parseInt(e.poids))):0;
+  });
+
+  const ctx=document.getElementById('myChart').getContext('2d');
+  myChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Volume (kg)',
+          data:dataVol,
+          backgroundColor:'#c8ff0033',
+          borderColor:'#c8ff00',
+          borderWidth:1.5,
+          borderRadius:5,
+          yAxisID:'y',
+        },
+        {
+          label:'Poids max (kg)',
+          data:dataPoids,
+          type:'line',
+          borderColor:'#a78bfa',
+          backgroundColor:'transparent',
+          borderWidth:2,
+          pointBackgroundColor:'#a78bfa',
+          pointRadius:4,
+          tension:0.3,
+          yAxisID:'y2',
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,labels:{color:'#888',font:{size:11},boxWidth:12}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('fr-FR')} kg`}}
+      },
+      scales:{
+        x:{ticks:{color:'#888',font:{size:10}},grid:{color:'#1e1e1e'}},
+        y:{ticks:{color:'#888',font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(1)+'k':v},grid:{color:'#1e1e1e'},title:{display:true,text:'Volume',color:'#c8ff00',font:{size:10}}},
+        y2:{position:'right',ticks:{color:'#a78bfa',font:{size:10}},grid:{display:false},title:{display:true,text:'Poids max',color:'#a78bfa',font:{size:10}}}
+      }
+    }
+  });
+}
+
+function setFilter(days,btn){
+  chartDays=days;
+  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStats();
+}
+
+function getSheetsConfig(){
+  return {
+    scriptUrl: localStorage.getItem('gl_script_url')||'',
+    sheetUrl: localStorage.getItem('gl_sheet_url')||''
+  };
+}
+
+function saveSheetConfig(){
+  var scriptUrl=document.getElementById('input-script-url').value.trim();
+  var sheetUrl=document.getElementById('input-sheet-url').value.trim();
+  if(!scriptUrl||!scriptUrl.startsWith('https://script.google.com')){
+    alert('URL Apps Script invalide. Elle doit commencer par https://script.google.com');
+    return;
+  }
+  localStorage.setItem('gl_script_url', scriptUrl);
+  if(sheetUrl) localStorage.setItem('gl_sheet_url', sheetUrl);
+  renderSheetsConfig();
+}
+
+function resetSheetConfig(){
+  if(!confirm('Supprimer ta configuration Google Sheets ?')) return;
+  localStorage.removeItem('gl_script_url');
+  localStorage.removeItem('gl_sheet_url');
+  renderSheetsConfig();
+}
+
+function renderSheetsConfig(){
+  var cfg=getSheetsConfig();
+  var notConf=document.getElementById('sheets-not-configured');
+  var conf=document.getElementById('sheets-configured');
+  if(cfg.scriptUrl){
+    notConf.style.display='none';
+    conf.style.display='block';
+    var openBtn=document.getElementById('open-sheet-btn');
+    openBtn.style.display=cfg.sheetUrl?'block':'none';
+  } else {
+    notConf.style.display='block';
+    conf.style.display='none';
+  }
+}
+
+function openMySheet(){
+  var url=localStorage.getItem('gl_sheet_url');
+  if(url) window.open(url,'_blank');
+}
+
+function buildRows(data){
+  var rows=[];
+  Object.entries(data).sort().forEach(function(entry){
+    var key=entry[0], entries=entry[1];
+    entries.forEach(function(e){
+      rows.push([fmtDateLong(key),e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e)]);
+    });
+  });
+  return rows;
+}
+
+function sendToSheets(rows,statusEl,btn,btnLabel){
+  var cfg=getSheetsConfig();
+  if(!cfg.scriptUrl){alert('Configure ton Google Sheets dans Stats.');return;}
+  if(!rows.length){alert('Aucune donnée à envoyer.');return;}
+  statusEl.style.display='block';
+  statusEl.style.color='var(--mu)';
+  statusEl.textContent='Envoi en cours...';
+  btn.disabled=true;
+  fetch(cfg.scriptUrl,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({rows:rows})
+  }).then(function(){
+    statusEl.style.color='var(--ac)';
+    statusEl.textContent='Envoyé dans Google Sheets !';
+    btn.textContent=btnLabel+' ok';
+    setTimeout(function(){
+      statusEl.style.display='none';
+      btn.textContent=btnLabel;
+      btn.disabled=false;
+    },3000);
+  }).catch(function(){
+    statusEl.style.color='var(--rd)';
+    statusEl.textContent='Erreur réseau. Vérifie ta connexion.';
+    btn.disabled=false;
+  });
+}
+
+function sendAllToSheets(){
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  if(!Object.keys(h).length){alert('Aucune séance sauvegardée.');return;}
+  var rows=buildRows(h);
+  var btn=document.getElementById('export-all-btn');
+  var status=document.getElementById('export-status');
+  sendToSheets(rows,status,btn,'Envoyer tout');
+}
+
+function sendTodayToSheets(){
+  if(!session.length){alert('Aucun exercice dans la séance.');return;}
+  var today={};
+  today[todayKey()]=session;
+  var rows=buildRows(today);
+  var btn=document.getElementById('send-today-btn');
+  var status=document.getElementById('send-today-status');
+  sendToSheets(rows,status,btn,'Sheets');
+}
+
+function showTab(name){
+  ['seance','historique','stats'].forEach((n,i)=>{
+    document.getElementById('page-'+n).classList.toggle('active',n===name);
+    document.querySelectorAll('.tab')[i].classList.toggle('active',n===name);
+  });
+  document.getElementById('bar-seance').style.display=name==='seance'?'block':'none';
+  if(name==='historique')renderHistory();
+  if(name==='stats')renderStats();
+}
+
+renderSheetsConfig();
+renderSession();
+</script>
+</body>
+</html>
