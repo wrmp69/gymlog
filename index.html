@@ -115,6 +115,16 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .tbtn{padding:12px 26px;border-radius:12px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--bd);background:var(--s1);color:var(--tx);}
 .tbtn.go{background:var(--ac);color:#0f0f0f;border-color:var(--ac);font-weight:700;}
 .tbtn:active{opacity:.75;}
+
+.cardio-card{background:var(--s1);border:1px dashed #3a5c00;border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
+.cardio-saved{background:var(--s2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.cardio-saved-ico{font-size:22px;flex-shrink:0;}
+.cardio-saved-info{flex:1;}
+.cardio-saved-title{font-size:13px;font-weight:500;}
+.cardio-saved-tags{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;}
+.cardio-tag{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #3a5c00;color:#8bc34a;}
+.cardio-del{background:none;border:none;color:var(--bd);cursor:pointer;font-size:18px;padding:4px;}
+.cardio-del:active{color:var(--rd);}
 </style>
 </head>
 <body>
@@ -154,10 +164,8 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
         <option value="Dos">💪 Dos</option>
         <option value="Pectoraux">🏋️ Pectoraux</option>
         <option value="Épaules">🔝 Épaules</option>
-        <option value="Biceps">💪 Biceps</option>
-		<option value="Triceps">💪 Triceps</option>
+        <option value="Bras">💪 Bras</option>
         <option value="Abdos">🔥 Abdos</option>
-		<option value="Mollets">🔥 Mollets</option>
       </select>
     </div>
     <div class="field">
@@ -174,8 +182,8 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
       <div class="field">
         <span class="lbl">Séries</span>
         <select id="sel-series">
-          <option selected>1</option><option>2</option><option>3</option>
-          <option>4</option><option>5</option><option>6</option>
+          <option>1</option><option>2</option><option>3</option>
+          <option selected>4</option><option>5</option><option>6</option>
         </select>
       </div>
     </div>
@@ -210,6 +218,43 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
       <div class="sh" style="margin-top:14px;"><span class="stitle">Volume & 1RM estimés</span></div>
       <div class="vol-summary" id="vol-list"></div>
       <div class="vol-total" id="vol-total"></div>
+    </div>
+  </div>
+
+  <!-- CARDIO MARCHE -->
+  <div class="cardio-card">
+    <div class="sh" style="margin-bottom:12px;">
+      <span class="stitle">🚶 Marche / Cardio</span>
+    </div>
+    <div id="cardio-saved-block"></div>
+    <div id="cardio-form">
+      <div class="row3">
+        <div class="field">
+          <span class="lbl">Durée (min)</span>
+          <select id="c-duree">
+            <option>5</option><option>10</option><option>15</option><option>20</option>
+            <option selected>30</option><option>40</option><option>45</option><option>60</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="lbl">Pente (%)</span>
+          <select id="c-pente">
+            <option>0</option><option>1</option><option>2</option><option>3</option>
+            <option>4</option><option selected>5</option><option>6</option><option>7</option>
+            <option>8</option><option>9</option><option>10</option><option>12</option>
+            <option>15</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="lbl">Vitesse (km/h)</span>
+          <select id="c-vitesse">
+            <option>3</option><option>3.5</option><option selected>4</option><option>4.5</option>
+            <option>5</option><option>5.5</option><option>6</option><option>6.5</option>
+            <option>7</option><option>8</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-ghost" onclick="addCardio()" style="border-color:#3a5c00;color:#8bc34a;">+ Ajouter la marche</button>
     </div>
   </div>
 </div>
@@ -316,34 +361,64 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 // "Jambes" "Dos" "Pectoraux" "Épaules" "Bras" "Abdos"
 // ─────────────────────────────────────────
 var machines=[
-  {nom:"Presse à cuisses",     groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120,140,160]},
-  {nom:"Leg curl couché",      groupe:"Jambes",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Leg extension",        groupe:"Jambes",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50]},
-  {nom:"Mollets debout",       groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Abducteurs machine",   groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Adducteurs machine",   groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
-  {nom:"Hip thrust machine",   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
-  {nom:"Squat guidé (Smith)",  groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Tirage poulie haute",  groupe:"Dos",       icon:"💪",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
-  {nom:"Rowing buste penché",  groupe:"Dos",       icon:"💪",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Poulie basse rowing",  groupe:"Dos",       icon:"💪",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Pec deck (papillon)",  groupe:"Pectoraux", icon:"🏋️",poids:[10,15,20,25,30,35,40,45,50,55,60,65,70]},
-  {nom:"Développé couché",     groupe:"Pectoraux", icon:"🏋️",poids:[20,30,40,50,60,70,80,90,100]},
-  {nom:"Développé incliné",    groupe:"Pectoraux", icon:"🏋️",poids:[10,20,30,40,50,60,70,80]},
-  {nom:"Développé épaules",    groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40,45,50]},
-  {nom:"Élévations latérales", groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30]},
-  {nom:"Curl biceps machine",  groupe:"Bras",      icon:"💪",poids:[5,10,15,20,25,30,35,40]},
-  {nom:"Extension triceps",    groupe:"Bras",      icon:"💪",poids:[5,10,15,20,25,30,35,40,45]},
-  {nom:"Crunch abdos machine", groupe:"Abdos",     icon:"🔥",poids:[10,15,20,25,30,35,40,45,50]},
-  {nom:"Tirage vertical L",      groupe:"Dos",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Machine Conv dos",      groupe:"Dos",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Reverse fly",      groupe:"Épaules",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Tirage Horiz S",      groupe:"Dos",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl pupitre",      groupe:"Biceps",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl halètre banc inc.",      groupe:"Biceps",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Biceps marteau Unilat",      groupe:"Biceps",    icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Chest Press",     					  groupe:"Pectoraux", icon:"🏋",poids:[20,30,40,50,60,70,80,90,100,110,120,140,160]},
+  {nom:"Pec Fly",     				  		  groupe:"Pectoraux", icon:"🏋",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Développé couché haltères",       	  groupe:"Pectoraux", icon:"🏋",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Développé incliné Smith machine",     groupe:"Pectoraux", icon:"🏋",poids:[5,10,15,20,25,30,35,40,45,50]},
+  {nom:"Développé incliné haltères",       	  groupe:"Pectoraux", icon:"🏋",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Développé incliné",    				  groupe:"Pectoraux", icon:"🏋️",poids:[10,20,30,40,50,60,70,80]},
   
+  {nom:"Abducteurs machine",   				  groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Adducteurs machine",   				  groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Goblet squat",  					  groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Hack squat",   				 		  groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
+  {nom:"Leg curl",       				      groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Leg curl couché",  				 	  groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Leg extension",       				  groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Presse convergente",  				  groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
+  {nom:"Squat Smith machine",  				  groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
   
+  {nom:"Deltoïde arrière (Rev fly)",          groupe:"Épaules",   icon:"🔝",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Développé militaire Smith machine",   groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40,45,50]},
+  {nom:"Développé militaire haltères", 		  groupe:"Épaules",   icon:"🔝",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Élévation frontale haltères", 		  groupe:"Épaules",   icon:"🔝",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Élévation latérale haltères",  		  groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40]},
+  {nom:"Élévation latérale poulie", 		  groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30]},
+  {nom:"Reverse fly",    				 	  groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40,45]},
+  
+  {nom:"Extension lombaire",     			        groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Traction",     				                groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Traction assistée",     				    groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage convergent dos",     				groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage horizontal prise neutre",     		groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage horizontal prise serrée",     	    groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage menton barre EZ",     				groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage vertical machine",    	            groupe:"Dos",       icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Tirage vertical pronation prise large",     groupe:"Dos",       icon:"🦵",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage vertical supination prise serrée",   groupe:"Dos",       icon:"🦵",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  
+  {nom:"Curl pupitre",      				  groupe:"Biceps",    icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
+  {nom:"Curl haltère banc incliné",    		  groupe:"Biceps",    icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
+  {nom:"Curl marteau unilatéral",    		  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Curl marteau",    		  			  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Curl biceps barre EZ",    		  	  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Curl biceps à la poulie",    		  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Curl marteau corde",    		 	  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  
+  {nom:"Dips lesté",    		 	  		  groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Dips non lesté",    		 	  	  groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Dips machine",    		 	  		  groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Extension triceps barre poulie",      groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Extension triceps corde poulie",      groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Triceps barre front EZ",    		  groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Triceps barre front poulie",    	  groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  
+  {nom:"Crunch abdos corde poulie",    	  	  groupe:"Abdos",     icon:"☠",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Crunch abdos machine",    	  		  groupe:"Abdos",     icon:"☠",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Relevé de jambes",    	  			  groupe:"Abdos",     icon:"☠",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  
+  {nom:"Mollet presse",    	  			      groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Mollet presse Smith machine",    	  groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]}, 
 ];
 
 var session=JSON.parse(localStorage.getItem('gl_session')||'[]');
@@ -496,7 +571,8 @@ function renderVolume(){
 function saveSession(){
   if(!session.length){alert('Ajoute au moins un exercice.');return;}
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  h[todayKey()]=[...session];
+  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  h[todayKey()]={entries:[...session],cardio:cardio};
   localStorage.setItem('gl_history',JSON.stringify(h));
   var btn=document.getElementById('save-btn');
   btn.className='btn-ghost ok'; btn.textContent='✓ Sauvegardé !';
@@ -528,7 +604,7 @@ function renderHistory(){
         return '<div class="day-exo"><span style="font-size:17px">'+e.icon+'</span><span class="dexo-name">'+e.nom+'</span>'+
           '<div class="dtags"><span class="dtag">'+e.poids+' kg</span><span class="dtag">'+e.series+'s·'+e.reps+'r</span>'+
           '<span class="dtag dv">'+vol(e).toLocaleString('fr-FR')+'kg</span>'+rm+rmr+'</div></div>';
-      }).join('')+'</div>';
+      }).join('')+cardioStr+'</div>';
   }).join('');
 }
 
@@ -539,11 +615,12 @@ function renderStats(){
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var keys=Object.keys(h).sort();
   document.getElementById('st-seances').textContent=keys.length;
-  document.getElementById('st-exos').textContent=keys.reduce(function(a,k){return a+h[k].length;},0);
-  var tv=keys.reduce(function(a,k){return a+h[k].reduce(function(b,e){return b+vol(e);},0);},0);
+  var getEntries=function(k){return Array.isArray(h[k])?h[k]:(h[k].entries||[]);};
+  document.getElementById('st-exos').textContent=keys.reduce(function(a,k){return a+getEntries(k).length;},0);
+  var tv=keys.reduce(function(a,k){return a+getEntries(k).reduce(function(b,e){return b+vol(e);},0);},0);
   document.getElementById('st-vol').textContent=(tv/1000).toFixed(1)+'t';
   var exoSet=new Set();
-  Object.values(h).forEach(function(arr){arr.forEach(function(e){exoSet.add(e.nom);});});
+  Object.keys(h).forEach(function(k){var arr=Array.isArray(h[k])?h[k]:(h[k].entries||[]);arr.forEach(function(e){exoSet.add(e.nom);});});
   var sel=document.getElementById('sel-chart-exo');
   var cur=sel.value;
   sel.innerHTML='<option value="">— Choisir un exercice —</option>';
@@ -564,8 +641,9 @@ function renderChart(){
   leg.style.display='none';
   if(!selExo){cw.style.display='none';emp.style.display='block';emp.textContent='Choisis un exercice pour voir son évolution.';return;}
   var now=new Date();
+  var getEntriesC=function(k){return Array.isArray(h[k])?h[k]:(h[k].entries||[]);};
   var filtered=keys.filter(function(k){
-    if(!h[k].some(function(e){return e.nom===selExo;}))return false;
+    if(!getEntriesC(k).some(function(e){return e.nom===selExo;}))return false;
     if(chartDays===0)return true;
     return (now-new Date(k+'T00:00:00'))/86400000<=chartDays;
   });
@@ -575,8 +653,8 @@ function renderChart(){
   var labels=filtered.map(fmtDate);
 
   if(chartMode==='volume'){
-    var dataVol=filtered.map(function(k){return h[k].filter(function(e){return e.nom===selExo;}).reduce(function(a,e){return a+vol(e);},0);});
-    var dataPoids=filtered.map(function(k){var ex=h[k].filter(function(e){return e.nom===selExo;});return ex.length?Math.max.apply(null,ex.map(function(e){return parseInt(e.poids);})):0;});
+    var dataVol=filtered.map(function(k){return getEntriesC(k).filter(function(e){return e.nom===selExo;}).reduce(function(a,e){return a+vol(e);},0);});
+    var dataPoids=filtered.map(function(k){var ex=getEntriesC(k).filter(function(e){return e.nom===selExo;});return ex.length?Math.max.apply(null,ex.map(function(e){return parseInt(e.poids);})):0;});
     myChart=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[
       {label:'Volume (kg)',data:dataVol,backgroundColor:'rgba(200,255,0,0.15)',borderColor:'#c8ff00',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
       {label:'Poids max (kg)',data:dataPoids,type:'line',borderColor:'#a78bfa',backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:'#a78bfa',pointRadius:4,tension:0.3,yAxisID:'y2'}
@@ -584,11 +662,11 @@ function renderChart(){
   } else {
     leg.style.display='block';
     var dataEst=filtered.map(function(k){
-      var ex=h[k].filter(function(e){return e.nom===selExo;});
+      var ex=getEntriesC(k).filter(function(e){return e.nom===selExo;});
       return ex.length?Math.max.apply(null,ex.map(function(e){return e.rm1est||best1RM(e);})):null;
     });
     var dataReel=filtered.map(function(k){
-      var ex=h[k].filter(function(e){return e.nom===selExo&&e.rm1reel;});
+      var ex=getEntriesC(k).filter(function(e){return e.nom===selExo&&e.rm1reel;});
       return ex.length?Math.max.apply(null,ex.map(function(e){return e.rm1reel;})):null;
     });
     myChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
@@ -647,9 +725,15 @@ function openMySheet(){var u=localStorage.getItem('gl_sheet_url');if(u)window.op
 function buildRows(data){
   var rows=[];
   Object.entries(data).sort().forEach(function(kv){
-    kv[1].forEach(function(e){
-      rows.push([fmtDateLong(kv[0]),e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'']);
+    var day=Array.isArray(kv[1])?{entries:kv[1],cardio:null}:kv[1];
+    var entries=day.entries||[];
+    var cardio=day.cardio;
+    entries.forEach(function(e){
+      rows.push([fmtDateLong(kv[0]),e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'','','','']);
     });
+    if(cardio){
+      rows.push([fmtDateLong(kv[0]),'Cardio','Marche','','','','','','',cardio.duree,cardio.pente,cardio.vitesse]);
+    }
   });
   return rows;
 }
@@ -724,6 +808,51 @@ function playBeep(){
 // ─────────────────────────────────────────
 // NAVIGATION
 // ─────────────────────────────────────────
+
+// ─────────────────────────────────────────
+// CARDIO
+// ─────────────────────────────────────────
+function addCardio(){
+  var duree=document.getElementById('c-duree').value;
+  var pente=document.getElementById('c-pente').value;
+  var vitesse=document.getElementById('c-vitesse').value;
+  var cardio={duree:parseInt(duree),pente:parseFloat(pente),vitesse:parseFloat(vitesse)};
+  localStorage.setItem('gl_cardio',JSON.stringify(cardio));
+  renderCardio();
+}
+
+function removeCardio(){
+  localStorage.removeItem('gl_cardio');
+  renderCardio();
+}
+
+function renderCardio(){
+  var c=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  var block=document.getElementById('cardio-saved-block');
+  var form=document.getElementById('cardio-form');
+  if(!c){block.innerHTML='';form.style.display='block';return;}
+  // pre-fill selects with saved values
+  var ds=document.getElementById('c-duree');
+  var ps=document.getElementById('c-pente');
+  var vs=document.getElementById('c-vitesse');
+  for(var i=0;i<ds.options.length;i++){if(parseInt(ds.options[i].value)===c.duree)ds.selectedIndex=i;}
+  for(var i=0;i<ps.options.length;i++){if(parseFloat(ps.options[i].value)===c.pente)ps.selectedIndex=i;}
+  for(var i=0;i<vs.options.length;i++){if(parseFloat(vs.options[i].value)===c.vitesse)vs.selectedIndex=i;}
+  block.innerHTML='<div class="cardio-saved">'+
+    '<div class="cardio-saved-ico">🚶</div>'+
+    '<div class="cardio-saved-info">'+
+      '<div class="cardio-saved-title">Marche enregistrée</div>'+
+      '<div class="cardio-saved-tags">'+
+        '<span class="cardio-tag">'+c.duree+' min</span>'+
+        '<span class="cardio-tag">'+c.pente+'% pente</span>'+
+        '<span class="cardio-tag">'+c.vitesse+' km/h</span>'+
+      '</div>'+
+    '</div>'+
+    '<button class="cardio-del" onclick="removeCardio()">×</button>'+
+  '</div>';
+  form.style.display='block';
+}
+
 function showTab(name){
   ['seance','historique','stats'].forEach(function(n,i){
     document.getElementById('page-'+n).classList.toggle('active',n===name);
@@ -739,6 +868,7 @@ function showTab(name){
 // ─────────────────────────────────────────
 syncTpre();
 renderSheetsConfig();
+renderCardio();
 renderSession();
 </script>
 </body>
