@@ -756,13 +756,31 @@ function buildRows(data){
   });
   return rows;
 }
+function rowsHash(rows){
+  return rows.map(function(r){return r.join('|');}).join('||');
+}
+
 function sendToSheets(rows,statusEl,btn,lbl){
   var su=localStorage.getItem('gl_script_url')||'';
   if(!su){alert('Configure ton Google Sheets dans Stats.');return;}
   if(!rows.length){alert('Aucune donnée.');return;}
+  // Anti-doublon : compare avec le dernier envoi
+  var hash=rowsHash(rows);
+  var lastHash=localStorage.getItem('gl_last_sent_'+btn.id)||'';
+  if(hash===lastHash){
+    statusEl.style.display='block';
+    statusEl.style.color='#f59e0b';
+    statusEl.textContent='Déjà envoyé — aucun doublon ajouté.';
+    setTimeout(function(){statusEl.style.display='none';},3000);
+    return;
+  }
   statusEl.style.display='block';statusEl.style.color='var(--mu)';statusEl.textContent='Envoi en cours...';btn.disabled=true;
   fetch(su,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:rows})})
-  .then(function(){statusEl.style.color='var(--ac)';statusEl.textContent='Envoyé !';btn.textContent=lbl+' ok';setTimeout(function(){statusEl.style.display='none';btn.textContent=lbl;btn.disabled=false;},3000);})
+  .then(function(){
+    localStorage.setItem('gl_last_sent_'+btn.id, hash);
+    statusEl.style.color='var(--ac)';statusEl.textContent='Envoyé !';btn.textContent=lbl+' ok';
+    setTimeout(function(){statusEl.style.display='none';btn.textContent=lbl;btn.disabled=false;},3000);
+  })
   .catch(function(){statusEl.style.color='var(--rd)';statusEl.textContent='Erreur réseau.';btn.disabled=false;});
 }
 function sendAllToSheets(){
