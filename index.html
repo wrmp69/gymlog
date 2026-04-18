@@ -603,11 +603,20 @@ function renderHistory(){
   var c=document.getElementById('history-list');
   if(!keys.length){c.innerHTML='<div class="empty"><span class="eico-lg">📋</span>Pas encore d\'historique.<br>Sauvegarde ta première séance !</div>';return;}
   c.innerHTML=keys.map(function(key){
-    var tv=h[key].reduce(function(a,e){return a+vol(e);},0);
+    var raw=h[key];
+    var entries=Array.isArray(raw)?raw:(raw.entries||[]);
+    var cardio=Array.isArray(raw)?null:(raw.cardio||null);
+    var tv=entries.reduce(function(a,e){return a+vol(e);},0);
+    var cardioStr=cardio
+      ?'<div style="display:flex;gap:8px;align-items:center;padding:9px 13px;border-top:1px solid var(--bd);">'+
+        '<span style="font-size:16px">🚶</span>'+
+        '<span style="font-size:12px;color:var(--mu);">'+cardio.duree+' min · '+cardio.pente+'% pente · '+cardio.vitesse+' km/h</span>'+
+        '</div>'
+      :'';
     return '<div class="day-label">'+fmtDateLong(key)+'</div><div class="day-card">'+
-      '<div class="day-head"><span style="font-size:13px;font-weight:500;">'+h[key].length+' exercice(s) · <span style="color:var(--pu)">'+tv.toLocaleString('fr-FR')+' kg vol.</span></span>'+
+      '<div class="day-head"><span style="font-size:13px;font-weight:500;">'+entries.length+' exercice(s) · <span style="color:var(--pu)">'+tv.toLocaleString('fr-FR')+' kg vol.</span></span>'+
       '<button class="delbtn" onclick="deleteDay(\''+key+'\')">Supprimer</button></div>'+
-      h[key].map(function(e){
+      entries.map(function(e){
         var rm=e.rm1est?'<span class="dtag drm">est. '+e.rm1est+'kg</span>':'';
         var rmr=e.rm1reel?'<span class="dtag" style="color:#f59e0b;border:1px solid rgba(245,158,11,.2);">réel '+e.rm1reel+'kg</span>':'';
         return '<div class="day-exo"><span style="font-size:17px">'+e.icon+'</span><span class="dexo-name">'+e.nom+'</span>'+
@@ -732,16 +741,18 @@ function renderSheetsConfig(){
 }
 function openMySheet(){var u=localStorage.getItem('gl_sheet_url');if(u)window.open(u,'_blank');}
 function buildRows(data){
-  var rows=[];
+  // Colonnes : Date | Type | Groupe | Exercice | Poids | Séries | Reps | Volume | 1RM est. | 1RM réel | Durée (min) | Pente (%) | Vitesse (km/h)
+  var rows=[['Date','Type','Groupe','Exercice','Poids (kg)','Séries','Reps','Volume (kg)','1RM estimé (kg)','1RM réel (kg)','Durée cardio (min)','Pente (%)','Vitesse (km/h)']];
   Object.entries(data).sort().forEach(function(kv){
     var day=Array.isArray(kv[1])?{entries:kv[1],cardio:null}:kv[1];
     var entries=day.entries||[];
     var cardio=day.cardio;
+    var dateStr=fmtDateLong(kv[0]);
     entries.forEach(function(e){
-      rows.push([fmtDateLong(kv[0]),e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'','','','']);
+      rows.push([dateStr,'Muscu',e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'','','','']);
     });
     if(cardio){
-      rows.push([fmtDateLong(kv[0]),'Cardio','Marche','','','','','','',cardio.duree,cardio.pente,cardio.vitesse]);
+      rows.push([dateStr,'Cardio','Cardio','Marche tapis','','','','','','',cardio.duree,cardio.pente,cardio.vitesse]);
     }
   });
   return rows;
@@ -757,12 +768,20 @@ function sendToSheets(rows,statusEl,btn,lbl){
 }
 function sendAllToSheets(){
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  // include today's unsaved cardio if present
+  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  var key=todayKey();
+  if(cardio && !h[key]){
+    h[key]={entries:session,cardio:cardio};
+  }
   if(!Object.keys(h).length){alert('Aucune séance sauvegardée.');return;}
   sendToSheets(buildRows(h),document.getElementById('export-status'),document.getElementById('export-all-btn'),'Envoyer tout');
 }
 function sendTodayToSheets(){
-  if(!session.length){alert('Aucun exercice dans la séance.');return;}
-  var d={};d[todayKey()]=session;
+  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  if(!session.length && !cardio){alert('Aucune donnée à envoyer.');return;}
+  var d={};
+  d[todayKey()]={entries:session,cardio:cardio};
   sendToSheets(buildRows(d),document.getElementById('send-today-status'),document.getElementById('send-today-btn'),'Sheets');
 }
 
