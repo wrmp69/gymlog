@@ -741,18 +741,17 @@ function renderSheetsConfig(){
 }
 function openMySheet(){var u=localStorage.getItem('gl_sheet_url');if(u)window.open(u,'_blank');}
 function buildRows(data){
-  // Colonnes : Date | Type | Groupe | Exercice | Poids | Séries | Reps | Volume | 1RM est. | 1RM réel | Durée (min) | Pente (%) | Vitesse (km/h)
-  var rows=[['Date','Type','Groupe','Exercice','Poids (kg)','Séries','Reps','Volume (kg)','1RM estimé (kg)','1RM réel (kg)','Durée cardio (min)','Pente (%)','Vitesse (km/h)']];
+  var rows=[];
   Object.entries(data).sort().forEach(function(kv){
     var day=Array.isArray(kv[1])?{entries:kv[1],cardio:null}:kv[1];
     var entries=day.entries||[];
     var cardio=day.cardio;
     var dateStr=fmtDateLong(kv[0]);
     entries.forEach(function(e){
-      rows.push([dateStr,'Muscu',e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'','','','']);
+      rows.push([dateStr,e.groupe||'',e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e),e.rm1est||'',e.rm1reel||'','','']);
     });
     if(cardio){
-      rows.push([dateStr,'Cardio','Cardio','Marche tapis','','','','','','',cardio.duree,cardio.pente,cardio.vitesse]);
+      rows.push([dateStr,'Cardio','Marche tapis','','','','','','',cardio.duree,cardio.pente,cardio.vitesse]);
     }
   });
   return rows;
