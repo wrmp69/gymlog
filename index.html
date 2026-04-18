@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-title" content="GymLog K&J">
 <meta name="theme-color" content="#0f0f0f">
 <title>GymLog K&J</title>
-<link rel="manifest" href="data:application/json,{%22name%22:%22GymLog%20K%26J%22,%22short_name%22:%22GymLog%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230f0f0f%22,%22theme_color%22:%22%230f0f0f%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230f0f0f'/%3E%3Ctext x='256' y='320' font-size='300' text-anchor='middle' fill='%23c8ff00' font-family='sans-serif' font-weight='900'%3EK%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22}]}">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -26,13 +25,13 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans'
 .card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
 .lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:6px;display:block;}
 select{width:100%;padding:11px 12px;font-size:15px;font-family:'DM Sans',sans-serif;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);}
-select:focus{outline:2px solid var(--ac);border-color:transparent;}
+input[type=url]{width:100%;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:10px;}
+select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .field{margin-bottom:12px;}
-.field:last-of-type{margin-bottom:0;}
 .btn-ac{width:100%;padding:13px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;background:var(--ac);color:#0f0f0f;border:none;border-radius:12px;cursor:pointer;margin-top:6px;}
 .btn-ac:active{opacity:.8;}
-.btn-ghost{width:100%;padding:12px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:12px;cursor:pointer;transition:background .15s;}
+.btn-ghost{width:100%;padding:12px;font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;background:transparent;color:var(--tx);border:1px solid var(--bd);border-radius:12px;cursor:pointer;}
 .btn-ghost:active{background:var(--s2);}
 .btn-ghost.ok{border-color:var(--ac);color:var(--ac);}
 .btn-ghost.green{border-color:#22c55e;color:#22c55e;}
@@ -64,7 +63,6 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
 .save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:.8rem 1.2rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;}
 .save-bar>*{pointer-events:all;}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.dl{font-family:'Syne',sans-serif;font-size:13px;}
 .dl-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px;}
 .day-label{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:8px;}
 .day-label::after{content:'';flex:1;height:1px;background:var(--bd);}
@@ -75,16 +73,38 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
 .dexo-name{font-size:13px;font-weight:500;flex:1;}
 .dtags{display:flex;gap:4px;flex-wrap:wrap;}
 .dtag{font-size:11px;color:var(--mu);background:var(--s2);border-radius:6px;padding:2px 6px;}
-.dtag.dv{color:#a78bfa;background:transparent;border:1px solid #a78bfa33;}
-.delbtn{font-size:11px;color:var(--rd);background:none;border:1px solid var(--rd)33;border-radius:7px;padding:3px 8px;cursor:pointer;margin-left:6px;}
+.dtag.dv{color:#a78bfa;background:transparent;border:1px solid rgba(167,139,250,0.2);}
+.delbtn{font-size:11px;color:var(--rd);background:none;border:1px solid rgba(255,68,68,0.2);border-radius:7px;padding:3px 8px;cursor:pointer;margin-left:6px;}
 .chart-wrap{position:relative;height:220px;margin-top:8px;}
-.chart-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.chart-filter{display:flex;gap:6px;margin-bottom:12px;}
 .cf-btn{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--bd);background:none;color:var(--mu);cursor:pointer;font-family:'DM Sans',sans-serif;}
 .cf-btn.active{background:var(--ac);color:#0f0f0f;border-color:var(--ac);}
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem;}
 .stat{background:var(--s2);border-radius:12px;padding:10px 12px;text-align:center;}
 .stat-val{font-size:20px;font-weight:700;font-family:'Syne',sans-serif;color:var(--ac);}
 .stat-lbl{font-size:11px;color:var(--mu);margin-top:2px;}
+
+/* TIMER */
+.tov{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(6,6,6,0.97);z-index:9999;flex-direction:column;align-items:center;justify-content:center;}
+.tov.show{display:flex;}
+.tov-top{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;}
+.tov-name{font-size:16px;font-weight:500;color:var(--tx);margin-bottom:4px;text-align:center;padding:0 1.5rem;}
+.tov-sub{font-size:13px;color:var(--mu);margin-bottom:18px;}
+.tpres{display:flex;gap:8px;margin-bottom:22px;}
+.tpre{font-size:13px;padding:6px 14px;border-radius:20px;border:1px solid var(--bd);background:none;color:var(--mu);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.tpre.on{border-color:var(--ac);color:var(--ac);background:rgba(200,255,0,0.08);}
+.tring{position:relative;width:188px;height:188px;margin-bottom:26px;}
+.tring svg{display:block;}
+.trk{fill:none;stroke:#1e1e1e;stroke-width:10;}
+.tpr{fill:none;stroke:var(--ac);stroke-width:10;stroke-linecap:round;stroke-dasharray:534;stroke-dashoffset:0;transform-origin:95px 95px;transform:rotate(-90deg);transition:stroke-dashoffset 1s linear,stroke .3s;}
+.tpr.red{stroke:var(--rd);}
+.tdisp{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.tnum{font-family:'Syne',sans-serif;font-weight:800;font-size:60px;color:var(--tx);line-height:1;}
+.tunit{font-size:12px;color:var(--mu);margin-top:4px;}
+.tacts{display:flex;gap:12px;}
+.tbtn{padding:13px 28px;border-radius:12px;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid var(--bd);background:var(--s1);color:var(--tx);}
+.tbtn.go{background:var(--ac);color:#0f0f0f;border-color:var(--ac);font-weight:700;}
+.tbtn:active{opacity:.75;}
 </style>
 </head>
 <body>
@@ -147,8 +167,8 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
       <div class="field">
         <span class="lbl">Séries</span>
         <select id="sel-series">
-          <option selected>1</option><option>2</option><option>3</option>
-          <option>4</option><option>5</option><option>6</option>
+          <option>1</option><option>2</option><option>3</option>
+          <option selected>4</option><option>5</option><option>6</option>
         </select>
       </div>
     </div>
@@ -162,7 +182,6 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
     </div>
     <button class="btn-ac" onclick="addEntry()">+ Ajouter</button>
   </div>
-
   <div>
     <div class="sh">
       <span class="stitle">Séance du jour</span>
@@ -173,9 +192,7 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
     </div>
     <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
     <div id="vol-block" style="display:none;">
-      <div class="sh" style="margin-top:14px;">
-        <span class="stitle">Volume total</span>
-      </div>
+      <div class="sh" style="margin-top:14px;"><span class="stitle">Volume total</span></div>
       <div class="vol-summary" id="vol-list"></div>
       <div class="vol-total" id="vol-total"></div>
     </div>
@@ -189,10 +206,10 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
 
 <!-- STATS -->
 <div class="page" id="page-stats">
-  <div class="stat-row" id="stat-row">
+  <div class="stat-row">
     <div class="stat"><div class="stat-val" id="st-seances">0</div><div class="stat-lbl">Séances</div></div>
     <div class="stat"><div class="stat-val" id="st-exos">0</div><div class="stat-lbl">Exercices</div></div>
-    <div class="stat"><div class="stat-val" id="st-vol">0</div><div class="stat-lbl">Vol. total (kg)</div></div>
+    <div class="stat"><div class="stat-val" id="st-vol">0</div><div class="stat-lbl">Vol. total</div></div>
   </div>
   <div class="card">
     <div class="dl-lbl">Évolution par exercice</div>
@@ -207,30 +224,30 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
       <button class="cf-btn" onclick="setFilter(0,this)">Tout</button>
     </div>
     <div class="chart-wrap"><canvas id="myChart"></canvas></div>
-    <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:var(--mu);font-size:13px;">Pas encore de données pour cet exercice.</div>
+    <div id="chart-empty" style="display:none;text-align:center;padding:2rem;color:var(--mu);font-size:13px;"></div>
   </div>
-  <div class="card" id="sheets-config-card">
+  <div class="card">
     <div class="dl-lbl" style="margin-bottom:6px;">Mon Google Sheets</div>
-    <div id="sheets-not-configured">
-      <p style="font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6;">Colle ici ton URL Apps Script personnel pour envoyer tes données dans ton propre Google Sheet.</p>
-      <input type="url" id="input-script-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:10px 12px;font-size:13px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:10px;">
-      <input type="url" id="input-sheet-url" placeholder="URL de ta feuille Google Sheets (optionnel)" style="width:100%;padding:10px 12px;font-size:13px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);margin-bottom:10px;">
-      <button class="btn-ghost green" onclick="saveSheetConfig()">Enregistrer ma configuration</button>
+    <div id="sheets-nc">
+      <p style="font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6;">Colle ton URL Apps Script pour envoyer tes données dans ton propre Google Sheet.</p>
+      <input type="url" id="inp-script" placeholder="https://script.google.com/macros/s/...">
+      <input type="url" id="inp-sheet" placeholder="URL de ta feuille Google Sheets (optionnel)">
+      <button class="btn-ghost green" onclick="saveSheetConfig()">Enregistrer</button>
     </div>
-    <div id="sheets-configured" style="display:none;">
+    <div id="sheets-c" style="display:none;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <span style="font-size:18px;">✓</span>
+        <span style="color:var(--ac);">✓</span>
         <span style="font-size:13px;color:var(--ac);">Feuille personnelle configurée</span>
         <button onclick="resetSheetConfig()" style="margin-left:auto;font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;text-decoration:underline;">Changer</button>
       </div>
-      <button class="btn-ghost green" id="export-all-btn" onclick="sendAllToSheets()" style="margin-bottom:8px;">↗ Envoyer tout historique</button>
+      <button class="btn-ghost green" id="export-all-btn" onclick="sendAllToSheets()" style="margin-bottom:8px;">Envoyer tout historique</button>
       <div id="export-status" style="font-size:12px;margin-top:4px;text-align:center;display:none;"></div>
       <button class="btn-ghost" id="open-sheet-btn" onclick="openMySheet()" style="margin-top:8px;">Ouvrir ma feuille Google Sheets</button>
     </div>
   </div>
 </div>
 
-<!-- SAVE BAR (séance only) -->
+<!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">
   <div class="btn-row">
     <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder</button>
@@ -239,10 +256,36 @@ select:focus{outline:2px solid var(--ac);border-color:transparent;}
   <div id="send-today-status" style="font-size:12px;margin-top:6px;text-align:center;display:none;color:var(--ac);"></div>
 </div>
 
-</div><!-- /app -->
+<!-- TIMER OVERLAY -->
+<div class="tov" id="tov">
+  <div class="tov-top">Temps de repos</div>
+  <div class="tov-name" id="tov-name">—</div>
+  <div class="tov-sub" id="tov-sub"></div>
+  <div class="tpres">
+    <button class="tpre" onclick="changeTimer(30,this)">30s</button>
+    <button class="tpre on" onclick="changeTimer(60,this)">1 min</button>
+    <button class="tpre" onclick="changeTimer(90,this)">1m30</button>
+    <button class="tpre" onclick="changeTimer(120,this)">2 min</button>
+  </div>
+  <div class="tring">
+    <svg width="188" height="188" viewBox="0 0 188 188">
+      <circle class="trk" cx="94" cy="94" r="85"/>
+      <circle class="tpr" id="tpr" cx="94" cy="94" r="85"/>
+    </svg>
+    <div class="tdisp">
+      <div class="tnum" id="tnum">60</div>
+      <div class="tunit">secondes</div>
+    </div>
+  </div>
+  <div class="tacts">
+    <button class="tbtn" onclick="closeTimer()">Annuler</button>
+    <button class="tbtn go" onclick="closeTimer()">Passer ↗</button>
+  </div>
+</div>
 
+</div>
 <script>
-const machines=[
+var machines=[
   {nom:"Presse à cuisses",icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120,140,160]},
   {nom:"Leg curl couché",icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50,55,60]},
   {nom:"Leg extension",icon:"🦵",poids:[5,10,15,20,25,30,35,40,45,50]},
@@ -262,373 +305,282 @@ const machines=[
   {nom:"Poulie basse (rowing)",icon:"💪",poids:[10,15,20,25,30,35,40,45,50,55,60]},
 ];
 
-let session=JSON.parse(localStorage.getItem('gl_session')||'[]');
-let chartDays=7;
-let myChart=null;
+var session=JSON.parse(localStorage.getItem('gl_session')||'[]');
+var chartDays=7;
+var myChart=null;
 
 document.getElementById('header-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
 
-const selM=document.getElementById('sel-machine');
+function vol(e){return parseInt(e.poids)*parseInt(e.series)*parseInt(e.reps);}
+
+function todayKey(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(k){return new Date(k+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
+function fmtDateLong(k){return new Date(k+'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
 
 function updatePoids(){
-  const idx=parseInt(selM.value);
-  const sel=document.getElementById('sel-poids');
+  var idx=parseInt(document.getElementById('sel-machine').value);
+  var sel=document.getElementById('sel-poids');
   sel.innerHTML='';
   if(isNaN(idx))return;
-  machines[idx].poids.forEach(p=>{
-    const o=document.createElement('option');
-    o.value=p;o.textContent=p+' kg';sel.appendChild(o);
-  });
+  machines[idx].poids.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p+' kg';sel.appendChild(o);});
 }
 updatePoids();
 
-function vol(e){return parseInt(e.poids)*parseInt(e.series)*parseInt(e.reps);}
-
 function addEntry(){
-  const idx=parseInt(selM.value);
-  if(isNaN(idx)){selM.focus();return;}
-  const m=machines[idx];
-  const poids=document.getElementById('sel-poids').value;
-  const series=document.getElementById('sel-series').value;
-  const reps=document.getElementById('sel-reps').value;
-  session.push({nom:m.nom,icon:m.icon,poids,series,reps,id:Date.now()});
+  var idx=parseInt(document.getElementById('sel-machine').value);
+  if(isNaN(idx)){document.getElementById('sel-machine').focus();return;}
+  var m=machines[idx];
+  var entry={
+    nom:m.nom,icon:m.icon,
+    poids:document.getElementById('sel-poids').value,
+    series:document.getElementById('sel-series').value,
+    reps:document.getElementById('sel-reps').value,
+    id:Date.now()
+  };
+  session.push(entry);
   localStorage.setItem('gl_session',JSON.stringify(session));
   document.getElementById('save-btn').className='btn-ghost';
   document.getElementById('save-btn').textContent='💾 Sauvegarder';
-  renderSheetsConfig();
-renderSession();
+  renderSession();
+  startTimer(entry);
 }
 
 function removeEntry(id){
-  session=session.filter(e=>e.id!==id);
+  session=session.filter(function(e){return e.id!==id;});
   localStorage.setItem('gl_session',JSON.stringify(session));
-  renderSheetsConfig();
-renderSession();
+  renderSession();
 }
 
 function clearSession(){
   if(!session.length)return;
   if(!confirm('Effacer la séance ?'))return;
-  session=[];localStorage.removeItem('gl_session');renderSheetsConfig();
-renderSession();
+  session=[];localStorage.removeItem('gl_session');renderSession();
 }
 
 function renderSession(){
-  const list=document.getElementById('entry-list');
+  var list=document.getElementById('entry-list');
   document.getElementById('entry-count').textContent=session.length+' exo';
   if(!session.length){
     list.innerHTML='<div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div>';
-    document.getElementById('vol-block').style.display='none';
-    return;
+    document.getElementById('vol-block').style.display='none';return;
   }
-  list.innerHTML=session.map(e=>`
-    <div class="entry">
-      <div class="eico">${e.icon}</div>
-      <div class="einfo">
-        <div class="ename">${e.nom}</div>
-        <div class="etags">
-          <span class="tag ac">${e.poids} kg</span>
-          <span class="tag">${e.series} séries · ${e.reps} reps</span>
-          <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
-        </div>
-      </div>
-      <button class="del" onclick="removeEntry(${e.id})">×</button>
-    </div>`).join('');
-  renderVolume();
+  list.innerHTML=session.map(function(e){
+    return '<div class="entry"><div class="eico">'+e.icon+'</div><div class="einfo"><div class="ename">'+e.nom+'</div><div class="etags"><span class="tag ac">'+e.poids+' kg</span><span class="tag">'+e.series+' séries · '+e.reps+' reps</span><span class="tag vol">'+vol(e).toLocaleString('fr-FR')+' kg vol.</span></div></div><button class="del" onclick="removeEntry('+e.id+')">×</button></div>';
+  }).join('');
+  var byName={};
+  session.forEach(function(e){byName[e.nom]=(byName[e.nom]||0)+vol(e);});
+  var tv=session.reduce(function(a,e){return a+vol(e);},0);
+  document.getElementById('vol-list').innerHTML=Object.entries(byName).map(function(kv){return '<div class="vol-row"><span class="vol-name">'+kv[0]+'</span><span class="vol-val">'+kv[1].toLocaleString('fr-FR')+' kg</span></div>';}).join('');
+  document.getElementById('vol-total').innerHTML='<span>Volume total séance</span><span>'+tv.toLocaleString('fr-FR')+' kg</span>';
   document.getElementById('vol-block').style.display='block';
-}
-
-function renderVolume(){
-  const byName={};
-  session.forEach(e=>{byName[e.nom]=(byName[e.nom]||0)+vol(e);});
-  const totalVol=session.reduce((a,e)=>a+vol(e),0);
-  document.getElementById('vol-list').innerHTML=Object.entries(byName).map(([n,v])=>`
-    <div class="vol-row">
-      <span class="vol-name">${n}</span>
-      <span class="vol-val">${v.toLocaleString('fr-FR')} kg</span>
-    </div>`).join('');
-  document.getElementById('vol-total').innerHTML=`<span>Volume total séance</span><span>${totalVol.toLocaleString('fr-FR')} kg</span>`;
 }
 
 function saveSession(){
   if(!session.length){alert('Ajoute au moins un exercice.');return;}
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   h[todayKey()]=[...session];
   localStorage.setItem('gl_history',JSON.stringify(h));
-  const btn=document.getElementById('save-btn');
+  var btn=document.getElementById('save-btn');
   btn.className='btn-ghost ok';btn.textContent='✓ Sauvegardé !';
 }
 
-function todayKey(){
-  var d=new Date();
-  var y=d.getFullYear();
-  var m=String(d.getMonth()+1).padStart(2,'0');
-  var j=String(d.getDate()).padStart(2,'0');
-  return y+'-'+m+'-'+j;
-}
-function fmtDate(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
-function fmtDateLong(k){const d=new Date(k+'T00:00:00');return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
-
 function deleteDay(key){
   if(!confirm('Supprimer la séance du '+fmtDateLong(key)+' ?'))return;
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   delete h[key];localStorage.setItem('gl_history',JSON.stringify(h));
   renderHistory();renderStats();
 }
 
 function renderHistory(){
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  const keys=Object.keys(h).sort().reverse();
-  const c=document.getElementById('history-list');
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  var keys=Object.keys(h).sort().reverse();
+  var c=document.getElementById('history-list');
   if(!keys.length){c.innerHTML='<div class="empty"><span class="eico-lg">📋</span>Pas encore d\'historique.<br>Sauvegarde ta première séance !</div>';return;}
-  c.innerHTML=keys.map(key=>{
-    const totalV=h[key].reduce((a,e)=>a+vol(e),0);
-    return`<div class="day-label">${fmtDateLong(key)}</div>
-    <div class="day-card">
-      <div class="day-head">
-        <span style="font-size:13px;font-weight:500;">${h[key].length} exercice(s) · <span style="color:#a78bfa">${totalV.toLocaleString('fr-FR')} kg vol.</span></span>
-        <button class="delbtn" onclick="deleteDay('${key}')">Supprimer</button>
-      </div>
-      ${h[key].map(e=>`
-        <div class="day-exo">
-          <span style="font-size:17px">${e.icon}</span>
-          <span class="dexo-name">${e.nom}</span>
-          <div class="dtags">
-            <span class="dtag">${e.poids} kg</span>
-            <span class="dtag">${e.series}s · ${e.reps}r</span>
-            <span class="dtag dv">${vol(e).toLocaleString('fr-FR')} kg</span>
-          </div>
-        </div>`).join('')}
-    </div>`;
+  c.innerHTML=keys.map(function(key){
+    var tv=h[key].reduce(function(a,e){return a+vol(e);},0);
+    return '<div class="day-label">'+fmtDateLong(key)+'</div><div class="day-card"><div class="day-head"><span style="font-size:13px;font-weight:500;">'+h[key].length+' exercice(s) · <span style="color:#a78bfa">'+tv.toLocaleString('fr-FR')+' kg vol.</span></span><button class="delbtn" onclick="deleteDay(\''+key+'\')">Supprimer</button></div>'+
+    h[key].map(function(e){return '<div class="day-exo"><span style="font-size:17px">'+e.icon+'</span><span class="dexo-name">'+e.nom+'</span><div class="dtags"><span class="dtag">'+e.poids+' kg</span><span class="dtag">'+e.series+' s · '+e.reps+' r</span><span class="dtag dv">'+vol(e).toLocaleString('fr-FR')+' kg</span></div></div>';}).join('')+'</div>';
   }).join('');
 }
 
-function populateChartExoSelect(){
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  const exoSet=new Set();
-  Object.values(h).forEach(entries=>entries.forEach(e=>exoSet.add(e.nom)));
-  const sel=document.getElementById('sel-chart-exo');
-  const current=sel.value;
-  sel.innerHTML='<option value="">— Choisir un exercice —</option>';
-  [...exoSet].sort().forEach(nom=>{
-    const o=document.createElement('option');
-    o.value=nom;o.textContent=nom;
-    if(nom===current)o.selected=true;
-    sel.appendChild(o);
-  });
-}
-
 function renderStats(){
-  const h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  const keys=Object.keys(h).sort();
-  const totalExos=keys.reduce((a,k)=>a+h[k].length,0);
-  const totalVol=keys.reduce((a,k)=>a+h[k].reduce((b,e)=>b+vol(e),0),0);
+  var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
+  var keys=Object.keys(h).sort();
   document.getElementById('st-seances').textContent=keys.length;
-  document.getElementById('st-exos').textContent=totalExos;
-  document.getElementById('st-vol').textContent=(totalVol/1000).toFixed(1)+'t';
-
-  populateChartExoSelect();
-  const selExo=document.getElementById('sel-chart-exo').value;
-  const emptyEl=document.getElementById('chart-empty');
-  const chartWrap=document.querySelector('.chart-wrap');
-
+  document.getElementById('st-exos').textContent=keys.reduce(function(a,k){return a+h[k].length;},0);
+  var tv=keys.reduce(function(a,k){return a+h[k].reduce(function(b,e){return b+vol(e);},0);},0);
+  document.getElementById('st-vol').textContent=(tv/1000).toFixed(1)+'t';
+  var exoSet=new Set();
+  Object.values(h).forEach(function(arr){arr.forEach(function(e){exoSet.add(e.nom);});});
+  var sel=document.getElementById('sel-chart-exo');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">— Choisir un exercice —</option>';
+  Array.from(exoSet).sort().forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;if(n===cur)o.selected=true;sel.appendChild(o);});
+  var selExo=sel.value;
+  var emp=document.getElementById('chart-empty');
+  var cw=document.querySelector('.chart-wrap');
   if(myChart){myChart.destroy();myChart=null;}
-
-  if(!selExo){
-    chartWrap.style.display='none';emptyEl.style.display='block';
-    emptyEl.textContent='Choisis un exercice pour voir son évolution.';
-    return;
-  }
-
-  const now=new Date();
-  const filtered=keys.filter(k=>{
-    const hasExo=h[k].some(e=>e.nom===selExo);
-    if(!hasExo)return false;
+  if(!selExo){cw.style.display='none';emp.style.display='block';emp.textContent='Choisis un exercice pour voir son évolution.';return;}
+  var now=new Date();
+  var filtered=keys.filter(function(k){
+    if(!h[k].some(function(e){return e.nom===selExo;}))return false;
     if(chartDays===0)return true;
-    const d=new Date(k+'T00:00:00');
-    return(now-d)/(1000*60*60*24)<=chartDays;
+    return (now-new Date(k+'T00:00:00'))/86400000<=chartDays;
   });
-
-  if(!filtered.length){
-    chartWrap.style.display='none';emptyEl.style.display='block';
-    emptyEl.textContent='Pas encore de données pour cet exercice sur cette période.';
-    return;
-  }
-
-  chartWrap.style.display='block';emptyEl.style.display='none';
-  const labels=filtered.map(k=>fmtDate(k));
-  const dataVol=filtered.map(k=>h[k].filter(e=>e.nom===selExo).reduce((a,e)=>a+vol(e),0));
-  const dataPoids=filtered.map(k=>{
-    const exos=h[k].filter(e=>e.nom===selExo);
-    return exos.length?Math.max(...exos.map(e=>parseInt(e.poids))):0;
-  });
-
-  const ctx=document.getElementById('myChart').getContext('2d');
-  myChart=new Chart(ctx,{
-    type:'bar',
-    data:{
-      labels,
-      datasets:[
-        {
-          label:'Volume (kg)',
-          data:dataVol,
-          backgroundColor:'#c8ff0033',
-          borderColor:'#c8ff00',
-          borderWidth:1.5,
-          borderRadius:5,
-          yAxisID:'y',
-        },
-        {
-          label:'Poids max (kg)',
-          data:dataPoids,
-          type:'line',
-          borderColor:'#a78bfa',
-          backgroundColor:'transparent',
-          borderWidth:2,
-          pointBackgroundColor:'#a78bfa',
-          pointRadius:4,
-          tension:0.3,
-          yAxisID:'y2',
-        }
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{
-        legend:{display:true,labels:{color:'#888',font:{size:11},boxWidth:12}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('fr-FR')} kg`}}
-      },
-      scales:{
-        x:{ticks:{color:'#888',font:{size:10}},grid:{color:'#1e1e1e'}},
-        y:{ticks:{color:'#888',font:{size:10},callback:v=>v>=1000?(v/1000).toFixed(1)+'k':v},grid:{color:'#1e1e1e'},title:{display:true,text:'Volume',color:'#c8ff00',font:{size:10}}},
-        y2:{position:'right',ticks:{color:'#a78bfa',font:{size:10}},grid:{display:false},title:{display:true,text:'Poids max',color:'#a78bfa',font:{size:10}}}
-      }
-    }
+  if(!filtered.length){cw.style.display='none';emp.style.display='block';emp.textContent='Pas de données sur cette période.';return;}
+  cw.style.display='block';emp.style.display='none';
+  var ctx=document.getElementById('myChart').getContext('2d');
+  myChart=new Chart(ctx,{type:'bar',data:{
+    labels:filtered.map(fmtDate),
+    datasets:[
+      {label:'Volume (kg)',data:filtered.map(function(k){return h[k].filter(function(e){return e.nom===selExo;}).reduce(function(a,e){return a+vol(e);},0);}),backgroundColor:'rgba(200,255,0,0.15)',borderColor:'#c8ff00',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
+      {label:'Poids max (kg)',data:filtered.map(function(k){var ex=h[k].filter(function(e){return e.nom===selExo;});return ex.length?Math.max.apply(null,ex.map(function(e){return parseInt(e.poids);})):0;}),type:'line',borderColor:'#a78bfa',backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:'#a78bfa',pointRadius:4,tension:0.3,yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#888',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toLocaleString('fr-FR')+' kg';}}}},
+    scales:{x:{ticks:{color:'#888',font:{size:10}},grid:{color:'#1e1e1e'}},y:{ticks:{color:'#888',font:{size:10},callback:function(v){return v>=1000?(v/1000).toFixed(1)+'k':v;}},grid:{color:'#1e1e1e'},title:{display:true,text:'Volume',color:'#c8ff00',font:{size:10}}},y2:{position:'right',ticks:{color:'#a78bfa',font:{size:10}},grid:{display:false},title:{display:true,text:'Poids max',color:'#a78bfa',font:{size:10}}}}}
   });
 }
 
 function setFilter(days,btn){
   chartDays=days;
-  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderStats();
-}
-
-function getSheetsConfig(){
-  return {
-    scriptUrl: localStorage.getItem('gl_script_url')||'',
-    sheetUrl: localStorage.getItem('gl_sheet_url')||''
-  };
+  document.querySelectorAll('.cf-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');renderStats();
 }
 
 function saveSheetConfig(){
-  var scriptUrl=document.getElementById('input-script-url').value.trim();
-  var sheetUrl=document.getElementById('input-sheet-url').value.trim();
-  if(!scriptUrl||!scriptUrl.startsWith('https://script.google.com')){
-    alert('URL Apps Script invalide. Elle doit commencer par https://script.google.com');
-    return;
-  }
-  localStorage.setItem('gl_script_url', scriptUrl);
-  if(sheetUrl) localStorage.setItem('gl_sheet_url', sheetUrl);
+  var su=document.getElementById('inp-script').value.trim();
+  var shu=document.getElementById('inp-sheet').value.trim();
+  if(!su||!su.startsWith('https://script.google.com')){alert('URL Apps Script invalide.');return;}
+  localStorage.setItem('gl_script_url',su);
+  if(shu)localStorage.setItem('gl_sheet_url',shu);
   renderSheetsConfig();
 }
-
 function resetSheetConfig(){
-  if(!confirm('Supprimer ta configuration Google Sheets ?')) return;
-  localStorage.removeItem('gl_script_url');
-  localStorage.removeItem('gl_sheet_url');
-  renderSheetsConfig();
+  if(!confirm('Supprimer ta configuration ?'))return;
+  localStorage.removeItem('gl_script_url');localStorage.removeItem('gl_sheet_url');renderSheetsConfig();
 }
-
 function renderSheetsConfig(){
-  var cfg=getSheetsConfig();
-  var notConf=document.getElementById('sheets-not-configured');
-  var conf=document.getElementById('sheets-configured');
-  if(cfg.scriptUrl){
-    notConf.style.display='none';
-    conf.style.display='block';
-    var openBtn=document.getElementById('open-sheet-btn');
-    openBtn.style.display=cfg.sheetUrl?'block':'none';
-  } else {
-    notConf.style.display='block';
-    conf.style.display='none';
-  }
+  var su=localStorage.getItem('gl_script_url')||'';
+  document.getElementById('sheets-nc').style.display=su?'none':'block';
+  document.getElementById('sheets-c').style.display=su?'block':'none';
+  if(su)document.getElementById('open-sheet-btn').style.display=localStorage.getItem('gl_sheet_url')?'block':'none';
 }
-
-function openMySheet(){
-  var url=localStorage.getItem('gl_sheet_url');
-  if(url) window.open(url,'_blank');
-}
-
+function openMySheet(){var u=localStorage.getItem('gl_sheet_url');if(u)window.open(u,'_blank');}
 function buildRows(data){
   var rows=[];
-  Object.entries(data).sort().forEach(function(entry){
-    var key=entry[0], entries=entry[1];
-    entries.forEach(function(e){
-      rows.push([fmtDateLong(key),e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e)]);
-    });
-  });
+  Object.entries(data).sort().forEach(function(kv){kv[1].forEach(function(e){rows.push([fmtDateLong(kv[0]),e.nom,parseInt(e.poids),parseInt(e.series),parseInt(e.reps),vol(e)]);});});
   return rows;
 }
-
-function sendToSheets(rows,statusEl,btn,btnLabel){
-  var cfg=getSheetsConfig();
-  if(!cfg.scriptUrl){alert('Configure ton Google Sheets dans Stats.');return;}
-  if(!rows.length){alert('Aucune donnée à envoyer.');return;}
-  statusEl.style.display='block';
-  statusEl.style.color='var(--mu)';
-  statusEl.textContent='Envoi en cours...';
-  btn.disabled=true;
-  fetch(cfg.scriptUrl,{
-    method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({rows:rows})
-  }).then(function(){
-    statusEl.style.color='var(--ac)';
-    statusEl.textContent='Envoyé dans Google Sheets !';
-    btn.textContent=btnLabel+' ok';
-    setTimeout(function(){
-      statusEl.style.display='none';
-      btn.textContent=btnLabel;
-      btn.disabled=false;
-    },3000);
-  }).catch(function(){
-    statusEl.style.color='var(--rd)';
-    statusEl.textContent='Erreur réseau. Vérifie ta connexion.';
-    btn.disabled=false;
-  });
+function sendToSheets(rows,statusEl,btn,lbl){
+  var su=localStorage.getItem('gl_script_url')||'';
+  if(!su){alert('Configure ton Google Sheets dans Stats.');return;}
+  if(!rows.length){alert('Aucune donnée.');return;}
+  statusEl.style.display='block';statusEl.style.color='var(--mu)';statusEl.textContent='Envoi en cours...';btn.disabled=true;
+  fetch(su,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:rows})})
+  .then(function(){statusEl.style.color='var(--ac)';statusEl.textContent='Envoyé !';btn.textContent=lbl+' ok';setTimeout(function(){statusEl.style.display='none';btn.textContent=lbl;btn.disabled=false;},3000);})
+  .catch(function(){statusEl.style.color='var(--rd)';statusEl.textContent='Erreur réseau.';btn.disabled=false;});
 }
-
 function sendAllToSheets(){
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   if(!Object.keys(h).length){alert('Aucune séance sauvegardée.');return;}
-  var rows=buildRows(h);
-  var btn=document.getElementById('export-all-btn');
-  var status=document.getElementById('export-status');
-  sendToSheets(rows,status,btn,'Envoyer tout');
+  sendToSheets(buildRows(h),document.getElementById('export-status'),document.getElementById('export-all-btn'),'Envoyer tout');
 }
-
 function sendTodayToSheets(){
   if(!session.length){alert('Aucun exercice dans la séance.');return;}
-  var today={};
-  today[todayKey()]=session;
-  var rows=buildRows(today);
-  var btn=document.getElementById('send-today-btn');
-  var status=document.getElementById('send-today-status');
-  sendToSheets(rows,status,btn,'Sheets');
+  var d={};d[todayKey()]=session;
+  sendToSheets(buildRows(d),document.getElementById('send-today-status'),document.getElementById('send-today-btn'),'Sheets');
+}
+
+// ── TIMER ──
+var TIV=null;
+var TTOTAL=parseInt(localStorage.getItem('gl_timer_dur')||'60');
+var TLEFT=TTOTAL;
+var CIRC=2*Math.PI*85;
+
+function startTimer(entry){
+  TLEFT=TTOTAL;
+  document.getElementById('tov-name').textContent=entry.nom;
+  document.getElementById('tov-sub').textContent=entry.series+' séries · '+entry.reps+' reps · '+entry.poids+' kg';
+  var pr=document.getElementById('tpr');
+  pr.style.transition='none';
+  pr.style.strokeDasharray=CIRC;
+  pr.style.strokeDashoffset='0';
+  pr.classList.remove('red');
+  document.getElementById('tnum').textContent=TLEFT;
+  syncTpre();
+  document.getElementById('tov').classList.add('show');
+  if(TIV)clearInterval(TIV);
+  setTimeout(function(){
+    pr.style.transition='stroke-dashoffset 1s linear';
+    TIV=setInterval(tickTimer,1000);
+  },60);
+}
+
+function tickTimer(){
+  TLEFT--;
+  document.getElementById('tnum').textContent=TLEFT;
+  var pr=document.getElementById('tpr');
+  pr.style.strokeDashoffset=String(((TTOTAL-TLEFT)/TTOTAL)*CIRC);
+  if(TLEFT<=10)pr.classList.add('red');
+  if(TLEFT<=0){
+    clearInterval(TIV);TIV=null;
+    playBeep();
+    setTimeout(function(){document.getElementById('tov').classList.remove('show');},900);
+  }
+}
+
+function changeTimer(secs,btn){
+  TTOTAL=secs;TLEFT=secs;
+  localStorage.setItem('gl_timer_dur',secs);
+  syncTpre();
+  document.getElementById('tnum').textContent=secs;
+  var pr=document.getElementById('tpr');
+  pr.style.transition='none';pr.style.strokeDashoffset='0';pr.classList.remove('red');
+  if(TIV){clearInterval(TIV);TIV=null;}
+  setTimeout(function(){
+    pr.style.transition='stroke-dashoffset 1s linear';
+    TIV=setInterval(tickTimer,1000);
+  },60);
+}
+
+function syncTpre(){
+  var vals=[30,60,90,120];
+  document.querySelectorAll('.tpre').forEach(function(b,i){b.classList.toggle('on',vals[i]===TTOTAL);});
+}
+
+function closeTimer(){
+  if(TIV){clearInterval(TIV);TIV=null;}
+  document.getElementById('tov').classList.remove('show');
+}
+
+function playBeep(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,220,440].forEach(function(delay){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=880;o.type='sine';
+      var t=ctx.currentTime+delay/1000;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.4,t+0.01);g.gain.linearRampToValueAtTime(0,t+0.2);
+      o.start(t);o.stop(t+0.22);
+    });
+  }catch(ex){}
 }
 
 function showTab(name){
-  ['seance','historique','stats'].forEach((n,i)=>{
+  ['seance','historique','stats'].forEach(function(n,i){
     document.getElementById('page-'+n).classList.toggle('active',n===name);
     document.querySelectorAll('.tab')[i].classList.toggle('active',n===name);
   });
   document.getElementById('bar-seance').style.display=name==='seance'?'block':'none';
   if(name==='historique')renderHistory();
-  if(name==='stats')renderStats();
+  if(name==='stats'){renderStats();renderSheetsConfig();}
 }
 
+syncTpre();
 renderSheetsConfig();
 renderSession();
 </script>
