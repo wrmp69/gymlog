@@ -321,11 +321,7 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 
 <!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">
-  <div class="btn-row">
-    <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder</button>
-    <button class="btn-ghost green" id="send-today-btn" onclick="sendTodayToSheets()">↗ Sheets</button>
-  </div>
-  <div id="send-today-status" style="font-size:12px;margin-top:6px;text-align:center;display:none;color:var(--ac);"></div>
+  <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder la séance</button>
 </div>
 
 <!-- TIMER -->
@@ -367,62 +363,60 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 var machines=[
   {nom:"Chest Press",                           groupe:"Pectoraux", icon:"🏋",poids:[20,30,40,50,60,70,80,90,100,110,120,140,160]},
   {nom:"Pec Fly",                               groupe:"Pectoraux", icon:"🏋",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Développé couché haltères",             groupe:"Pectoraux", icon:"🏋",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Développé incliné Smith machine",       groupe:"Pectoraux", icon:"🏋",poids:[5,10,15,20,25,30,35,40,45,50]},
-  {nom:"Développé incliné haltères",            groupe:"Pectoraux", icon:"🏋",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Développé incliné",                     groupe:"Pectoraux", icon:"🏋️",poids:[10,20,30,40,50,60,70,80]},
+  {nom:"Développé couché haltères",             groupe:"Pectoraux", icon:"🏋",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Développé incliné Smith machine",       groupe:"Pectoraux", icon:"🏋",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
+  {nom:"Développé incliné haltères",            groupe:"Pectoraux", icon:"🏋",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
 
-  {nom:"Abducteurs machine",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Adducteurs machine",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
-  {nom:"Goblet squat",                          groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Hack squat",                            groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
-  {nom:"Leg curl",                              groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Leg curl couché",                       groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Leg extension",                         groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Presse convergente",                    groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
-  {nom:"Squat Smith machine",                   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Abducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Adducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Goblet squat?",                          groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Hack squat?",                            groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
+  {nom:"Leg curl?",                              groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Leg curl couché?",                       groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Leg extension?",                         groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Presse convergente?",                    groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
+  {nom:"Squat Smith machine?",                   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
 
   {nom:"Deltoïde arrière (Rev fly)",            groupe:"Épaules",   icon:"🔝",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Développé militaire Smith machine",     groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40,45,50]},
-  {nom:"Développé militaire haltères",          groupe:"Épaules",   icon:"🔝",poids:[10,15,20,25,30,35,40,45,50]},
-  {nom:"Élévation frontale haltères",           groupe:"Épaules",   icon:"🔝",poids:[10,15,20,25,30,35,40,45,50]},
-  {nom:"Élévation latérale haltères",           groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40]},
-  {nom:"Élévation latérale poulie",             groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30]},
-  {nom:"Reverse fly",                           groupe:"Épaules",   icon:"🔝",poids:[5,10,15,20,25,30,35,40,45]},
+  {nom:"Développé militaire Smith machine",     groupe:"Épaules",   icon:"🔝",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
+  {nom:"Développé militaire haltères",          groupe:"Épaules",   icon:"🔝",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation frontale haltères",           groupe:"Épaules",   icon:"🔝",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation latérale haltères",           groupe:"Épaules",   icon:"🔝",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation latérale poulie",             groupe:"Épaules",   icon:"🔝",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
-  {nom:"Extension lombaire",                    groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Traction",                              groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Traction assistée",                     groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage convergent dos",                 groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage horizontal prise neutre",        groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage horizontal prise serrée",        groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage menton barre EZ",                groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage vertical machine",               groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Tirage vertical pronation prise large", groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage vertical supination prise serrée",groupe:"Dos",      icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Extension lombaire",                    groupe:"Dos",       icon:"💪",poids:[80]},
+  {nom:"Traction",                              groupe:"Dos",       icon:"💪",poids:[80]},
+  {nom:"Traction assistée?",                    groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage divergent",                		groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage horizontal prise neutre",        groupe:"Dos",       icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Tirage horizontal prise serrée",        groupe:"Dos",       icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Tirage menton barre EZ?",               groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage vertical machine?",              groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Tirage vertical pronation prise large", groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Tirage vertical supination prise serrée",groupe:"Dos",      icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
 
   {nom:"Curl pupitre",                          groupe:"Biceps",    icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
-  {nom:"Curl haltère banc incliné",             groupe:"Biceps",    icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
-  {nom:"Curl marteau unilatéral",               groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl marteau",                          groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl biceps barre EZ",                  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl biceps à la poulie",               groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Curl marteau corde",                    groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Curl haltère banc incliné",             groupe:"Biceps",    icon:"💪",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl marteau unilatéral",               groupe:"Biceps",    icon:"💪",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl marteau",                          groupe:"Biceps",    icon:"💪",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl biceps barre EZ?",                  groupe:"Biceps",    icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl biceps à la poulie",               groupe:"Biceps",    icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Curl marteau corde",                    groupe:"Biceps",    icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
-  {nom:"Dips lesté",                            groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Dips non lesté",                        groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Dips machine",                          groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Extension triceps barre poulie",        groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Extension triceps corde poulie",        groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Triceps barre front EZ",                groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Triceps barre front poulie",            groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Dips lesté?",                           groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Dips non lesté PDC",                    groupe:"Triceps",   icon:"💪",poids:[80]},
+  {nom:"Dips machine?",                          groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Extension triceps barre poulie",        groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Extension triceps corde poulie",        groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Triceps barre front EZ?",                groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Triceps barre front poulie",            groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
-  {nom:"Crunch abdos corde poulie",             groupe:"Abdos",     icon:"🔥",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Crunch abdos machine",                  groupe:"Abdos",     icon:"🔥",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Relevé de jambes",                      groupe:"Abdos",     icon:"🔥",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Crunch abdos corde poulie",             groupe:"Abdos",     icon:"🔥",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Crunch abdos machine?",                  groupe:"Abdos",     icon:"🔥",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Relevé de jambes PDC",                      groupe:"Abdos",     icon:"🔥",poids:[80]},
 
-  {nom:"Mollet presse",                         groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Mollet presse Smith machine",           groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Mollet presse?",                         groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Mollet presse Smith machine",           groupe:"Mollets",   icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
 ];
 
 var session=JSON.parse(localStorage.getItem('gl_session')||'[]');
@@ -756,36 +750,60 @@ function buildRows(data){
   });
   return rows;
 }
-function rowsHash(rows){
-  return rows.map(function(r){return r.join('|');}).join('||');
+function rowKey(row){
+  // Clé unique par ligne : Date + Groupe + Exercice + Poids + Séries + Reps
+  return [row[0],row[1],row[2],row[3],row[4],row[5]].join('|');
+}
+
+function getSentKeys(){
+  return new Set(JSON.parse(localStorage.getItem('gl_sent_keys')||'[]'));
+}
+
+function saveSentKeys(keys){
+  localStorage.setItem('gl_sent_keys', JSON.stringify(Array.from(keys)));
 }
 
 function sendToSheets(rows,statusEl,btn,lbl){
   var su=localStorage.getItem('gl_script_url')||'';
   if(!su){alert('Configure ton Google Sheets dans Stats.');return;}
   if(!rows.length){alert('Aucune donnée.');return;}
-  // Anti-doublon : compare avec le dernier envoi
-  var hash=rowsHash(rows);
-  var lastHash=localStorage.getItem('gl_last_sent_'+btn.id)||'';
-  if(hash===lastHash){
+
+  // Filtre uniquement les lignes pas encore envoyées
+  var sentKeys=getSentKeys();
+  var newRows=rows.filter(function(row){return !sentKeys.has(rowKey(row));});
+
+  if(!newRows.length){
     statusEl.style.display='block';
     statusEl.style.color='#f59e0b';
-    statusEl.textContent='Déjà envoyé — aucun doublon ajouté.';
+    statusEl.textContent='Tout est déjà à jour dans Sheets ENCULER.';
     setTimeout(function(){statusEl.style.display='none';},3000);
     return;
   }
-  statusEl.style.display='block';statusEl.style.color='var(--mu)';statusEl.textContent='Envoi en cours...';btn.disabled=true;
-  fetch(su,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:rows})})
+
+  statusEl.style.display='block';
+  statusEl.style.color='var(--mu)';
+  statusEl.textContent='Envoi de '+newRows.length+' ligne(s)...';
+  btn.disabled=true;
+
+  fetch(su,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({rows:newRows})})
   .then(function(){
-    localStorage.setItem('gl_last_sent_'+btn.id, hash);
-    statusEl.style.color='var(--ac)';statusEl.textContent='Envoyé !';btn.textContent=lbl+' ok';
+    // Mémorise les clés envoyées
+    newRows.forEach(function(row){sentKeys.add(rowKey(row));});
+    saveSentKeys(sentKeys);
+    statusEl.style.color='var(--ac)';
+    statusEl.textContent=newRows.length+' ligne(s) ajoutée(s) !';
+    btn.textContent=lbl+' ok';
     setTimeout(function(){statusEl.style.display='none';btn.textContent=lbl;btn.disabled=false;},3000);
   })
-  .catch(function(){statusEl.style.color='var(--rd)';statusEl.textContent='Erreur réseau.';btn.disabled=false;});
+  .catch(function(){
+    statusEl.style.color='var(--rd)';
+    statusEl.textContent='Erreur réseau.';
+    btn.disabled=false;
+  });
 }
 function sendAllToSheets(){
+  if(!confirm('Envoyer tout l\'historique vers Google Sheets ?'))return;
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  // include today's unsaved cardio if present
   var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
   var key=todayKey();
   if(cardio && !h[key]){
