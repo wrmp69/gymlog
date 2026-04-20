@@ -11,13 +11,6 @@ gymlog/
 └── icon-512.png      ← icône splash screen
 ```
 
-## Déploiement GitHub Pages
-
-1. Va sur github.com → ton repo `gymlog`
-2. Upload **tous les 5 fichiers** (index.html + manifest.json + sw.js + icon-192.png + icon-512.png)
-3. Settings → Pages → Source : `main` / `root`
-4. Ton appli est dispo sur `https://[pseudo].github.io/gymlog/`
-
 ## Installer sur le téléphone
 
 ### iPhone (Safari obligatoire)
