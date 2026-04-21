@@ -11,7 +11,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0f0f0f;--s1:#1a1a1a;--s2:#242424;--bd:#2e2e2e;--ac:#c8ff00;--tx:#f0f0f0;--mu:#888;--rd:#ff4444;--pu:#a78bfa;}
+html{
+  --bg:#0f0f0f;--s1:#1a1a1a;--s2:#242424;--bd:#2e2e2e;
+  --ac:#c8ff00;--tx:#f0f0f0;--mu:#888;--rd:#ff4444;--pu:#a78bfa;
+  --theme-ico:'🌙';
+}
+/* Thème clair */
+html.light{
+  --bg:#f4f4f0;--s1:#ffffff;--s2:#eeeeea;--bd:#d8d8d0;
+  --ac:#5a8a00;--tx:#111111;--mu:#666666;--rd:#cc2222;--pu:#7c3aed;
+  --theme-ico:'☀️';
+}
+/* Suivi automatique système SI pas de préférence manuelle */
+@media(prefers-color-scheme:light){
+  html:not(.dark):not(.light){
+    --bg:#f4f4f0;--s1:#ffffff;--s2:#eeeeea;--bd:#d8d8d0;
+    --ac:#5a8a00;--tx:#111111;--mu:#666666;--rd:#cc2222;--pu:#7c3aed;
+    --theme-ico:'☀️';
+  }
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overscroll-behavior:none;}
 .app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;}
@@ -21,6 +39,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans'
 .tab{flex:1;text-align:center;padding:7px 2px;font-size:11px;font-weight:500;border-radius:9px;cursor:pointer;color:var(--mu);border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .tab.active{background:var(--ac);color:#0f0f0f;font-weight:700;}
 .page{display:none;flex:1;overflow-y:auto;padding:0 1.2rem 6rem;}
+.seance-col{padding:0;border:none;}
+.seance-col-title{display:none;}
 .page.active{display:block;}
 .card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
 .lbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:6px;display:block;}
@@ -41,7 +61,14 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .stitle{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
 .scount{font-size:12px;color:var(--mu);}
 .clr{font-size:12px;color:var(--rd);background:none;border:none;cursor:pointer;}
-.entry{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;margin-bottom:7px;animation:si .18s ease;}
+.entry-wrap{position:relative;margin-bottom:7px;border-radius:12px;overflow:hidden;}
+.entry-del-bg{position:absolute;inset:0;background:var(--rd);display:flex;align-items:center;justify-content:flex-end;padding-right:20px;border-radius:12px;opacity:0;}
+.entry-del-bg span{color:#fff;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.05em;}
+.entry{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s1);border:1px solid var(--bd);border-radius:12px;
+  position:relative;z-index:1;touch-action:pan-y;user-select:none;
+  transform:translateX(0);transition:transform .22s ease;
+  animation:si .18s ease;}
+.entry.swiping{transition:none;}
 @keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .eico{font-size:20px;flex-shrink:0;}
 .einfo{flex:1;min-width:0;}
@@ -53,6 +80,10 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .tag.rm{border-color:#38bdf8;color:#38bdf8;}
 .del{background:none;border:none;color:var(--bd);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0;}
 .del:active{color:var(--rd);}
+.drag-handle{color:var(--bd);font-size:16px;cursor:grab;padding:4px 6px;flex-shrink:0;touch-action:none;}
+.drag-handle:active{cursor:grabbing;color:var(--mu);}
+.entry-wrap.drag-over{border-top:2px solid var(--ac);}
+.entry-wrap.dragging .entry{opacity:.4;transform:scale(.98);}
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--mu);font-size:14px;line-height:2;}
 .eico-lg{font-size:36px;display:block;margin-bottom:6px;}
 .vol-summary{background:var(--s2);border-radius:12px;padding:12px 14px;margin-top:10px;}
@@ -116,15 +147,107 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .tbtn.go{background:var(--ac);color:#0f0f0f;border-color:var(--ac);font-weight:700;}
 .tbtn:active{opacity:.75;}
 
-.cardio-card{background:var(--s1);border:1px dashed #3a5c00;border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
-.cardio-saved{background:var(--s2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
-.cardio-saved-ico{font-size:22px;flex-shrink:0;}
-.cardio-saved-info{flex:1;}
-.cardio-saved-title{font-size:13px;font-weight:500;}
-.cardio-saved-tags{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;}
+.cardio-card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.2rem;margin-bottom:1rem;transition:border-color .3s,background .3s;}
+.cardio-card.done{border-color:#22c55e;background:linear-gradient(135deg,rgba(34,197,94,0.06) 0%,var(--s1) 60%);}
+.cardio-done-check{font-size:40px;margin-bottom:8px;display:block;animation:popIn .3s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.cardio-done-summary{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#22c55e;margin-bottom:4px;}
+.cardio-done-detail{font-size:12px;color:var(--mu);margin-bottom:14px;}
+.cardio-modify-btn{font-size:12px;color:var(--mu);background:none;border:1px solid var(--bd);border-radius:8px;padding:5px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.cardio-modify-btn:active{background:var(--s2);}
 .cardio-tag{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #3a5c00;color:#8bc34a;}
-.cardio-del{background:none;border:none;color:var(--bd);cursor:pointer;font-size:18px;padding:4px;}
-.cardio-del:active{color:var(--rd);}
+
+/* MINI TIMER */
+.tov-mini{display:none;position:fixed;bottom:90px;right:16px;z-index:9998;
+  background:rgba(15,15,15,0.95);border:1.5px solid var(--ac);
+  border-radius:50px;padding:8px 14px 8px 10px;
+  align-items:center;gap:10px;cursor:pointer;
+  box-shadow:0 4px 24px rgba(200,255,0,0.15);
+  backdrop-filter:blur(8px);
+  animation:slideInRight .25s ease;
+}
+.tov-mini.show{display:flex;}
+@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.tov-mini-ring{position:relative;width:36px;height:36px;flex-shrink:0;}
+.tov-mini-ring svg{display:block;}
+.tov-mini-trk{fill:none;stroke:#2a2a2a;stroke-width:4;}
+.tov-mini-tpr{fill:none;stroke:var(--ac);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:95;stroke-dashoffset:0;
+  transform-origin:18px 18px;transform:rotate(-90deg);
+  transition:stroke-dashoffset 1s linear,stroke .3s;
+}
+.tov-mini-tpr.red{stroke:var(--rd);}
+.tov-mini-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--tx);}
+.tov-mini-label{font-size:12px;color:var(--mu);max-width:110px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tov-mini-expand{background:none;border:none;color:var(--mu);font-size:16px;cursor:pointer;
+  padding:0;line-height:1;flex-shrink:0;}
+.tov-mini-expand:active{color:var(--ac);}
+
+/* ── THEME TOGGLE ── */
+.theme-btn{
+  background:none;border:1px solid var(--bd);border-radius:20px;
+  padding:5px 10px;font-size:16px;cursor:pointer;
+  transition:border-color .2s;flex-shrink:0;
+}
+.theme-btn:active{background:var(--s2);}
+
+/* ── TABLET / LANDSCAPE ── */
+@media(min-width:700px) and (orientation:landscape){
+  .app{max-width:100%;height:100vh;overflow:hidden;}
+  .header{padding:.6rem 1.5rem;}
+  .tabs{margin:0 1.5rem .5rem;width:calc(100% - 3rem);}
+  /* 3-col layout for seance page */
+  #page-seance{
+    display:none;
+    flex-direction:row;
+    gap:0;
+    height:calc(100vh - 100px);
+    overflow:hidden;
+    padding:0;
+  }
+  #page-seance.active{display:flex;}
+  .seance-col{flex:1;overflow-y:auto;padding:.8rem 1rem;border-right:1px solid var(--bd);}
+  .seance-col-title{display:block;}
+  .seance-col:last-child{border-right:none;}
+  .seance-col-title{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--mu);
+    margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+  /* other pages scroll normally */
+  #page-historique,#page-stats{padding:0 1.5rem 5rem;overflow-y:auto;height:calc(100vh - 100px);}
+  .chart-wrap{height:220px;}
+  .tov{max-width:460px;left:50%;transform:translateX(-50%);}
+  .tov-mini{bottom:20px;right:24px;}
+  .save-bar{position:sticky;bottom:0;}
+}
+@media(min-width:700px) and (orientation:portrait){
+  .app{max-width:540px;margin:0 auto;}
+  .chart-wrap{height:260px;}
+  .tov{max-width:500px;left:50%;transform:translateX(-50%);}
+  .tov-mini{bottom:20px;right:24px;}
+}
+
+@media(min-width:1024px){
+  .app{max-width:1200px;margin:0 auto;}
+  #page-stats .card{max-width:700px;}
+}
+
+/* ── LIGHT THEME FIXES ── */
+html.light body{background:var(--bg);}
+html.light .app{background:var(--bg);}
+/* SVG logo adapt */
+html.light .logo-rect-bg{fill:#e8e8e4 !important;stroke:#d0d0c8 !important;}
+html.light .logo-letter{fill:#111111 !important;}
+html.light .tab.active{color:#111;}
+html.light .btn-ac{color:#111;}
+html.light select{color:#111;background:var(--s2);}
+html.light input{color:#111;background:var(--s2);}
+html.light .tov{background:rgba(244,244,240,0.97);}
+html.light .tov-mini{background:rgba(255,255,255,0.95);box-shadow:0 4px 24px rgba(90,138,0,0.15);}
+html.light .tov-mini-num{color:#111;}
+html.light .entry{background:var(--s1);border-color:var(--bd);}
+html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.08) 0%,var(--s1) 60%);}
 </style>
 </head>
 <body>
@@ -132,19 +255,22 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 
 <div class="header">
   <svg width="160" height="52" viewBox="0 0 260 82" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;margin-left:2px;">
-    <rect x="8" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+    <rect x="8" y="4" width="50" height="50" rx="5" class="logo-rect-bg" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
     <rect x="11" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
-    <text x="33" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">K</text>
+    <text x="33" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" class="logo-letter" fill="#f0f0f0">K</text>
     <rect x="8" y="54" width="50" height="4" rx="2" fill="#c8ff00"/>
     <text x="72" y="37" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="22" fill="#c8ff00">&amp;</text>
-    <rect x="86" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+    <rect x="86" y="4" width="50" height="50" rx="5" class="logo-rect-bg" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
     <rect x="89" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
-    <text x="111" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">J</text>
+    <text x="111" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" class="logo-letter" fill="#f0f0f0">J</text>
     <rect x="86" y="54" width="50" height="4" rx="2" fill="#c8ff00"/>
     <text x="33" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1.5">KÉVIN</text>
     <text x="111" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1">JÉRÉMY</text>
   </svg>
-  <div class="date-badge" id="header-date"></div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="date-badge" id="header-date"></div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+  </div>
 </div>
 
 <div class="tabs">
@@ -155,113 +281,121 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 
 <!-- SÉANCE -->
 <div class="page active" id="page-seance">
-  <div class="card">
-    <div class="field">
-      <span class="lbl">Groupe musculaire</span>
-      <select id="sel-groupe" onchange="filterMachines()">
-        <option value="">Tous les groupes</option>
-        <option value="Pectoraux">🏋️ Pectoraux</option>
-        <option value="Dos">💪 Dos</option>
-        <option value="Épaules">🔝 Épaules</option>
-        <option value="Jambes">🦵 Jambes</option>
-        <option value="Biceps">💪 Biceps</option>
-        <option value="Triceps">💪 Triceps</option>
-        <option value="Abdos">🔥 Abdos</option>
-        <option value="Mollets">🦵 Mollets</option>
-      </select>
-    </div>
-    <div class="field">
-      <span class="lbl">Machine / exercice</span>
-      <select id="sel-machine" onchange="updatePoids()">
-        <option value="">— Choisir —</option>
-      </select>
-    </div>
-    <div class="row2">
+
+  <!-- COL 1 : FORMULAIRE -->
+  <div class="seance-col" id="col-form">
+    <div class="seance-col-title">📋 Exercice</div>
+    <div class="card" style="margin-bottom:0;">
       <div class="field">
-        <span class="lbl">Poids <span id="last-weight-hint" style="color:#38bdf8;font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif;"></span></span>
-        <select id="sel-poids"><option value="">—</option></select>
-      </div>
-      <div class="field">
-        <span class="lbl">Séries</span>
-        <select id="sel-series">
-          <option>1</option><option>2</option><option>3</option>
-          <option selected>4</option><option>5</option><option>6</option>
-        </select>
-      </div>
-    </div>
-    <div class="row2">
-      <div class="field">
-        <span class="lbl">Reps / série</span>
-        <select id="sel-reps">
-          <option>1</option><option>2</option><option>3</option><option>4</option>
-          <option>5</option><option>6</option><option>7</option><option>8</option>
-          <option>9</option><option selected>10</option><option>11</option>
-          <option>12</option><option>13</option><option>14</option><option>15</option>
-          <option>16</option><option>17</option><option>18</option><option>19</option>
-          <option>20</option>
+        <span class="lbl">Groupe musculaire</span>
+        <select id="sel-groupe" onchange="filterMachines()">
+          <option value="">Tous les groupes</option>
+          <option value="Pectoraux">🏋️ Pectoraux</option>
+          <option value="Dos">💪 Dos</option>
+          <option value="Épaules">🔝 Épaules</option>
+          <option value="Jambes">🦵 Jambes</option>
+          <option value="Biceps">💪 Biceps</option>
+          <option value="Triceps">💪 Triceps</option>
+          <option value="Abdos">🔥 Abdos</option>
+          <option value="Mollets">🦵 Mollets</option>
         </select>
       </div>
       <div class="field">
-        <span class="lbl">1RM réel (kg) <span style="color:var(--mu);font-weight:400;font-size:10px;">optionnel</span></span>
-        <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500">
+        <span class="lbl">Machine / exercice</span>
+        <select id="sel-machine" onchange="updatePoids()">
+          <option value="">— Choisir —</option>
+        </select>
       </div>
+      <div class="row2">
+        <div class="field">
+          <span class="lbl">Poids <span id="last-weight-hint" style="color:#38bdf8;font-weight:400;font-size:10px;letter-spacing:0;text-transform:none;font-family:'DM Sans',sans-serif;"></span></span>
+          <select id="sel-poids"><option value="">—</option></select>
+        </div>
+        <div class="field">
+          <span class="lbl">Séries</span>
+          <select id="sel-series">
+            <option>1</option><option>2</option><option>3</option>
+            <option selected>4</option><option>5</option><option>6</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <span class="lbl">Reps / série</span>
+          <select id="sel-reps">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>9</option><option selected>10</option><option>11</option>
+            <option>12</option><option>13</option><option>14</option><option>15</option>
+            <option>16</option><option>17</option><option>18</option><option>19</option>
+            <option>20</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="lbl">1RM réel (kg) <span style="color:var(--mu);font-weight:400;font-size:10px;">optionnel</span></span>
+          <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500">
+        </div>
+      </div>
+      <div class="rm-hint" id="rm-preview"></div>
+      <button class="btn-ac" onclick="addEntry()" style="margin-top:10px;">+ Ajouter</button>
     </div>
-    <div class="rm-hint" id="rm-preview"></div>
-    <button class="btn-ac" onclick="addEntry()" style="margin-top:10px;">+ Ajouter</button>
   </div>
-  <div>
-    <div class="sh">
-      <span class="stitle">Séance du jour</span>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <span class="scount" id="entry-count">0 exo</span>
-        <button class="clr" onclick="clearSession()">Effacer</button>
-      </div>
-    </div>
+
+  <!-- COL 2 : SÉANCE DU JOUR -->
+  <div class="seance-col" id="col-session">
+    <div class="seance-col-title" style="display:flex;justify-content:space-between;align-items:center;">🏋️ Séance du jour <span style="display:flex;gap:10px;align-items:center;"><span id="entry-count" style="color:var(--mu);font-weight:400;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;"></span><button class="clr" onclick="clearSession()">Effacer</button></span></div>
     <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
     <div id="vol-block" style="display:none;">
-      <div class="sh" style="margin-top:14px;"><span class="stitle">Volume & 1RM estimés</span></div>
+      <div class="sh" style="margin-top:14px;"><span class="stitle">Volume & 1RM</span></div>
       <div class="vol-summary" id="vol-list"></div>
       <div class="vol-total" id="vol-total"></div>
     </div>
   </div>
 
-  <!-- CARDIO MARCHE -->
-  <div class="cardio-card">
-    <div class="sh" style="margin-bottom:12px;">
-      <span class="stitle">🚶 Marche / Cardio</span>
-    </div>
-    <div id="cardio-saved-block"></div>
-    <div id="cardio-form">
-      <div class="row3">
-        <div class="field">
-          <span class="lbl">Durée (min)</span>
-          <select id="c-duree">
-            <option>5</option><option>10</option><option>15</option><option>20</option>
-            <option selected>30</option><option>40</option><option>45</option><option>60</option>
-          </select>
+  <!-- COL 3 : MARCHE -->
+  <div class="seance-col" id="col-cardio">
+    <div class="seance-col-title">🚶 Marche fin de séance</div>
+    <div class="cardio-card" id="cardio-card" style="margin-bottom:0;">
+      <div id="cardio-form">
+        <div class="row3">
+          <div class="field">
+            <span class="lbl">Durée (min)</span>
+            <select id="c-duree">
+              <option>5</option><option>10</option><option>15</option><option>20</option>
+              <option>25</option><option selected>30</option><option>35</option><option>40</option>
+              <option>45</option><option>50</option><option>55</option><option>60</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="lbl">Pente (%)</span>
+            <select id="c-pente">
+              <option>0</option><option>1</option><option>2</option><option>3</option>
+              <option>4</option><option selected>5</option><option>6</option><option>7</option>
+              <option>8</option><option>9</option><option>10</option><option>12</option>
+              <option>15</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="lbl">Vitesse (km/h)</span>
+            <select id="c-vitesse">
+              <option>3</option><option>3.5</option><option selected>4</option><option>4.5</option>
+              <option>5</option><option>5.5</option><option>6</option><option>6.5</option>
+              <option>7</option><option>8</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
-          <span class="lbl">Pente (%)</span>
-          <select id="c-pente">
-            <option>0</option><option>1</option><option>2</option><option>3</option>
-            <option>4</option><option selected>5</option><option>6</option><option>7</option>
-            <option>8</option><option>9</option><option>10</option><option>12</option>
-            <option>15</option>
-          </select>
-        </div>
-        <div class="field">
-          <span class="lbl">Vitesse (km/h)</span>
-          <select id="c-vitesse">
-            <option>3</option><option>3.5</option><option selected>4</option><option>4.5</option>
-            <option>5</option><option>5.5</option><option>6</option><option>6.5</option>
-            <option>7</option><option>8</option>
-          </select>
-        </div>
+        <button class="btn-ac" onclick="addCardio()" style="background:#c8ff00;margin-top:4px;">✓ Marche terminée</button>
       </div>
-      <button id="cardio-add-btn" class="btn-ghost" onclick="addCardio()" style="border-color:#3a5c00;color:#8bc34a;">+ Ajouter la marche</button>
+      <div id="cardio-done" style="display:none;text-align:center;padding:8px 0;">
+        <span class="cardio-done-check">✅</span>
+        <div class="cardio-done-summary" id="cardio-done-summary">30 min · 5% · 4 km/h</div>
+        <div class="cardio-done-detail">Marche enregistrée pour cette séance</div>
+        <button class="cardio-modify-btn" onclick="editCardio()">✎ Modifier</button>
+      </div>
     </div>
   </div>
-</div>
+
+</div>>
 
 <!-- HISTORIQUE -->
 <div class="page" id="page-historique">
@@ -348,8 +482,22 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
   </div>
   <div class="tacts">
     <button class="tbtn" onclick="closeTimer()">Annuler</button>
+    <button class="tbtn" onclick="minimizeTimer()" style="border-color:#38bdf8;color:#38bdf8;">⤡ Réduire</button>
     <button class="tbtn go" onclick="closeTimer()">Passer ↗</button>
   </div>
+</div>
+
+<!-- MINI TIMER -->
+<div class="tov-mini" id="tov-mini" onclick="expandTimer()">
+  <div class="tov-mini-ring">
+    <svg width="36" height="36" viewBox="0 0 36 36">
+      <circle class="tov-mini-trk" cx="18" cy="18" r="15"/>
+      <circle class="tov-mini-tpr" id="tov-mini-tpr" cx="18" cy="18" r="15"/>
+    </svg>
+    <div class="tov-mini-num" id="tov-mini-num">60</div>
+  </div>
+  <div class="tov-mini-label" id="tov-mini-label">Repos</div>
+  <button class="tov-mini-expand" onclick="expandTimer(event)" title="Agrandir">⤢</button>
 </div>
 
 </div>
@@ -427,6 +575,8 @@ var TIV=null;
 var TTOTAL=parseInt(localStorage.getItem('gl_timer_dur')||'60');
 var TLEFT=TTOTAL;
 var CIRC=2*Math.PI*85;
+var MINI_CIRC=2*Math.PI*15;
+var timerMini=false;
 
 document.getElementById('header-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
 
@@ -555,6 +705,145 @@ function addEntry(){
   startTimer(entry);
 }
 
+function attachSwipe(){
+  document.querySelectorAll('.entry-wrap').forEach(function(wrap){
+    var entry=wrap.querySelector('.entry');
+    var bg=wrap.querySelector('.entry-del-bg');
+    if(!entry||!bg) return;
+    var startX=0,curX=0,active=false;
+    var THRESHOLD=90;
+
+    function start(x){ startX=x; curX=0; active=true; entry.classList.add('swiping'); }
+    function move(x){
+      if(!active) return;
+      curX=Math.min(0, x-startX); // left only
+      entry.style.transform='translateX('+curX+'px)';
+      bg.style.opacity=Math.min(Math.abs(curX)/THRESHOLD, 1);
+    }
+    function end(){
+      if(!active) return;
+      active=false;
+      entry.classList.remove('swiping');
+      if(Math.abs(curX)>=THRESHOLD){
+        entry.style.transition='transform .2s ease';
+        entry.style.transform='translateX(-110%)';
+        setTimeout(function(){
+          removeEntry(parseInt(wrap.id.replace('ew-','')));
+        },200);
+      } else {
+        entry.style.transform='translateX(0)';
+        bg.style.opacity=0;
+      }
+    }
+
+    entry.addEventListener('touchstart',function(e){ start(e.touches[0].clientX); },{passive:true});
+    entry.addEventListener('touchmove', function(e){ move(e.touches[0].clientX); },{passive:true});
+    entry.addEventListener('touchend', end);
+    entry.addEventListener('mousedown', function(e){ start(e.clientX); });
+    document.addEventListener('mousemove', function(e){ move(e.clientX); });
+    document.addEventListener('mouseup', end);
+  });
+}
+
+function attachDragDrop(){
+  var list=document.getElementById('entry-list');
+  var wraps=list.querySelectorAll('.entry-wrap');
+  var dragSrc=null;
+
+  wraps.forEach(function(wrap){
+    // ── DESKTOP drag ──
+    wrap.addEventListener('dragstart',function(e){
+      dragSrc=wrap;
+      wrap.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',wrap.id);
+    });
+    wrap.addEventListener('dragend',function(){
+      wrap.classList.remove('dragging');
+      list.querySelectorAll('.entry-wrap').forEach(function(w){w.classList.remove('drag-over');});
+      syncSessionFromDOM();
+    });
+    wrap.addEventListener('dragover',function(e){
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      if(wrap!==dragSrc){
+        list.querySelectorAll('.entry-wrap').forEach(function(w){w.classList.remove('drag-over');});
+        wrap.classList.add('drag-over');
+      }
+    });
+    wrap.addEventListener('drop',function(e){
+      e.preventDefault();
+      if(dragSrc && dragSrc!==wrap){
+        var allWraps=Array.from(list.querySelectorAll('.entry-wrap'));
+        var srcIdx=allWraps.indexOf(dragSrc);
+        var dstIdx=allWraps.indexOf(wrap);
+        if(srcIdx<dstIdx) list.insertBefore(dragSrc,wrap.nextSibling);
+        else list.insertBefore(dragSrc,wrap);
+      }
+      wrap.classList.remove('drag-over');
+    });
+
+    // ── TOUCH drag (mobile/tablet) ──
+    var handle=wrap.querySelector('.drag-handle');
+    if(!handle) return;
+    var touchY=0, clone=null, origRect=null;
+
+    handle.addEventListener('touchstart',function(e){
+      e.stopPropagation();
+      var t=e.touches[0];
+      touchY=t.clientY;
+      origRect=wrap.getBoundingClientRect();
+      dragSrc=wrap;
+      wrap.classList.add('dragging');
+      // visual ghost
+      clone=wrap.cloneNode(true);
+      clone.style.cssText='position:fixed;left:'+origRect.left+'px;top:'+origRect.top+'px;width:'+origRect.width+'px;opacity:.85;z-index:9997;pointer-events:none;border-radius:12px;';
+      document.body.appendChild(clone);
+    },{passive:true});
+
+    handle.addEventListener('touchmove',function(e){
+      if(!dragSrc||!clone) return;
+      e.preventDefault();
+      var t=e.touches[0];
+      var dy=t.clientY-touchY;
+      clone.style.top=(origRect.top+dy)+'px';
+      // find element under finger
+      clone.style.display='none';
+      var el=document.elementFromPoint(t.clientX,t.clientY);
+      clone.style.display='';
+      var target=el?el.closest('.entry-wrap'):null;
+      list.querySelectorAll('.entry-wrap').forEach(function(w){w.classList.remove('drag-over');});
+      if(target && target!==dragSrc) target.classList.add('drag-over');
+    },{passive:false});
+
+    handle.addEventListener('touchend',function(e){
+      if(!dragSrc) return;
+      if(clone){clone.remove();clone=null;}
+      dragSrc.classList.remove('dragging');
+      var overEl=list.querySelector('.entry-wrap.drag-over');
+      if(overEl && overEl!==dragSrc){
+        var allWraps=Array.from(list.querySelectorAll('.entry-wrap'));
+        var srcIdx=allWraps.indexOf(dragSrc);
+        var dstIdx=allWraps.indexOf(overEl);
+        if(srcIdx<dstIdx) list.insertBefore(dragSrc,overEl.nextSibling);
+        else list.insertBefore(dragSrc,overEl);
+        overEl.classList.remove('drag-over');
+      }
+      syncSessionFromDOM();
+      dragSrc=null;
+    });
+  });
+}
+
+function syncSessionFromDOM(){
+  var list=document.getElementById('entry-list');
+  var wraps=list.querySelectorAll('.entry-wrap');
+  var ids=Array.from(wraps).map(function(w){return parseInt(w.id.replace('ew-',''));});
+  session.sort(function(a,b){return ids.indexOf(a.id)-ids.indexOf(b.id);});
+  localStorage.setItem('gl_session',JSON.stringify(session));
+  renderVolume();
+}
+
 function removeEntry(id){
   session=session.filter(function(e){return e.id!==id;});
   localStorage.setItem('gl_session',JSON.stringify(session));
@@ -577,10 +866,27 @@ function renderSession(){
   list.innerHTML=session.map(function(e){
     var rmTag='<span class="tag rm">1RM est. '+e.rm1est+' kg</span>';
     var rmReel=e.rm1reel?'<span class="tag" style="border-color:#f59e0b;color:#f59e0b;">1RM réel '+e.rm1reel+' kg</span>':'';
-    return '<div class="entry"><div class="eico">'+e.icon+'</div><div class="einfo"><div class="ename">'+e.nom+'</div><div class="etags"><span class="tag ac">'+e.poids+' kg</span><span class="tag">'+e.series+' s · '+e.reps+' r</span><span class="tag vol">'+vol(e).toLocaleString('fr-FR')+' kg vol.</span>'+rmTag+rmReel+'</div></div><button class="del" onclick="removeEntry('+e.id+')">×</button></div>';
+    return '<div class="entry-wrap" id="ew-'+e.id+'" draggable="true">'+
+      '<div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>'+
+      '<div class="entry" id="en-'+e.id+'">'+
+        '<div class="drag-handle" title="Réorganiser">⠿</div>'+
+        '<div class="eico">'+e.icon+'</div>'+
+        '<div class="einfo">'+
+          '<div class="ename">'+e.nom+'</div>'+
+          '<div class="etags">'+
+            '<span class="tag ac">'+e.poids+' kg</span>'+
+            '<span class="tag">'+e.series+' s · '+e.reps+' r</span>'+
+            '<span class="tag vol">'+vol(e).toLocaleString('fr-FR')+' kg vol.</span>'+
+            rmTag+rmReel+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
   }).join('');
   renderVolume();
   document.getElementById('vol-block').style.display='block';
+  attachSwipe();
+  attachDragDrop();
 }
 
 function renderVolume(){
@@ -865,32 +1171,83 @@ function startTimer(entry){
   var pr=document.getElementById('tpr');
   pr.style.transition='none';pr.style.strokeDasharray=CIRC;pr.style.strokeDashoffset='0';pr.classList.remove('red');
   document.getElementById('tnum').textContent=TLEFT;
-  syncTpre();
+    // Reset mini ring
+  var mpr=document.getElementById('tov-mini-tpr');
+  mpr.style.transition='none';
+  mpr.style.strokeDasharray=MINI_CIRC;
+  mpr.style.strokeDashoffset='0';
+  mpr.classList.remove('red');
+  document.getElementById('tov-mini-num').textContent=TLEFT;
+  document.getElementById('tov-mini-label').textContent=entry.nom;
+  timerMini=false;
+  document.getElementById('tov-mini').classList.remove('show');
   document.getElementById('tov').classList.add('show');
   if(TIV)clearInterval(TIV);
-  setTimeout(function(){pr.style.transition='stroke-dashoffset 1s linear';TIV=setInterval(tickTimer,1000);},60);
+  setTimeout(function(){
+    pr.style.transition='stroke-dashoffset 1s linear';
+    mpr.style.transition='stroke-dashoffset 1s linear';
+    TIV=setInterval(tickTimer,1000);
+  },60);
 }
 function tickTimer(){
   TLEFT--;
+  // Update full timer
   document.getElementById('tnum').textContent=TLEFT;
   var pr=document.getElementById('tpr');
   pr.style.strokeDashoffset=String(((TTOTAL-TLEFT)/TTOTAL)*CIRC);
   if(TLEFT<=10)pr.classList.add('red');
-  if(TLEFT<=0){clearInterval(TIV);TIV=null;playBeep();setTimeout(function(){document.getElementById('tov').classList.remove('show');},900);}
+  // Update mini timer
+  document.getElementById('tov-mini-num').textContent=TLEFT;
+  var mpr=document.getElementById('tov-mini-tpr');
+  mpr.style.strokeDashoffset=String(((TTOTAL-TLEFT)/TTOTAL)*MINI_CIRC);
+  if(TLEFT<=10)mpr.classList.add('red');
+  else mpr.classList.remove('red');
+  if(TLEFT<=0){
+    clearInterval(TIV);TIV=null;
+    timerMini=false;
+    document.getElementById('tov').classList.remove('show');
+    document.getElementById('tov-mini').classList.remove('show');
+    playBeep();
+  }
 }
 function changeTimer(secs,btn){
   TTOTAL=secs;TLEFT=secs;localStorage.setItem('gl_timer_dur',secs);syncTpre();
   document.getElementById('tnum').textContent=secs;
+  document.getElementById('tov-mini-num').textContent=secs;
   var pr=document.getElementById('tpr');
+  var mpr=document.getElementById('tov-mini-tpr');
   pr.style.transition='none';pr.style.strokeDashoffset='0';pr.classList.remove('red');
+  mpr.style.transition='none';mpr.style.strokeDashoffset='0';mpr.classList.remove('red');
   if(TIV){clearInterval(TIV);TIV=null;}
-  setTimeout(function(){pr.style.transition='stroke-dashoffset 1s linear';TIV=setInterval(tickTimer,1000);},60);
+  setTimeout(function(){
+    pr.style.transition='stroke-dashoffset 1s linear';
+    mpr.style.transition='stroke-dashoffset 1s linear';
+    TIV=setInterval(tickTimer,1000);
+  },60);
 }
 function syncTpre(){
   var vals=[30,60,90,120];
   document.querySelectorAll('.tpre').forEach(function(b,i){b.classList.toggle('on',vals[i]===TTOTAL);});
 }
-function closeTimer(){if(TIV){clearInterval(TIV);TIV=null;}document.getElementById('tov').classList.remove('show');}
+function closeTimer(){
+  if(TIV){clearInterval(TIV);TIV=null;}
+  timerMini=false;
+  document.getElementById('tov').classList.remove('show');
+  document.getElementById('tov-mini').classList.remove('show');
+}
+
+function minimizeTimer(){
+  timerMini=true;
+  document.getElementById('tov').classList.remove('show');
+  document.getElementById('tov-mini').classList.add('show');
+}
+
+function expandTimer(e){
+  if(e) e.stopPropagation();
+  timerMini=false;
+  document.getElementById('tov-mini').classList.remove('show');
+  document.getElementById('tov').classList.add('show');
+}
 function playBeep(){
   try{var ctx=new(window.AudioContext||window.webkitAudioContext)();
     [0,220,440].forEach(function(delay){
@@ -915,8 +1272,7 @@ function addCardio(){
   var vitesse=parseFloat(document.getElementById('c-vitesse').value);
   var cardio={duree:duree,pente:pente,vitesse:vitesse};
   localStorage.setItem('gl_cardio',JSON.stringify(cardio));
-  renderCardio();
-  // auto-save to history immediately so it persists even sans session
+  // Persist in today's history
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var key=todayKey();
   var existing=h[key]||{entries:[],cardio:null};
@@ -924,11 +1280,27 @@ function addCardio(){
   existing.cardio=cardio;
   h[key]=existing;
   localStorage.setItem('gl_history',JSON.stringify(h));
+  renderCardio();
+}
+
+function editCardio(){
+  // Go back to form, pre-fill current values
+  var c=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  if(c){
+    var ds=document.getElementById('c-duree');
+    var ps=document.getElementById('c-pente');
+    var vs=document.getElementById('c-vitesse');
+    for(var i=0;i<ds.options.length;i++) if(parseInt(ds.options[i].value)===c.duree) ds.selectedIndex=i;
+    for(var i=0;i<ps.options.length;i++) if(parseFloat(ps.options[i].value)===c.pente) ps.selectedIndex=i;
+    for(var i=0;i<vs.options.length;i++) if(parseFloat(vs.options[i].value)===c.vitesse) vs.selectedIndex=i;
+  }
+  document.getElementById('cardio-done').style.display='none';
+  document.getElementById('cardio-form').style.display='block';
+  document.getElementById('cardio-card').classList.remove('done');
 }
 
 function removeCardio(){
   localStorage.removeItem('gl_cardio');
-  // also remove from today's history
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var key=todayKey();
   if(h[key]){
@@ -941,28 +1313,21 @@ function removeCardio(){
 
 function renderCardio(){
   var c=JSON.parse(localStorage.getItem('gl_cardio')||'null');
-  var block=document.getElementById('cardio-saved-block');
-  var btn=document.getElementById('cardio-add-btn');
-  if(!block) return;
+  var form=document.getElementById('cardio-form');
+  var done=document.getElementById('cardio-done');
+  var card=document.getElementById('cardio-card');
+  if(!form||!done) return;
   if(!c){
-    block.innerHTML='';
-    if(btn) btn.textContent='+ Ajouter la marche';
+    form.style.display='block';
+    done.style.display='none';
+    card.classList.remove('done');
     return;
   }
-  block.innerHTML=
-    '<div class="cardio-saved" style="margin-bottom:10px;">'+
-      '<div class="cardio-saved-ico">🚶</div>'+
-      '<div class="cardio-saved-info">'+
-        '<div class="cardio-saved-title">Marche enregistrée</div>'+
-        '<div class="cardio-saved-tags">'+
-          '<span class="cardio-tag">'+c.duree+' min</span>'+
-          '<span class="cardio-tag">'+c.pente+'% pente</span>'+
-          '<span class="cardio-tag">'+c.vitesse+' km/h</span>'+
-        '</div>'+
-      '</div>'+
-      '<button class="cardio-del" onclick="removeCardio()">×</button>'+
-    '</div>';
-  if(btn) btn.textContent='Modifier la marche';
+  // Show done state
+  document.getElementById('cardio-done-summary').textContent=c.duree+' min · '+c.pente+'% pente · '+c.vitesse+' km/h';
+  form.style.display='none';
+  done.style.display='block';
+  card.classList.add('done');
 }
 
 function showTab(name){
@@ -976,8 +1341,52 @@ function showTab(name){
 }
 
 // ─────────────────────────────────────────
+// THÈME
+// ─────────────────────────────────────────
+function initTheme(){
+  var saved=localStorage.getItem('gl_theme');
+  var root=document.documentElement;
+  var btn=document.getElementById('theme-btn');
+  if(saved==='light'){
+    root.classList.remove('dark'); root.classList.add('light');
+    if(btn) btn.textContent='☀️';
+  } else if(saved==='dark'){
+    root.classList.remove('light'); root.classList.add('dark');
+    if(btn) btn.textContent='🌙';
+  } else {
+    var prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+    if(btn) btn.textContent=prefersDark?'🌙':'☀️';
+  }
+}
+
+function toggleTheme(){
+  var root=document.documentElement;
+  var btn=document.getElementById('theme-btn');
+  var meta=document.querySelector('meta[name=theme-color]');
+  if(root.classList.contains('light')){
+    root.classList.remove('light'); root.classList.add('dark');
+    localStorage.setItem('gl_theme','dark');
+    if(btn) btn.textContent='🌙';
+    if(meta) meta.content='#0f0f0f';
+  } else {
+    root.classList.remove('dark'); root.classList.add('light');
+    localStorage.setItem('gl_theme','light');
+    if(btn) btn.textContent='☀️';
+    if(meta) meta.content='#f4f4f0';
+  }
+}
+
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(e){
+  if(!localStorage.getItem('gl_theme')){
+    var btn=document.getElementById('theme-btn');
+    if(btn) btn.textContent=e.matches?'🌙':'☀️';
+  }
+});
+
+// ─────────────────────────────────────────
 // BOOT
 // ─────────────────────────────────────────
+initTheme();
 syncTpre();
 renderSheetsConfig();
 renderCardio();
