@@ -7,10 +7,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GymLog K&J">
 <meta name="theme-color" content="#0f0f0f">
-<title>GymLog K&J</title>
+<title>GymLog</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+/* Fix: bouton Marche terminée en light theme */
+html.light .btn-ac[style*="background:#c8ff00"]{background:var(--ac) !important;color:#111 !important;}
+/* Fix: labels KÉVIN/JÉRÉMY en light theme */
+html.light .logo-label{fill:#5a8a00 !important;}
+
 html{
   --bg:#0f0f0f;--s1:#1a1a1a;--s2:#242424;--bd:#2e2e2e;
   --ac:#c8ff00;--tx:#f0f0f0;--mu:#888;--rd:#ff4444;--pu:#a78bfa;
@@ -21,6 +26,7 @@ html.light{
   --bg:#f4f4f0;--s1:#ffffff;--s2:#eeeeea;--bd:#d8d8d0;
   --ac:#5a8a00;--tx:#111111;--mu:#666666;--rd:#cc2222;--pu:#7c3aed;
   --theme-ico:'☀️';
+}
 }
 /* Suivi automatique système SI pas de préférence manuelle */
 @media(prefers-color-scheme:light){
@@ -206,6 +212,7 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
     height:calc(100vh - 100px);
     overflow:hidden;
     padding:0;
+    padding:0;
   }
   #page-seance.active{display:flex;}
   .seance-col{flex:1;overflow-y:auto;padding:.8rem 1rem;border-right:1px solid var(--bd);}
@@ -264,8 +271,8 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
     <rect x="89" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
     <text x="111" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" class="logo-letter" fill="#f0f0f0">J</text>
     <rect x="86" y="54" width="50" height="4" rx="2" fill="#c8ff00"/>
-    <text x="33" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1.5">KÉVIN</text>
-    <text x="111" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" letter-spacing="1">JÉRÉMY</text>
+    <text x="33" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" class="logo-label" letter-spacing="1.5">KÉVIN</text>
+    <text x="111" y="75" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="10" fill="#c8ff00" class="logo-label" letter-spacing="1">JÉRÉMY</text>
   </svg>
   <div style="display:flex;align-items:center;gap:8px;">
     <div class="date-badge" id="header-date"></div>
@@ -314,8 +321,8 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
         <div class="field">
           <span class="lbl">Séries</span>
           <select id="sel-series">
-            <option>1</option><option>2</option><option>3</option>
-            <option selected>4</option><option>5</option><option>6</option>
+            <option selected>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option>
           </select>
         </div>
       </div>
@@ -361,8 +368,8 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
           <div class="field">
             <span class="lbl">Durée (min)</span>
             <select id="c-duree">
-              <option>5</option><option>10</option><option>15</option><option>20</option>
-              <option>25</option><option selected>30</option><option>35</option><option>40</option>
+              <option>5</option><option>10</option><option>15</option><option selected>20</option>
+              <option>25</option><option>30</option><option>35</option><option>40</option>
               <option>45</option><option>50</option><option>55</option><option>60</option>
             </select>
           </div>
@@ -370,8 +377,8 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
             <span class="lbl">Pente (%)</span>
             <select id="c-pente">
               <option>0</option><option>1</option><option>2</option><option>3</option>
-              <option>4</option><option selected>5</option><option>6</option><option>7</option>
-              <option>8</option><option>9</option><option>10</option><option>12</option>
+              <option>4</option><option>5</option><option>6</option><option>7</option>
+              <option>8</option><option>9</option><option>10</option><option selected>12</option>
               <option>15</option>
             </select>
           </div>
@@ -388,7 +395,7 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
       </div>
       <div id="cardio-done" style="display:none;text-align:center;padding:8px 0;">
         <span class="cardio-done-check">✅</span>
-        <div class="cardio-done-summary" id="cardio-done-summary">30 min · 5% · 4 km/h</div>
+        <div class="cardio-done-summary" id="cardio-done-summary">20 min · 12% · 4 km/h</div>
         <div class="cardio-done-detail">Marche enregistrée pour cette séance</div>
         <button class="cardio-modify-btn" onclick="editCardio()">✎ Modifier</button>
       </div>
@@ -516,13 +523,13 @@ var machines=[
   {nom:"Développé incliné haltères",             groupe:"Pectoraux", icon:"🏋",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
 
   {nom:"Abducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Adducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
+  {nom:"Adducteurs machine",                     groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100]},
   {nom:"Goblet squat?",                          groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
   {nom:"Hack squat?",                            groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
-  {nom:"Leg curl?",                              groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Leg curl",                               groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
   {nom:"Leg curl couché?",                       groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Leg extension?",                         groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
-  {nom:"Presse convergente?",                    groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
+  {nom:"Leg extension",                          groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Presse convergente",                     groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134,141,147,154,161,168]},
   {nom:"Squat Smith machine?",                   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
 
   {nom:"Deltoïde arrière (Rev fly)",             groupe:"Épaules",   icon:"🔝",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
@@ -619,18 +626,24 @@ function filterMachines(){
   updatePoids();
 }
 
+// Retourne le PLUS HAUT poids jamais utilisé pour cet exercice (pas le dernier)
+// Poids max : d'abord dans gl_max_weights (persistant), sinon dans l'historique
 function getLastWeight(nomExo){
+  var maxW = JSON.parse(localStorage.getItem('gl_max_weights')||'{}');
+  if(maxW[nomExo]) return maxW[nomExo];
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var keys=Object.keys(h).sort().reverse();
+  var best=null;
   for(var i=0;i<keys.length;i++){
-    var day=h[keys[i]];
-    var entries=Array.isArray(day)?day:(day.entries||[]);
+    var entries=Array.isArray(h[keys[i]])?h[keys[i]]:(h[keys[i]].entries||[]);
     for(var j=0;j<entries.length;j++){
-      if(entries[j].nom===nomExo && entries[j].poids)
-        return parseFloat(entries[j].poids);
+      if(entries[j].nom===nomExo){
+        var p=parseFloat(entries[j].poids);
+        if(best===null||p>best) best=p;
+      }
     }
   }
-  return null;
+  return best;
 }
 
 function updatePoids(){
@@ -647,7 +660,7 @@ function updatePoids(){
     o.value=p; o.textContent=p+' kg'; sel.appendChild(o);
   });
   if(lastW!==null){
-    hint.textContent='(dernier poids : '+lastW+' kg)';
+    hint.textContent='(Poids max : '+lastW+' kg)';
     var best=0, bestDiff=Infinity;
     for(var i=0;i<sel.options.length;i++){
       var diff=Math.abs(parseFloat(sel.options[i].value)-lastW);
@@ -916,6 +929,13 @@ function saveSession(){
   existing.entries=[...session];
   if(cardio) existing.cardio=cardio;
   h[key]=existing;
+  // Met à jour les poids max persistants à chaque sauvegarde
+var mw=JSON.parse(localStorage.getItem('gl_max_weights')||'{}');
+session.forEach(function(e){
+  var p=parseFloat(e.poids);
+  if(!mw[e.nom]||p>mw[e.nom]) mw[e.nom]=p;
+});
+localStorage.setItem('gl_max_weights',JSON.stringify(mw));
   localStorage.setItem('gl_history',JSON.stringify(h));
   var btn=document.getElementById('save-btn');
   btn.className='btn-ghost ok'; btn.textContent='✓ Sauvegardé !';
