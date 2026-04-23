@@ -38,13 +38,13 @@ html.light{
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overscroll-behavior:none;}
-.app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;}
-.header{padding:1rem 1.2rem 0.6rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.app{display:flex;flex-direction:row;height:100vh;width:100%;max-width:100%;margin:0;}
+.topbar{padding:.7rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);}
 .date-badge{font-size:12px;color:var(--mu);background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:4px 12px;}
 .tabs{display:flex;margin:0 1.2rem 0.8rem;gap:4px;background:var(--s1);border-radius:12px;padding:4px;flex-shrink:0;}
 .tab{flex:1;text-align:center;padding:7px 2px;font-size:11px;font-weight:500;border-radius:9px;cursor:pointer;color:var(--mu);border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .tab.active{background:var(--ac);color:#0f0f0f;font-weight:700;}
-.page{display:none;flex:1;overflow-y:auto;padding:0 1.2rem 6rem;}
+.page{display:none;padding:1rem 1.2rem 6rem;}
 .seance-col{padding:0;border:none;}
 .seance-col-title{display:none;}
 .page.active{display:block;}
@@ -102,7 +102,9 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .vol-total span:first-child{font-size:13px;color:var(--mu);}
 .vol-total span:last-child{font-size:15px;font-weight:700;color:var(--ac);}
 .rm-hint{font-size:11px;color:var(--mu);margin-top:4px;line-height:1.5;}
-.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:.8rem 1.2rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;}
+.save-bar{position:fixed;bottom:0;left:var(--sb-w);right:0;padding:.8rem 1.2rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;transition:left .25s;}
+.sidebar.collapsed ~ * .save-bar,.sidebar.collapsed + .main-area .save-bar{left:var(--sb-w-collapsed);}
+@media(max-width:699px){.save-bar{left:0;}}
 .save-bar>*{pointer-events:all;}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .dl-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:8px;}
@@ -255,12 +257,174 @@ html.light .tov-mini{background:rgba(255,255,255,0.95);box-shadow:0 4px 24px rgb
 html.light .tov-mini-num{color:#111;}
 html.light .entry{background:var(--s1);border-color:var(--bd);}
 html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.08) 0%,var(--s1) 60%);}
+
+/* ── BURGER MENU ── */
+.burger-btn{
+  position:fixed;top:14px;right:14px;z-index:8000;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--s1);border:1px solid var(--bd);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:5px;cursor:pointer;transition:background .2s;
+}
+.burger-btn:active{background:var(--s2);}
+.burger-line{width:18px;height:2px;background:var(--tx);border-radius:2px;transition:all .25s;}
+
+/* Side drawer */
+.drawer-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  z-index:8500;
+}
+.drawer-overlay.open{display:block;}
+.drawer{
+  position:fixed;top:0;right:0;height:100%;width:280px;max-width:85vw;
+  background:var(--s1);border-left:1px solid var(--bd);
+  z-index:9000;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.drawer.open{transform:translateX(0);}
+.drawer-header{
+  padding:1.2rem 1.2rem 1rem;
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.drawer-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--ac);}
+.drawer-close{background:none;border:none;color:var(--mu);font-size:22px;cursor:pointer;padding:4px;}
+.drawer-nav{flex:1;padding:.8rem 0;}
+.drawer-nav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 1.2rem;font-size:14px;font-weight:500;
+  cursor:pointer;color:var(--mu);border:none;background:none;
+  width:100%;text-align:left;font-family:'DM Sans',sans-serif;
+  transition:background .15s,color .15s;border-radius:0;
+}
+.drawer-nav-item:active{background:var(--s2);}
+.drawer-nav-item.active{color:var(--tx);background:var(--s2);}
+.drawer-nav-item .nav-ico{font-size:18px;width:24px;text-align:center;}
+.drawer-divider{height:1px;background:var(--bd);margin:.4rem 1.2rem;}
+.drawer-section-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--mu);padding:10px 1.2rem 4px;font-family:'DM Sans',sans-serif;
+}
+
+/* Params page */
+.param-section{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.2rem;margin-bottom:1rem;}
+.param-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.param-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.param-row:last-child{border-bottom:none;}
+.param-label{color:var(--mu);font-size:12px;margin-top:2px;}
+.param-del-btn{font-size:11px;color:var(--rd);background:none;border:1px solid rgba(255,68,68,0.25);border-radius:8px;padding:3px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.param-del-btn:active{background:rgba(255,68,68,0.1);}
+.obj-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.obj-btn{font-size:12px;padding:6px 13px;border-radius:20px;border:1px solid var(--bd);
+  background:none;color:var(--mu);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.obj-btn.active{font-weight:700;}
+.obj-btn.force.active{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.08);}
+.obj-btn.hyper.active{border-color:var(--ac);color:var(--ac);background:rgba(200,255,0,0.08);}
+.obj-btn.endur.active{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,0.08);}
+.obj-btn.custom.active{border-color:var(--pu);color:var(--pu);background:rgba(167,139,250,0.08);}
+.perso-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.perso-row input[type=number]{width:80px;padding:8px 10px;font-size:14px;text-align:center;}
+.perso-row span{font-size:13px;color:var(--mu);}
+
+/* ── SIDEBAR ── */
+:root{--sb-w:220px;--sb-w-collapsed:56px;}
+.sidebar{
+  width:var(--sb-w);flex-shrink:0;
+  background:var(--s1);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;
+  height:100vh;position:fixed;left:0;top:0;z-index:500;
+  transition:width .25s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.sidebar.collapsed{width:var(--sb-w-collapsed);}
+.sb-logo{
+  display:flex;align-items:center;gap:10px;
+  padding:.9rem 1rem;border-bottom:1px solid var(--bd);
+  flex-shrink:0;min-height:60px;overflow:hidden;
+}
+.sb-logo svg{flex-shrink:0;}
+.sb-logo-text{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:15px;
+  color:var(--ac);white-space:nowrap;opacity:1;
+  transition:opacity .2s;
+}
+.sidebar.collapsed .sb-logo-text{opacity:0;pointer-events:none;}
+.sb-toggle{
+  background:none;border:none;cursor:pointer;
+  padding:.8rem 1rem;display:flex;align-items:center;justify-content:center;
+  color:var(--mu);font-size:18px;flex-shrink:0;
+  border-top:1px solid var(--bd);
+  transition:color .2s;
+}
+.sb-toggle:hover{color:var(--tx);}
+.sb-nav{flex:1;padding:.5rem 0;overflow-y:auto;overflow-x:hidden;}
+.sb-section-label{
+  font-size:9px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--mu);padding:10px 1rem 3px;
+  white-space:nowrap;opacity:1;transition:opacity .15s;
+}
+.sidebar.collapsed .sb-section-label{opacity:0;}
+.sb-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 1rem;cursor:pointer;
+  color:var(--mu);border:none;background:none;
+  width:100%;text-align:left;font-size:13px;font-weight:500;
+  font-family:'DM Sans',sans-serif;
+  white-space:nowrap;border-radius:0;
+  transition:background .15s,color .15s;position:relative;
+}
+.sb-item:hover{background:var(--s2);color:var(--tx);}
+.sb-item.active{color:var(--tx);background:var(--s2);}
+.sb-item.active::before{
+  content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:3px;background:var(--ac);border-radius:0 3px 3px 0;
+}
+.sb-ico{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
+.sb-label{opacity:1;transition:opacity .15s;}
+.sidebar.collapsed .sb-label{opacity:0;}
+
+/* ── MAIN AREA ── */
+.main-area{
+  flex:1;display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;
+  margin-left:var(--sb-w);
+  transition:margin-left .25s cubic-bezier(.4,0,.2,1);
+  max-width:calc(100vw - var(--sb-w));
+}
+.sidebar.collapsed ~ .main-area{
+  margin-left:var(--sb-w-collapsed);
+  max-width:calc(100vw - var(--sb-w-collapsed));
+}
+.topbar{padding:.7rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--bd);}
+.page-content{flex:1;overflow-y:auto;padding:0;max-width:540px;margin:0 auto;width:100%;}
+.page{display:none;padding:1rem 1.2rem 6rem;}
+.page.active{display:block;}
+
+/* Mobile: sidebar hidden, burger shown */
+@media(max-width:699px){
+  .sidebar{transform:translateX(-100%);width:var(--sb-w) !important;}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main-area{margin-left:0 !important;max-width:100% !important;}
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:499;}
+  .sb-overlay.open{display:block;}
+  .mobile-burger{display:flex;}
+}
+@media(min-width:700px){
+  .mobile-burger{display:none !important;}
+  .sb-overlay{display:none !important;}
+}
+.mobile-burger{
+  background:none;border:none;cursor:pointer;
+  color:var(--tx);font-size:20px;padding:4px;
+}
 </style>
 </head>
 <body>
 <div class="app">
 
-<div class="header">
+<div class="header" style="display:none;position:absolute;">
   <svg width="160" height="52" viewBox="0 0 260 82" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;margin-left:2px;">
     <rect x="8" y="4" width="50" height="50" rx="5" class="logo-rect-bg" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
     <rect x="11" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
@@ -280,11 +444,59 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
   </div>
 </div>
 
-<div class="tabs">
-  <button class="tab active" onclick="showTab('seance')">Séance</button>
-  <button class="tab" onclick="showTab('historique')">Historique</button>
-  <button class="tab" onclick="showTab('stats')">Stats</button>
-</div>
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <svg width="32" height="32" viewBox="0 0 260 82" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <rect x="8" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+      <rect x="11" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
+      <text x="33" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">K</text>
+      <text x="72" y="37" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="22" fill="#c8ff00">&amp;</text>
+      <rect x="86" y="4" width="50" height="50" rx="5" fill="#1a1a1a" stroke="#2e2e2e" stroke-width="1"/>
+      <rect x="89" y="7" width="44" height="44" rx="3" fill="none" stroke="#c8ff00" stroke-width="1.4" stroke-dasharray="5 2"/>
+      <text x="111" y="43" text-anchor="middle" font-family="'Syne',sans-serif" font-weight="800" font-size="32" fill="#f0f0f0">J</text>
+    </svg>
+    <span class="sb-logo-text">GymLog K&amp;J</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section-label">Entraînement</div>
+    <button class="sb-item active" id="nav-seance" onclick="navTo('seance')">
+      <span class="sb-ico">🏠</span><span class="sb-label">Accueil</span>
+    </button>
+    <button class="sb-item" id="nav-seance2" onclick="navTo('seance')">
+      <span class="sb-ico">🏋️</span><span class="sb-label">Séance</span>
+    </button>
+    <button class="sb-item" id="nav-historique" onclick="navTo('historique')">
+      <span class="sb-ico">📋</span><span class="sb-label">Historique</span>
+    </button>
+    <div class="sb-section-label">Analyse</div>
+    <button class="sb-item" id="nav-stats" onclick="navTo('stats')">
+      <span class="sb-ico">📊</span><span class="sb-label">Stats</span>
+    </button>
+    <div class="sb-section-label">Application</div>
+    <button class="sb-item" id="nav-params" onclick="navTo('params')">
+      <span class="sb-ico">⚙️</span><span class="sb-label">Paramètres</span>
+    </button>
+  </nav>
+  <button class="sb-toggle" onclick="toggleSidebar()" title="Réduire">
+    <span id="sb-toggle-ico">◀</span>
+  </button>
+</aside>
+
+<!-- MAIN AREA -->
+<div class="main-area" id="main-area">
+  <div class="topbar">
+    <button class="mobile-burger" onclick="openSidebar()">☰</button>
+    <div id="topbar-title" style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Séance</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="date-badge" id="header-date"></div>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Thème">🌙</button>
+    </div>
+  </div>
+  <div class="page-content">
 
 <!-- SÉANCE -->
 <div class="page active" id="page-seance">
@@ -439,26 +651,83 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
       <span style="color:#f59e0b;">●</span> 1RM réel (saisi manuellement)
     </div>
   </div>
-  <div class="card">
-    <div class="dl-lbl" style="margin-bottom:6px;">Mon Google Sheets</div>
-    <div id="sheets-nc">
-      <p style="font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6;">Colle ton URL Apps Script pour envoyer tes données dans ton propre Google Sheet.</p>
-      <input type="url" id="inp-script" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:10px;">
-      <input type="url" id="inp-sheet" placeholder="URL de ta feuille Google Sheets (optionnel)" style="margin-bottom:10px;">
-      <button class="btn-ghost green" onclick="saveSheetConfig()">Enregistrer</button>
+</div>
+
+<!-- PARAMÈTRES -->
+<div class="page" id="page-params">
+
+  <div class="param-section">
+    <div class="param-title">🎯 Objectif & durée de repos</div>
+    <div class="obj-bar">
+      <button class="obj-btn force" onclick="setObjectif('force',this)">💪 Force <small style="opacity:.6">4 min</small></button>
+      <button class="obj-btn hyper" onclick="setObjectif('hyper',this)">🏋️ Hypertrophie <small style="opacity:.6">1m30</small></button>
+      <button class="obj-btn endur" onclick="setObjectif('endur',this)">🔥 Endurance <small style="opacity:.6">45s</small></button>
+      <button class="obj-btn custom" onclick="setObjectif('custom',this)">⚙️ Perso</button>
     </div>
-    <div id="sheets-c" style="display:none;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <span style="color:var(--ac);">✓</span>
-        <span style="font-size:13px;color:var(--ac);">Feuille configurée</span>
-        <button onclick="resetSheetConfig()" style="margin-left:auto;font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;text-decoration:underline;">Changer</button>
-      </div>
-      <button class="btn-ghost green" id="export-all-btn" onclick="sendAllToSheets()" style="margin-bottom:8px;">Envoyer tout historique</button>
-      <div id="export-status" style="font-size:12px;margin-top:4px;text-align:center;display:none;"></div>
-      <button class="btn-ghost" id="open-sheet-btn" onclick="openMySheet()" style="margin-top:8px;display:none;">Ouvrir ma feuille Google Sheets</button>
+    <div class="perso-row" id="perso-row" style="display:none;">
+      <span>Durée :</span>
+      <input type="number" id="perso-dur" min="10" max="600" placeholder="90">
+      <span>secondes</span>
+      <button class="btn-ghost" onclick="savePerso()" style="width:auto;padding:7px 14px;font-size:13px;">OK</button>
     </div>
   </div>
+
+  <div class="param-section">
+    <div class="param-title" style="justify-content:space-between;">
+      ⏱ Temps mémorisés par exercice
+      <button class="param-del-btn" onclick="resetExoTimers()">Tout effacer</button>
+    </div>
+    <div id="list-exo-timers"><p style="font-size:13px;color:var(--mu);">Aucun temps mémorisé.</p></div>
+  </div>
+
+  <div class="param-section">
+    <div class="param-title" style="justify-content:space-between;">
+      🏆 Poids max mémorisés
+      <button class="param-del-btn" onclick="resetMaxWeights()">Tout effacer</button>
+    </div>
+    <div id="list-max-weights"><p style="font-size:13px;color:var(--mu);">Aucun poids mémorisé.</p></div>
+  </div>
+
+  <div class="param-section">
+    <div class="param-title">📊 Google Sheets</div>
+    <div id="sheets-nc-p">
+      <p style="font-size:13px;color:var(--mu);margin-bottom:10px;line-height:1.6;">Colle ton URL Apps Script pour envoyer tes données.</p>
+      <input type="url" id="inp-script-p" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:10px;">
+      <input type="url" id="inp-sheet-p" placeholder="URL de ta feuille Google Sheets (optionnel)" style="margin-bottom:10px;">
+      <button class="btn-ghost green" onclick="saveSheetConfigFromParams()">Enregistrer</button>
+    </div>
+    <div id="sheets-c-p" style="display:none;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <span style="color:var(--ac);">✓</span>
+        <span style="font-size:13px;color:var(--ac);">Feuille configurée</span>
+        <button onclick="resetSheetConfigFromParams()" style="margin-left:auto;font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;text-decoration:underline;">Changer</button>
+      </div>
+      <button class="btn-ghost" id="btn-open-sheet-p" onclick="openMySheet()" style="display:none;">Ouvrir ma feuille</button>
+    </div>
+  </div>
+
+  <div class="param-section" style="border-color:rgba(255,68,68,0.3);">
+    <div class="param-title" style="color:var(--rd);">⚠️ Zone dangereuse</div>
+    <div class="param-row">
+      <div>
+        <div style="font-size:13px;font-weight:500;">Vider l'historique</div>
+        <div class="param-label">Supprime toutes les séances sauvegardées</div>
+      </div>
+      <button class="param-del-btn" onclick="clearAllHistory()">Vider</button>
+    </div>
+    <div class="param-row">
+      <div>
+        <div style="font-size:13px;font-weight:500;">Reset complet</div>
+        <div class="param-label">Efface toutes les données de l'app</div>
+      </div>
+      <button class="param-del-btn" onclick="resetAllData()">Reset</button>
+    </div>
+  </div>
+
 </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main-area -->
 
 <!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">
@@ -473,9 +742,11 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
   <div class="tov-rm" id="tov-rm"></div>
   <div class="tpres">
     <button class="tpre" onclick="changeTimer(30,this)">30s</button>
-    <button class="tpre on" onclick="changeTimer(60,this)">1 min</button>
+    <button class="tpre" onclick="changeTimer(60,this)">1 min</button>
     <button class="tpre" onclick="changeTimer(90,this)">1m30</button>
     <button class="tpre" onclick="changeTimer(120,this)">2 min</button>
+    <button class="tpre" onclick="changeTimer(180,this)">3 min</button>
+    <button class="tpre" onclick="changeTimer(300,this)">5 min</button>
   </div>
   <div class="tring">
     <svg width="180" height="180" viewBox="0 0 180 180">
@@ -486,6 +757,10 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
       <div class="tnum" id="tnum">60</div>
       <div class="tunit">secondes</div>
     </div>
+  </div>
+  <div class="tov-memo" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:12px;color:var(--mu);">
+    <input type="checkbox" id="memo-check" style="width:16px;height:16px;accent-color:var(--ac);cursor:pointer;">
+    <label for="memo-check" style="cursor:pointer;">Mémoriser pour cet exercice</label>
   </div>
   <div class="tacts">
     <button class="tbtn" onclick="closeTimer()">Annuler</button>
@@ -523,13 +798,13 @@ var machines=[
   {nom:"Développé incliné haltères",             groupe:"Pectoraux", icon:"🏋",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
 
   {nom:"Abducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Adducteurs machine",                     groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100]},
+  {nom:"Adducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
   {nom:"Goblet squat?",                          groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
   {nom:"Hack squat?",                            groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,120]},
-  {nom:"Leg curl",                               groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Leg curl?",                              groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
   {nom:"Leg curl couché?",                       groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Leg extension",                          groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Presse convergente",                     groupe:"Jambes",    icon:"🦵",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134,141,147,154,161,168]},
+  {nom:"Leg extension?",                         groupe:"Jambes",    icon:"🦵",poids:[30,40,50,60,70,80,90,100,110,120]},
+  {nom:"Presse convergente?",                    groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
   {nom:"Squat Smith machine?",                   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
 
   {nom:"Deltoïde arrière (Rev fly)",             groupe:"Épaules",   icon:"🔝",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
@@ -1088,10 +1363,21 @@ function resetSheetConfig(){
   localStorage.removeItem('gl_script_url');localStorage.removeItem('gl_sheet_url');renderSheetsConfig();
 }
 function renderSheetsConfig(){
+  // sheets config now only in params page — guard against null
   var su=localStorage.getItem('gl_script_url')||'';
-  document.getElementById('sheets-nc').style.display=su?'none':'block';
-  document.getElementById('sheets-c').style.display=su?'block':'none';
-  if(su)document.getElementById('open-sheet-btn').style.display=localStorage.getItem('gl_sheet_url')?'block':'none';
+  var nc=document.getElementById('sheets-nc');
+  var c=document.getElementById('sheets-c');
+  var ob=document.getElementById('open-sheet-btn');
+  if(nc) nc.style.display=su?'none':'block';
+  if(c)  c.style.display=su?'block':'none';
+  if(ob) ob.style.display=(su&&localStorage.getItem('gl_sheet_url'))?'block':'none';
+  // Also sync params page sheets config
+  var nc2=document.getElementById('sheets-nc-p');
+  var c2=document.getElementById('sheets-c-p');
+  var ob2=document.getElementById('btn-open-sheet-p');
+  if(nc2) nc2.style.display=su?'none':'block';
+  if(c2)  c2.style.display=su?'block':'none';
+  if(ob2) ob2.style.display=(su&&localStorage.getItem('gl_sheet_url'))?'block':'none';
 }
 function openMySheet(){var u=localStorage.getItem('gl_sheet_url');if(u)window.open(u,'_blank');}
 function buildRows(data){
@@ -1184,6 +1470,15 @@ function sendTodayToSheets(){
 // TIMER
 // ─────────────────────────────────────────
 function startTimer(entry){
+  // Smart timer: use memorized time or objectif default
+  var mt=JSON.parse(localStorage.getItem('gl_exo_timers')||'{}');
+  if(mt[entry.nom]){
+    TTOTAL=mt[entry.nom];
+  } else {
+    TTOTAL=OBJECTIF_TIMES[currentObjectif]||90;
+  }
+  localStorage.setItem('gl_timer_dur',TTOTAL);
+  syncTpre();
   TLEFT=TTOTAL;
   document.getElementById('tov-name').textContent=entry.nom;
   document.getElementById('tov-sub').textContent=entry.series+' séries · '+entry.reps+' reps · '+entry.poids+' kg';
@@ -1246,10 +1541,18 @@ function changeTimer(secs,btn){
   },60);
 }
 function syncTpre(){
-  var vals=[30,60,90,120];
+  var vals=[30,60,90,120,180,300];
   document.querySelectorAll('.tpre').forEach(function(b,i){b.classList.toggle('on',vals[i]===TTOTAL);});
 }
 function closeTimer(){
+  // Save memorized time if checked
+  var mc=document.getElementById('memo-check');
+  var name=document.getElementById('tov-name').textContent;
+  if(mc && mc.checked && name && name!=='—'){
+    var mt=JSON.parse(localStorage.getItem('gl_exo_timers')||'{}');
+    mt[name]=TTOTAL;
+    localStorage.setItem('gl_exo_timers',JSON.stringify(mt));
+  }
   if(TIV){clearInterval(TIV);TIV=null;}
   timerMini=false;
   document.getElementById('tov').classList.remove('show');
@@ -1350,14 +1653,142 @@ function renderCardio(){
   card.classList.add('done');
 }
 
-function showTab(name){
-  ['seance','historique','stats'].forEach(function(n,i){
-    document.getElementById('page-'+n).classList.toggle('active',n===name);
-    document.querySelectorAll('.tab')[i].classList.toggle('active',n===name);
+// ── NAVIGATION ──────────────────────────
+
+
+// ── DRAWER ──────────────────────────────
+
+
+
+
+// Close drawer on Escape key
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeDrawer();
+});
+
+// ── PARAMS ──────────────────────────────
+var currentObjectif=localStorage.getItem('gl_objectif')||'hyper';
+var OBJECTIF_TIMES={force:240,hyper:90,endur:45,custom:parseInt(localStorage.getItem('gl_timer_custom')||'90')};
+
+function setObjectif(obj,btn){
+  currentObjectif=obj;
+  localStorage.setItem('gl_objectif',obj);
+  syncObjectifUI();
+  if(obj!=='custom'){
+    var TTOTAL_NEW=OBJECTIF_TIMES[obj];
+    localStorage.setItem('gl_timer_dur',TTOTAL_NEW);
+  }
+}
+
+function syncObjectifUI(){
+  document.querySelectorAll('.obj-btn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.classList.contains(currentObjectif)) b.classList.add('active');
   });
-  document.getElementById('bar-seance').style.display=name==='seance'?'block':'none';
-  if(name==='historique')renderHistory();
-  if(name==='stats'){renderStats();renderSheetsConfig();}
+  var pr=document.getElementById('perso-row');
+  if(pr) pr.style.display=(currentObjectif==='custom')?'flex':'none';
+  if(currentObjectif==='custom'){
+    var pd=document.getElementById('perso-dur');
+    if(pd) pd.value=OBJECTIF_TIMES.custom;
+  }
+}
+
+function savePerso(){
+  var v=parseInt(document.getElementById('perso-dur').value);
+  if(!v||v<10||v>600){alert('Entre 10 et 600 secondes.');return;}
+  OBJECTIF_TIMES.custom=v;
+  localStorage.setItem('gl_timer_custom',v);
+  localStorage.setItem('gl_timer_dur',v);
+  alert('Durée perso : '+v+'s enregistrée.');
+}
+
+function renderParamsPage(){
+  syncObjectifUI();
+  // Exo timers
+  var mt=JSON.parse(localStorage.getItem('gl_exo_timers')||'{}');
+  var tEl=document.getElementById('list-exo-timers');
+  if(tEl){
+    var te=Object.entries(mt);
+    tEl.innerHTML=!te.length?'<p style="font-size:13px;color:var(--mu);">Aucun temps mémorisé.</p>':
+      te.map(function(kv){
+        return '<div class="param-row">'+
+          '<span style="font-size:13px;font-weight:500;">'+kv[0]+'</span>'+
+          '<div style="display:flex;align-items:center;gap:10px;">'+
+            '<span style="font-size:13px;color:var(--ac);">'+kv[1]+'s</span>'+
+            '<button class="param-del-btn" onclick="delExoTimer(\''+kv[0]+'\')">×</button>'+
+          '</div></div>';
+      }).join('');
+  }
+  // Max weights
+  var mw=JSON.parse(localStorage.getItem('gl_max_weights')||'{}');
+  var wEl=document.getElementById('list-max-weights');
+  if(wEl){
+    var we=Object.entries(mw).sort(function(a,b){return b[1]-a[1];});
+    wEl.innerHTML=!we.length?'<p style="font-size:13px;color:var(--mu);">Aucun poids mémorisé.</p>':
+      we.map(function(kv){
+        return '<div class="param-row">'+
+          '<span style="font-size:13px;font-weight:500;">'+kv[0]+'</span>'+
+          '<div style="display:flex;align-items:center;gap:10px;">'+
+            '<span style="font-size:13px;color:var(--ac);">'+kv[1]+' kg</span>'+
+            '<button class="param-del-btn" onclick="delMaxWeight(\''+kv[0]+'\')">×</button>'+
+          '</div></div>';
+      }).join('');
+  }
+  // Sheets
+  renderSheetsConfigParams();
+}
+
+function delExoTimer(nom){
+  var t=JSON.parse(localStorage.getItem('gl_exo_timers')||'{}');
+  delete t[nom]; localStorage.setItem('gl_exo_timers',JSON.stringify(t));
+  renderParamsPage();
+}
+function resetExoTimers(){
+  if(!confirm('Effacer tous les temps mémorisés ?'))return;
+  localStorage.removeItem('gl_exo_timers'); renderParamsPage();
+}
+function delMaxWeight(nom){
+  var w=JSON.parse(localStorage.getItem('gl_max_weights')||'{}');
+  delete w[nom]; localStorage.setItem('gl_max_weights',JSON.stringify(w));
+  renderParamsPage();
+}
+function resetMaxWeights(){
+  if(!confirm('Effacer tous les poids max ?'))return;
+  localStorage.removeItem('gl_max_weights'); renderParamsPage();
+}
+function clearAllHistory(){
+  if(!confirm('Vider tout l\'historique ? Action irréversible.'))return;
+  localStorage.removeItem('gl_history'); alert('Historique vidé.');
+}
+function resetAllData(){
+  if(!confirm('Supprimer TOUTES les données ?'))return;
+  if(!confirm('Dernière confirmation — tout sera effacé.'))return;
+  ['gl_history','gl_session','gl_cardio','gl_exo_timers','gl_max_weights',
+   'gl_objectif','gl_timer_dur','gl_timer_custom','gl_sent_keys',
+   'gl_script_url','gl_sheet_url','gl_theme'].forEach(function(k){localStorage.removeItem(k);});
+  window.location.reload();
+}
+function renderSheetsConfigParams(){
+  var su=localStorage.getItem('gl_script_url')||'';
+  var ncEl=document.getElementById('sheets-nc-p');
+  var cEl=document.getElementById('sheets-c-p');
+  if(ncEl) ncEl.style.display=su?'none':'block';
+  if(cEl) cEl.style.display=su?'block':'none';
+  var ob=document.getElementById('btn-open-sheet-p');
+  if(ob) ob.style.display=localStorage.getItem('gl_sheet_url')?'block':'none';
+}
+function saveSheetConfigFromParams(){
+  var su=document.getElementById('inp-script-p').value.trim();
+  var shu=document.getElementById('inp-sheet-p').value.trim();
+  if(!su||!su.startsWith('https://script.google.com')){alert('URL invalide.');return;}
+  localStorage.setItem('gl_script_url',su);
+  if(shu) localStorage.setItem('gl_sheet_url',shu);
+  renderSheetsConfigParams(); renderSheetsConfig();
+}
+function resetSheetConfigFromParams(){
+  if(!confirm('Supprimer la configuration Sheets ?'))return;
+  localStorage.removeItem('gl_script_url'); localStorage.removeItem('gl_sheet_url');
+  renderSheetsConfigParams(); renderSheetsConfig();
 }
 
 // ─────────────────────────────────────────
@@ -1406,8 +1837,101 @@ window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',funct
 // ─────────────────────────────────────────
 // BOOT
 // ─────────────────────────────────────────
+
+// ── SIDEBAR ──────────────────────────────
+var sidebarCollapsed = localStorage.getItem('gl_sb_collapsed') === '1';
+
+function initSidebar(){
+  if(sidebarCollapsed) document.getElementById('sidebar').classList.add('collapsed');
+  updateSidebarToggleIcon();
+  // Set save-bar position after DOM ready
+  setTimeout(updateSaveBarPosition, 0);
+}
+
+function toggleSidebar(){
+  var sb = document.getElementById('sidebar');
+  sidebarCollapsed = !sidebarCollapsed;
+  sb.classList.toggle('collapsed', sidebarCollapsed);
+  localStorage.setItem('gl_sb_collapsed', sidebarCollapsed ? '1' : '0');
+  updateSidebarToggleIcon();
+  updateSaveBarPosition();
+}
+
+function updateSaveBarPosition(){
+  var bar = document.getElementById('bar-seance');
+  if(!bar) return;
+  if(window.innerWidth <= 699){ bar.style.left='0'; return; }
+  bar.style.left = sidebarCollapsed ? 'var(--sb-w-collapsed)' : 'var(--sb-w)';
+}
+
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('sb-overlay').classList.add('open');
+}
+
+function closeSidebar(){
+  if(window.innerWidth <= 699){
+    // Mobile: hide sidebar
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sb-overlay').classList.remove('open');
+  } else {
+    // Desktop: collapse sidebar
+    if(!sidebarCollapsed) toggleSidebar();
+  }
+}
+
+function updateSidebarToggleIcon(){
+  var ico = document.getElementById('sb-toggle-ico');
+  if(ico) ico.textContent = sidebarCollapsed ? '▶' : '◀';
+}
+
+// ── NAVIGATION ───────────────────────────
+var PAGE_TITLES = {
+  seance:'Séance',
+  historique:'Historique',
+  stats:'Stats',
+  params:'Paramètres'
+};
+
+function navTo(name){
+  // Activate page
+  ['seance','historique','stats','params'].forEach(function(n){
+    var p = document.getElementById('page-'+n);
+    if(p) p.classList.toggle('active', n===name);
+  });
+  // Activate sidebar items
+  ['seance','historique','stats','params'].forEach(function(n){
+    var el = document.getElementById('nav-'+n);
+    if(el) el.classList.toggle('active', n===name);
+  });
+  // Also handle nav-seance2 (Accueil alias)
+  var s2 = document.getElementById('nav-seance2');
+  if(s2) s2.classList.toggle('active', name==='seance');
+
+  // Update topbar title
+  var tt = document.getElementById('topbar-title');
+  if(tt) tt.textContent = PAGE_TITLES[name] || '';
+
+  // Save bar
+  var bar = document.getElementById('bar-seance');
+  if(bar) bar.style.display = name==='seance' ? 'block' : 'none';
+
+  // Page actions
+  if(name==='historique') renderHistory();
+  if(name==='stats') renderStats();
+  if(name==='params') renderParamsPage();
+
+  // Close mobile sidebar
+  closeSidebar();
+}
+
+// Keep showTab as alias
+function showTab(name){ navTo(name); }
+
 initTheme();
+initSidebar();
 syncTpre();
+syncObjectifUI();
 renderSheetsConfig();
 renderCardio();
 renderSession();
