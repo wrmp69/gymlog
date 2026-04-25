@@ -4,13 +4,15 @@
 //             Network First pour données externes
 // ═══════════════════════════════════════════════
 
-var CACHE_NAME = 'gymlog-v11';
-var OFFLINE_URL = 'index.html';
+var CACHE_NAME = 'gymlog-v12';
+var OFFLINE_URL = 'index.html'; 
 
 // Assets à mettre en cache immédiatement
 var PRECACHE_ASSETS = [
   './',
   './index.html',
+  './script.js',
+  './style.css',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
