@@ -5,11 +5,11 @@
 // "Jambes" "Dos" "Pectoraux" "Épaules" "Bras" "Abdos"
 // ─────────────────────────────────────────
 var machines=[
-  {nom:"Chest Press",                            groupe:"Pectoraux", icon:"🏋",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Pec Fly",                                groupe:"Pectoraux", icon:"🏋",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Développé couché haltères",              groupe:"Pectoraux", icon:"🏋",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Développé incliné Smith machine",        groupe:"Pectoraux", icon:"🏋",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
-  {nom:"Développé incliné haltères",             groupe:"Pectoraux", icon:"🏋",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Chest Press",                            groupe:"Pectoraux", icon:"🏋️‍♂️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Pec Fly",                                groupe:"Pectoraux", icon:"🏋️‍♂️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Développé couché haltères",              groupe:"Pectoraux", icon:"🏋️‍♂️",poids:[6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Développé incliné Smith machine",        groupe:"Pectoraux", icon:"🏋️‍♂️",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
+  {nom:"Développé incliné haltères",             groupe:"Pectoraux", icon:"🏋️‍♂️",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
 
   {nom:"Abducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
   {nom:"Adducteurs machine?",                    groupe:"Jambes",    icon:"🦵",poids:[10,15,20,25,30,35,40,45,50]},
@@ -21,46 +21,46 @@ var machines=[
   {nom:"Presse convergente?",                    groupe:"Jambes",    icon:"🦵",poids:[20,25,30,35,40,45,50,55,60,65,70,75,80]},
   {nom:"Squat Smith machine?",                   groupe:"Jambes",    icon:"🦵",poids:[20,30,40,50,60,70,80,90,100,110,120]},
 
-  {nom:"Deltoïde arrière (Rev fly)",             groupe:"Épaules",   icon:"🔝",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Développé militaire Smith machine",      groupe:"Épaules",   icon:"🔝",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
-  {nom:"Développé militaire haltères",           groupe:"Épaules",   icon:"🔝",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Élévation frontale haltères",            groupe:"Épaules",   icon:"🔝",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Élévation latérale haltères",            groupe:"Épaules",   icon:"🔝",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Élévation latérale poulie",              groupe:"Épaules",   icon:"🔝",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Deltoïde arrière (Rev fly)",             groupe:"Épaules",   icon:"🛡️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Développé militaire Smith machine",      groupe:"Épaules",   icon:"🛡️",poids:[10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50]},
+  {nom:"Développé militaire haltères",           groupe:"Épaules",   icon:"🛡️",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation frontale haltères",            groupe:"Épaules",   icon:"🛡️",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation latérale haltères",            groupe:"Épaules",   icon:"🛡️",poids:[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Élévation latérale poulie",              groupe:"Épaules",   icon:"🛡️",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
-  {nom:"Extension lombaire",                     groupe:"Dos",       icon:"💪",poids:[80]},
-  {nom:"Traction",                               groupe:"Dos",       icon:"💪",poids:[80]},
-  {nom:"Traction assistée?",                     groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage divergent",                	   	 groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage horizontal prise neutre",         groupe:"Dos",       icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
-  {nom:"Tirage horizontal prise serrée",         groupe:"Dos",       icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
-  {nom:"Tirage menton barre EZ?",                groupe:"Dos",       icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
-  {nom:"Tirage vertical machine?",               groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Tirage vertical pronation prise large",  groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
-  {nom:"Tirage vertical supination prise serrée",groupe:"Dos",       icon:"💪",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Extension lombaire",                     groupe:"Dos",       icon:"🧗‍♂️",poids:[80]},
+  {nom:"Traction",                               groupe:"Dos",       icon:"🧗‍♂️",poids:[80]},
+  {nom:"Traction assistée?",                     groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage divergent",                	   	 groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage horizontal prise neutre",         groupe:"Dos",       icon:"🧗‍♂️",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Tirage horizontal prise serrée",         groupe:"Dos",       icon:"🧗‍♂️",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Tirage menton barre EZ?",                groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,9,14,18,23,27,32,36,41,45,52,59,66,73,79,86,93,100,107,113]},
+  {nom:"Tirage vertical machine?",               groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Tirage vertical pronation prise large",  groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
+  {nom:"Tirage vertical supination prise serrée",groupe:"Dos",       icon:"🧗‍♂️",poids:[4.5,11,18,25,32,39,45,52,59,66,73,79,86,93,100,107,113,120,127,134]},
 
-  {nom:"Curl pupitre",                           groupe:"Biceps",    icon:"💪",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
-  {nom:"Curl haltère banc incliné",              groupe:"Biceps",    icon:"💪",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Curl marteau unilatéral",                groupe:"Biceps",    icon:"💪",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Curl marteau",                           groupe:"Biceps",    icon:"💪",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
-  {nom:"Curl biceps barre EZ",                   groupe:"Biceps",    icon:"💪",poids:[10,15,20,25,30,35]},
-  {nom:"Curl biceps à la poulie",                groupe:"Biceps",    icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
-  {nom:"Curl marteau corde",                     groupe:"Biceps",    icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Curl pupitre",                           groupe:"Biceps",    icon:"🦾",poids:[4.5,9,14,18,23,27,32,36,41,45,50,54,59,64,68,73,77,82,86,91]},
+  {nom:"Curl haltère banc incliné",              groupe:"Biceps",    icon:"🦾",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl marteau unilatéral",                groupe:"Biceps",    icon:"🦾",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl marteau",                           groupe:"Biceps",    icon:"🦾",poids:[5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40]},
+  {nom:"Curl biceps barre EZ",                   groupe:"Biceps",    icon:"🦾",poids:[10,15,20,25,30,35]},
+  {nom:"Curl biceps à la poulie",                groupe:"Biceps",    icon:"🦾",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Curl marteau corde",                     groupe:"Biceps",    icon:"🦾",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
-  {nom:"Dips lesté?",                            groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Dips non lesté PDC",                     groupe:"Triceps",   icon:"💪",poids:[80]},
-  {nom:"Dips machine?",                          groupe:"Triceps",   icon:"💪",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Extension triceps barre poulie",         groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
-  {nom:"Extension triceps corde poulie",         groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
-  {nom:"Triceps barre front EZ",                 groupe:"Triceps",   icon:"💪",poids:[10,15,20,25,30,35]},
-  {nom:"Triceps barre front poulie",             groupe:"Triceps",   icon:"💪",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Dips lesté?",                            groupe:"Triceps",   icon:"🔱",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Dips non lesté PDC",                     groupe:"Triceps",   icon:"🔱",poids:[80]},
+  {nom:"Dips machine?",                          groupe:"Triceps",   icon:"🔱",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Extension triceps barre poulie",         groupe:"Triceps",   icon:"🔱",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Extension triceps corde poulie",         groupe:"Triceps",   icon:"🔱",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
+  {nom:"Triceps barre front EZ",                 groupe:"Triceps",   icon:"🔱",poids:[10,15,20,25,30,35]},
+  {nom:"Triceps barre front poulie",             groupe:"Triceps",   icon:"🔱",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
 
   {nom:"Crunch abdos corde poulie",              groupe:"Abdos",     icon:"🔥",poids:[2.3,4.5,6.8,9,11.3,13.5,15.8,18,20.3,22.5,24.8,27,29.3,31.5,33.8,36,38.3,40.5,42.8,45]},
   {nom:"Crunch abdos machine?",                  groupe:"Abdos",     icon:"🔥",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
   {nom:"Relevé de jambes PDC",                   groupe:"Abdos",     icon:"🔥",poids:[80]},
 
-  {nom:"Mollet presse?",                         groupe:"Mollets",   icon:"🦵",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
-  {nom:"Mollet presse Smith machine",            groupe:"Mollets",   icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Mollet presse?",                         groupe:"Mollets",   icon:"🐐",poids:[1,2,3,4,5,6,7,8,9,10,15,20,25,30,35,40,45,50,55,60]},
+  {nom:"Mollet presse Smith machine",            groupe:"Mollets",   icon:"🐐",poids:[10,15,20,25,30,35,40,45,50,55,60]},
 ];
 
 
@@ -103,13 +103,14 @@ function renderExoMemoList() {
   });
 
   var groupIcons = {
-    "Pectoraux": "💪",
-    "Dos": "🦾",
+    "Pectoraux": "🏋️‍♂️",
+    "Dos": "🧗‍♂️",
     "Jambes": "🦵",
-    "Épaules": "🏋️",
-    "Bras": "💥",
+    "Épaules": "🛡️",
+    "Biceps": "🦾",
+    "Tricpes": "🔱",
     "Abdos": "🔥",
-    "Autres": "📌"
+    "Mollets": "🐐",
   };
 
   Object.keys(groups).sort().forEach(function(groupe) {
