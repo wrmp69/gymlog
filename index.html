@@ -261,6 +261,21 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
 .home-exo-row:last-child{border-bottom:none;}
 .home-greeting{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px;margin-top:.5rem;}
 .home-sub{font-size:13px;color:var(--mu);margin-bottom:1.2rem;}
+/* ─────────────────────────────────────────
+   ACCORDÉONS MÉMOS EXERCICES
+────────────────────────────────────────── */
+.group-accordion { background: var(--bg2); border: 1px solid var(--bd); border-radius: 10px; padding: 12px 14px; }
+.group-header { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 600; cursor: pointer; }
+.group-content { margin-top: 10px; display: none; padding-left: 6px; }
+.group-content.open { display: block; }
+.exo-item { background: var(--bg2); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 12px; margin-top: 8px; }
+.exo-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; }
+.exo-content { margin-top: 6px; display: none; font-size: 13px; color: var(--mu); }
+.exo-content.open { display: block; }
+.accordion-btn-del { margin-top: 8px; padding: 5px 10px; font-size: 12px; border: 1px solid #f55; color: #f55; background: none; border-radius: 6px; }
+
+
+
 </style>
 </head>
 <body>
@@ -477,20 +492,9 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
     </div>
   </div>
   
-  <div class="card">
-    <div class="dl-lbl" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-      ⏱ Temps de repos mémorisés
-      <button onclick="resetExoTimers()" style="font-size:11px;color:var(--rd);background:none;border:1px solid rgba(255,68,68,0.25);border-radius:8px;padding:3px 10px;cursor:pointer;">Tout effacer</button>
-    </div>
-    <div id="list-exo-timers"><p style="font-size:13px;color:var(--mu);">Aucun temps mémorisé.</p></div>
-  </div>
-  <div class="card">
-    <div class="dl-lbl" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-      🏆 Poids max mémorisés
-      <button onclick="resetMaxWeights()" style="font-size:11px;color:var(--rd);background:none;border:1px solid rgba(255,68,68,0.25);border-radius:8px;padding:3px 10px;cursor:pointer;">Tout effacer</button>
-    </div>
-    <div id="list-max-weights"><p style="font-size:13px;color:var(--mu);">Aucun poids mémorisé.</p></div>
-  </div>
+  <input id="memo-search"type="text" placeholder="🔍 Rechercher un exercice..." style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg2);margin-bottom:12px;font-size:14px;color:var(--fg)">
+  <div id="exo-memo-list" class="accordion-list"></div><br>
+  
   <div class="card" style="border-color:rgba(255,68,68,0.3);">
     <div class="dl-lbl" style="color:var(--rd);margin-bottom:10px;">⚠️ Zone dangereuse</div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);">
@@ -622,6 +626,7 @@ var machines=[
   {nom:"Mollet presse Smith machine",            groupe:"Mollets",   icon:"🦵",poids:[10,15,20,25,30,35,40,45,50,55,60]},
 ];
 
+
 var session=JSON.parse(localStorage.getItem('gl_session')||'[]');
 var chartDays=7;
 var chartMode='volume';
@@ -634,6 +639,152 @@ var MINI_CIRC=2*Math.PI*15;
 var timerMini=false;
 
 document.getElementById('header-date').textContent=new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+
+// ─────────────────────────────────────────
+// EXO + TIMER MEMO LSIT
+// ─────────────────────────────────────────
+
+function renderExoMemoList() {
+  var maxW = JSON.parse(localStorage.getItem('gl_max_weights') || '{}');
+  var timers = JSON.parse(localStorage.getItem('gl_exo_timers') || '{}');
+
+  var exos = new Set([...Object.keys(maxW), ...Object.keys(timers)]);
+  var search = document.getElementById('memo-search').value.toLowerCase();
+  var container = document.getElementById('exo-memo-list');
+  container.innerHTML = '';
+
+  // Regrouper par groupe musculaire
+  var groups = {};
+
+  exos.forEach(function(exo) {
+    var m = machines.find(x => x.nom === exo);
+    if (!m) return;
+
+    var g = m.groupe || "Autres";
+    if (!groups[g]) groups[g] = [];
+    groups[g].push({ exo: exo, icon: m.icon });
+  });
+
+  var groupIcons = {
+    "Pectoraux": "💪",
+    "Dos": "🦾",
+    "Jambes": "🦵",
+    "Épaules": "🏋️",
+    "Bras": "💥",
+    "Abdos": "🔥",
+    "Autres": "📌"
+  };
+
+  Object.keys(groups).sort().forEach(function(groupe) {
+
+    // Bloc groupe
+    var gBlock = document.createElement('div');
+    gBlock.className = "group-accordion";
+
+    gBlock.innerHTML = `
+      <div class="group-header">
+        <span>${groupIcons[groupe] || "📌"} ${groupe}</span>
+        <span>▼</span>
+      </div>
+      <div class="group-content"></div>
+    `;
+
+    var gContent = gBlock.querySelector('.group-content');
+
+    // Toggle manuel
+    gBlock.querySelector('.group-header').addEventListener('click', function() {
+      gContent.classList.toggle('open');
+    });
+
+    let groupHasMatch = false;
+
+    groups[groupe].forEach(function(item) {
+      var match = search && item.exo.toLowerCase().includes(search);
+
+      var poids = maxW[item.exo] ? maxW[item.exo] + ' kg' : '—';
+      var temps = timers[item.exo] ? timers[item.exo] + ' s' : '—';
+
+      var exo = document.createElement('div');
+      exo.className = "exo-item";
+
+      exo.innerHTML = `
+        <div class="exo-header">
+          <span>${item.icon} ${item.exo}</span>
+          <span>▶️</span>
+        </div>
+        <div class="exo-content">
+          <div>• Poids max : <b>${poids}</b></div>
+          <div>• Temps repos : <b>${temps}</b></div>
+          <button class="accordion-btn-del" onclick="deleteExoMemo('${item.exo}')">Supprimer</button>
+        </div>
+      `;
+
+      var exoContent = exo.querySelector('.exo-content');
+
+      exo.querySelector('.exo-header').addEventListener('click', function() {
+        exoContent.classList.toggle('open');
+      });
+
+      // Si recherche active → n'afficher que les exercices correspondants
+      if (search) {
+        if (match) {
+          exo.style.display = "block";
+          groupHasMatch = true;
+        } else {
+          exo.style.display = "none";
+        }
+      }
+
+      gContent.appendChild(exo);
+    });
+
+    // Si recherche active
+    if (search) {
+      if (groupHasMatch) {
+        // Montrer uniquement le groupe concerné
+        gBlock.style.display = "block";
+        gContent.classList.add("open"); // ouvrir automatiquement
+      } else {
+        // Cacher les groupes sans résultat
+        gBlock.style.display = "none";
+      }
+    } else {
+      // Pas de recherche → tout visible, tout fermé
+      gBlock.style.display = "block";
+      gContent.classList.remove("open");
+    }
+
+    container.appendChild(gBlock);
+  });
+}
+
+
+function deleteExoMemo(exo) {
+  var maxW = JSON.parse(localStorage.getItem('gl_max_weights') || '{}');
+  var timers = JSON.parse(localStorage.getItem('gl_exo_timers') || '{}');
+
+  delete maxW[exo];
+  delete timers[exo];
+
+  localStorage.setItem('gl_max_weights', JSON.stringify(maxW));
+  localStorage.setItem('gl_exo_timers', JSON.stringify(timers));
+
+  renderExoMemoList();
+}
+
+document.getElementById('memo-search').addEventListener('input', renderExoMemoList);
+
+function deleteExoMemo(exo) {
+  const maxW = JSON.parse(localStorage.getItem('gl_max_weights') || '{}');
+  const timers = JSON.parse(localStorage.getItem('gl_exo_timers') || '{}');
+  delete maxW[exo];
+  delete timers[exo];
+  localStorage.setItem('gl_max_weights', JSON.stringify(maxW));
+  localStorage.setItem('gl_exo_timers', JSON.stringify(timers));
+  renderExoMemoList();
+}
+document.addEventListener("DOMContentLoaded", function() {renderExoMemoList();});
+
 
 // ─────────────────────────────────────────
 // HELPERS
@@ -971,7 +1122,10 @@ function saveSession(){
   if(!session.length){alert('Ajoute au moins un exercice.');return;}
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var key=todayKey();
-  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  var cardio = JSON.parse(localStorage.getItem('gl_cardio') || 'null');
+if (cardio && cardio.date !== todayKey()) {
+  cardio = null; // marche expirée
+}
   var existing=h[key]||{entries:[],cardio:null};
   if(Array.isArray(existing)) existing={entries:existing,cardio:null};
   existing.entries=[...session];
@@ -1009,12 +1163,16 @@ function renderHistory(){
     var entries=Array.isArray(raw)?raw:(raw.entries||[]);
     var cardio=Array.isArray(raw)?null:(raw.cardio||null);
     var tv=entries.reduce(function(a,e){return a+vol(e);},0);
-    var cardioStr=cardio
-      ?'<div style="display:flex;gap:8px;align-items:center;padding:9px 13px;border-top:1px solid var(--bd);">'+
+    var cardioStr = cardio
+  ? '<div style="display:flex;flex-direction:column;gap:8px;padding:9px 13px;border-top:1px solid var(--bd);">'+
+      '<div style="display:flex;gap:8px;align-items:center;">'+
         '<span style="font-size:16px">🚶</span>'+
         '<span style="font-size:12px;color:var(--mu);">'+cardio.duree+' min · '+cardio.pente+'% pente · '+cardio.vitesse+' km/h</span>'+
-        '</div>'
-      :'';
+      '</div>'+
+      '<button onclick="clearCardio()" style="padding:6px 10px;font-size:12px;border:1px solid #f55;color:#f55;background:none;border-radius:6px;align-self:flex-start;">❌ Supprimer la marche</button>'+
+    '</div>'
+  : '';
+
     return '<div class="day-label">'+fmtDateLong(key)+'</div><div class="day-card">'+
       '<div class="day-head"><span style="font-size:13px;font-weight:500;">'+entries.length+' exercice(s) · <span style="color:var(--pu)">'+tv.toLocaleString('fr-FR')+' kg vol.</span></span>'+
       '<button class="delbtn" onclick="deleteDay(\''+key+'\')">Supprimer</button></div>'+
@@ -1212,7 +1370,10 @@ function sendToSheets(rows,statusEl,btn,lbl){
 function sendAllToSheets(){
   if(!confirm('Envoyer tout l\'historique vers Google Sheets ?'))return;
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
-  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  var cardio = JSON.parse(localStorage.getItem('gl_cardio') || 'null');
+if (cardio && cardio.date !== todayKey()) {
+  cardio = null; // marche expirée
+}
   var key=todayKey();
   if(cardio && !h[key]){
     h[key]={entries:session,cardio:cardio};
@@ -1221,7 +1382,10 @@ function sendAllToSheets(){
   sendToSheets(buildRows(h),document.getElementById('export-status'),document.getElementById('export-all-btn'),'Envoyer tout');
 }
 function sendTodayToSheets(){
-  var cardio=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  var cardio = JSON.parse(localStorage.getItem('gl_cardio') || 'null');
+if (cardio && cardio.date !== todayKey()) {
+  cardio = null; // marche expirée
+}
   if(!session.length && !cardio){alert('Aucune donnée à envoyer.');return;}
   var d={};
   d[todayKey()]={entries:session,cardio:cardio};
@@ -1366,12 +1530,35 @@ function playBeep(){
 // ─────────────────────────────────────────
 // CARDIO
 // ─────────────────────────────────────────
+function clearCardio() {
+  // 1. Supprimer la marche temporaire
+  localStorage.removeItem('gl_cardio');
+
+  // 2. Supprimer la marche du jour dans l'historique
+  var h = JSON.parse(localStorage.getItem('gl_history') || '{}');
+  var key = todayKey();
+
+  if (h[key] && h[key].cardio) {
+    delete h[key].cardio;
+    localStorage.setItem('gl_history', JSON.stringify(h));
+  }
+
+  alert("Marche supprimée.");
+  location.reload();
+}
+
+
 function addCardio(){
   var duree=parseInt(document.getElementById('c-duree').value);
   var pente=parseFloat(document.getElementById('c-pente').value);
   var vitesse=parseFloat(document.getElementById('c-vitesse').value);
   var cardio={duree:duree,pente:pente,vitesse:vitesse};
-  localStorage.setItem('gl_cardio',JSON.stringify(cardio));
+  localStorage.setItem('gl_cardio', JSON.stringify({
+  date: todayKey(),
+  duree: cardio.duree,
+  pente: cardio.pente,
+  vitesse: cardio.vitesse
+}));
   // Persist in today's history
   var h=JSON.parse(localStorage.getItem('gl_history')||'{}');
   var key=todayKey();
