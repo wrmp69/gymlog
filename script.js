@@ -211,19 +211,7 @@ function deleteExoMemo(exo) {
 
 document.getElementById('memo-search').addEventListener('input', renderExoMemoList);
 
-function deleteExoMemo(exo) {
-  const maxW = JSON.parse(localStorage.getItem('gl_max_weights') || '{}');
-  const timers = JSON.parse(localStorage.getItem('gl_exo_timers') || '{}');
-  
-  delete maxW[exo];
-  delete timers[exo];
 
-  localStorage.setItem('gl_max_weights', JSON.stringify(maxW));
-  localStorage.setItem('gl_exo_timers', JSON.stringify(timers));
-
-  renderExoMemoList();
-}
-document.addEventListener("DOMContentLoaded", function() {renderExoMemoList();});
 
 
 // ─────────────────────────────────────────
@@ -391,9 +379,13 @@ function attachSwipe(){
     entry.addEventListener('touchstart',function(e){ start(e.touches[0].clientX); },{passive:true});
     entry.addEventListener('touchmove', function(e){ move(e.touches[0].clientX); },{passive:true});
     entry.addEventListener('touchend', end);
-    entry.addEventListener('mousedown', function(e){ start(e.clientX); });
-    document.addEventListener('mousemove', function(e){ move(e.clientX); });
-    document.addEventListener('mouseup', end);
+    entry.addEventListener('mousedown', function(e){
+      start(e.clientX);
+      function onMove(e){ move(e.clientX); }
+      function onUp(){ end(); document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); }
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
   });
 }
 
@@ -866,6 +858,7 @@ function startTimer(entry){
   document.getElementById('tov').classList.add('show');
   if(TIV)clearInterval(TIV);
   setTimeout(function(){
+    if(TIV){clearInterval(TIV);TIV=null;}
     pr.style.transition='stroke-dashoffset 1s linear';
     mpr.style.transition='stroke-dashoffset 1s linear';
     TIV=setInterval(tickTimer,1000);
@@ -902,6 +895,7 @@ function changeTimer(secs,btn){
   mpr.style.transition='none';mpr.style.strokeDashoffset='0';mpr.classList.remove('red');
   if(TIV){clearInterval(TIV);TIV=null;}
   setTimeout(function(){
+    if(TIV){clearInterval(TIV);TIV=null;}
     pr.style.transition='stroke-dashoffset 1s linear';
     mpr.style.transition='stroke-dashoffset 1s linear';
     TIV=setInterval(tickTimer,1000);
@@ -1040,6 +1034,11 @@ function removeCardio(){
 
 function renderCardio(){
   var c=JSON.parse(localStorage.getItem('gl_cardio')||'null');
+  // Expire la marche si elle n'est pas d'aujourd'hui
+  if(c && c.date && c.date!==todayKey()){
+    localStorage.removeItem('gl_cardio');
+    c=null;
+  }
   var form=document.getElementById('cardio-form');
   var done=document.getElementById('cardio-done');
   var card=document.getElementById('cardio-card');
@@ -1196,3 +1195,4 @@ renderCardio();
 renderSession();
 renderAccueil();
 navTo('seance');
+renderExoMemoList();

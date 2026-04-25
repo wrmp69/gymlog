@@ -225,16 +225,23 @@
   <input id="memo-search"type="text" placeholder="🔍 Rechercher un exercice..." class="w100 p10 br8 bd1 bg2 mb12 fs14 text-fg">
   <div id="exo-memo-list" class="accordion-list"></div><br>
   
-  <div class="card bc-brown">
-    <div class="dl-lbl text-rd mb10">⚠️ Zone dangereuse</div>
-    <div class="flex jc-sbetween ai-center px8-0 bb1">
-      <div><div class="fs13 fw500">Vider l'historique</div><div class="fs12 text-mu">Supprime toutes les séances</div></div>
-      <button class="btn-ghost w-auto px6-14 fs12 text-rd bc-brown" onclick="clearAllHistory()">Vider</button>
+  <div class="card danger-card">
+  <div class="dl-lbl danger-title">⚠️ Zone dangereuse</div>
+
+  <div class="danger-row bb1">
+    <div>
+      <div class="danger-label">Vider l'historique</div>
+      <div class="danger-desc">Supprime toutes les séances</div>
     </div>
-    <div   class="flex jc-sbetween ai-center px8-0">
-      <div><div class="fs13 fw500">Reset complet</div><div class="fs12 text-mu">Efface toutes les données</div></div>
-      <button class="btn-danger-small bc-brown" onclick="resetAllData()">Reset</button>
+    <button class="btn-ghost danger-btn" onclick="clearAllHistory()">Vider</button>
+  </div>
+
+  <div class="danger-row">
+    <div>
+      <div class="danger-label">Reset complet</div>
+      <div class="danger-desc">Efface toutes les données</div>
     </div>
+    <button class="btn-ghost danger-btn" onclick="resetAllData()">Reset</button>
   </div>
 </div>
 </div><!-- /pages-wrapper -->

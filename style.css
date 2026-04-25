@@ -185,10 +185,15 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 }
 .theme-btn:active{background:var(--s2);}
 
-/* ── TABLET / LANDSCAPE ── */
-
-
-
+/* Carte danger */
+.danger-card { border-color: rgba(255,68,68,0.3); }
+.danger-title { color: var(--rd); margin-bottom: 10px; }
+.danger-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.danger-label { font-size: 13px; font-weight: 500; }
+.danger-desc { font-size: 12px; color: var(--mu); }
+/* Bouton danger (petit, aligné à droite, comme avant) */
+.danger-btn { width: auto; padding: 6px 14px; font-size: 12px; color: var(--rd); border: 1px solid rgba(255,68,68,0.3); border-radius: 6px; background: transparent; cursor: pointer; white-space: nowrap; }
+.danger-btn:hover { background: rgba(255,68,68,0.08); }
 
 
 /* ── LIGHT THEME FIXES ── */
@@ -300,7 +305,6 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
 .h18 { height:18px; }
 .h60 { height:60px; }
 
-
 /* Padding */
 .px0-4 { padding:0 4px; }
 .px8-0 { padding:8px 0; }
@@ -350,9 +354,6 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
 /* Gap */
 .gap8 { gap: 8px; }
 .gap10 { gap: 10px; }
-
-/*Align Item*/
-.ai-center { align-items:center; }
 
 /* Couleurs Texte */
 .text-mu { color:var(--mu); }
