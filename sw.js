@@ -4,7 +4,7 @@
 //             Network First pour données externes
 // ═══════════════════════════════════════════════
 
-var CACHE_NAME = 'gymlog-v9';
+var CACHE_NAME = 'gymlog-v0.0.1';
 var OFFLINE_URL = 'index.html';
 
 // Assets à mettre en cache immédiatement
