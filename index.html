@@ -10,7 +10,7 @@
 <title>GymLog</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
 <div class="app">
@@ -19,11 +19,11 @@
   <div class="topbar-title" id="topbar-title">Séance</div> 
   <div class="flex ai-center gap8">
     <div class="date-badge" id="header-date"></div>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Thème">🌙</button>
+    <button class="theme-btn" id="theme-btn" title="Thème">🌙</button>
   </div>
 </div>
 
-<div id="pages-wrapper" class="flex1 oy-auto pb60">
+<div id="pages-wrapper" class="flex1 oy-auto pb140">
 
 <!-- ACCUEIL -->
 <div id="page-accueil" class="page pt1r">
@@ -37,9 +37,9 @@
   </div>
   <div class="home-last">
     <div class="home-last-title">Dernière séance</div>
-    <div id="home-last-content"><div class=fs13 text-mu>Aucune séance enregistrée.</div></div>
+    <div id="home-last-content"><div class="fs13 text-mu">Aucune séance enregistrée.</div></div>
   </div>
-  <button class="btn-ac mt05" onclick="navTo('seance')">🏋️ Commencer la séance</button>
+  <button class="btn-ac mt05" data-nav="seance">🏋️ Commencer la séance</button>
 </div>
 
 <!-- SÉANCE -->
@@ -51,7 +51,7 @@
     <div class="card mb0">
       <div class="field">
         <span class="lbl">Groupe musculaire</span>
-        <select id="sel-groupe" onchange="filterMachines()">
+        <select id="sel-groupe">
           <option value="">Tous les groupes</option>
           <option value="Abdos">🔥 Abdos</option>
           <option value="Biceps">🦾 Biceps</option>
@@ -65,9 +65,12 @@
       </div>
       <div class="field">
         <span class="lbl">Machine / exercice</span>
-        <select id="sel-machine" onchange="updatePoids()">
-          <option value="">— Choisir —</option>
-        </select>
+        <div class="select-with-edit">
+          <select id="sel-machine">
+            <option value="">— Choisir —</option>
+          </select>
+          <button class="btn-edit-machine" id="btn-edit-machine" title="Modifier cet exercice">✎</button>
+        </div>
       </div>
       <div class="row2">
         <div class="field">
@@ -100,13 +103,13 @@
         </div>
       </div>
       <div class="rm-hint" id="rm-preview"></div>
-      <button class="btn-ac mt10" onclick="addEntry()">+ Ajouter</button>
+      <button  id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
     </div>
   </div>
 
   <!-- COL 2 : SÉANCE DU JOUR -->
   <div class="seance-col" id="col-session">
-    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center"><span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span><button class="clr" onclick="clearSession()">Effacer</button></span></div>
+    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center"><span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span><button class="clr" id="btn-clear-session">Effacer</button></span></div>
     <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
     <div id="vol-block" class="dis-none">
       <div class="sh mt14"><span class="stitle">Volume & 1RM</span></div>
@@ -134,8 +137,8 @@
             <select id="c-pente">
               <option>0</option><option>1</option><option>2</option><option>3</option>
               <option>4</option><option>5</option><option>6</option><option>7</option>
-              <option>8</option><option>9</option><option>10</option><option selected>12</option>
-              <option>15</option>
+              <option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option>
+              <option>13</option><option>14</option><option>15</option>
             </select>
           </div>
           <div class="field">
@@ -147,13 +150,13 @@
             </select>
           </div>
         </div>
-        <button class="btn-ac bg-ac mt4" onclick="addCardio()">✓ Marche terminée</button>
+        <button class="btn-ac bg-ac mt4" id="btn-add-cardio">✓ Marche terminée</button>
       </div>
       <div id="cardio-done" class="dis-none ta-center px8-0">
         <span class="cardio-done-check">✅</span>
         <div class="cardio-done-summary" id="cardio-done-summary">20 min · 12% · 4 km/h</div>
         <div class="cardio-done-detail">Marche enregistrée pour cette séance</div>
-        <button class="cardio-modify-btn" onclick="editCardio()">✎ Modifier</button>
+        <button class="cardio-modify-btn" id="btn-edit-cardio">✎ Modifier</button>
       </div>
     </div>
   </div>
@@ -175,18 +178,18 @@
   <div class="card">
     <div class="dl-lbl">Graphique par exercice</div>
     <div class="field mb10">
-      <select id="sel-chart-exo" onchange="renderChart()">
+      <select id="sel-chart-exo">
         <option value="">— Choisir un exercice —</option>
       </select>
     </div>
     <div class="chart-tabs">
-      <button class="ctab active" onclick="setChartMode('volume',this)">Volume</button>
-      <button class="ctab" onclick="setChartMode('1rm',this)">1RM</button>
+      <button class="ctab active" data-mode="volume">Volume</button>
+      <button class="ctab" data-mode="1rm">1RM</button>
     </div>
     <div class="chart-filter">
-      <button class="cf-btn active" onclick="setFilter(7,this)">7j</button>
-      <button class="cf-btn" onclick="setFilter(30,this)">30j</button>
-      <button class="cf-btn" onclick="setFilter(0,this)">Tout</button>
+      <button class="cf-btn active" data-filter="7">7j</button>
+      <button class="cf-btn" data-filter="30">30j</button>
+      <button class="cf-btn" data-filter="0">Tout</button>
     </div>
     <div class="chart-wrap"><canvas id="myChart"></canvas></div>
     <div id="chart-empty" class="dis-none ta-center p2r text-mu fs13"></div>
@@ -208,21 +211,55 @@
       <p class="fs13 text-mu mb10 lh16">Colle ton URL Apps Script pour envoyer tes données.</p>
       <input type="url" id="inp-script" placeholder="https://script.google.com/macros/s/..." class="mb10">
       <input type="url" id="inp-sheet" placeholder="URL de ta feuille (optionnel)" class="mb10">
-      <button class="btn-ghost green" onclick="saveSheetConfig()">Enregistrer</button>
+      <button class="btn-ghost green" id="btn-save-sheet">Enregistrer</button>
     </div>
     <div id="sheets-c" class="dis-none">
       <div class="flex ai-center gap8 mb12">
         <span class="text-ac">✓</span>
         <span class="fs13 text-ac">Feuille configurée</span>
-        <button onclick="resetSheetConfig()" class="ml-auto fs11 text-mu bg-none border-none cur-pointer underline">Changer</button>
+        <button class="ml-auto fs11 text-mu bg-none border-none cur-pointer underline" id="btn-reset-sheet">Changer</button>
       </div>
-      <button id="export-all-btn" onclick="sendAllToSheets()" class="btn-ghost green mb8">Envoyer tout l'historique</button>
+      <button id="export-all-btn" class="btn-ghost green mb8">Envoyer tout l'historique</button>
       <div id="export-status" class="fs12 mt4 ta-center dis-none"></div>
-      <button  id="open-sheet-btn" onclick="openMySheet()" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
+      <button id="send-today-btn" class="btn-ghost mb8">Envoyer la séance du jour</button>
+      <div id="send-today-status" class="fs12 mt4 ta-center dis-none"></div>
+      <button  id="open-sheet-btn" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
     </div>
   </div>
+
+ <!-- EXERCICES CUSTOM -->
+<div class="card" id="custom-machines-card">
+  <div class="dl-lbl mb6">💪 Ajouter un exercice</div>
+
+  <div id="custom-machines-list"></div>
+
+  <div class="machine-add-form" id="machine-add-form">
+    <div class="machine-modal-field">
+      <label>Nom de l'exercice</label>
+      <input type="text" id="mm-nom-inline" placeholder="Ex: Curl incliné">
+    </div>
+    <div class="machine-modal-field">
+      <label>Groupe musculaire</label>
+      <select id="mm-groupe-inline">
+        <option value="Abdos">🔥 Abdos</option>
+        <option value="Biceps">🦾 Biceps</option>
+        <option value="Dos">🧗‍♂️ Dos</option>
+        <option value="Épaules">🛡️ Épaules</option>
+        <option value="Jambes">🦵 Jambes</option>
+        <option value="Mollets">🐐 Mollets</option>
+        <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
+        <option value="Triceps">🔱 Triceps</option>
+      </select>
+    </div>
+    <div class="machine-modal-field">
+      <label>Poids disponibles (séparés par des virgules)</label>
+      <input type="text" id="mm-poids-inline" placeholder="Ex: 5, 10, 15, 20, 25">
+    </div>
+    <button class="btn-ghost green w100" id="btn-add-machine-inline">+ Ajouter</button>
+  </div>
+</div>
   
-  <input id="memo-search"type="text" placeholder="🔍 Rechercher un exercice..." class="w100 p10 br8 bd1 bg2 mb12 fs14 text-fg">
+  <input id="memo-search" type="text" placeholder="🔍 Rechercher un exercice..." class="w100 p10 br8 bd1 bg2 mb12 fs14 text-fg">
   <div id="exo-memo-list" class="accordion-list"></div><br>
   
   <div class="card danger-card">
@@ -233,7 +270,7 @@
       <div class="danger-label">Vider l'historique</div>
       <div class="danger-desc">Supprime toutes les séances</div>
     </div>
-    <button class="btn-ghost danger-btn" onclick="clearAllHistory()">Vider</button>
+    <button class="btn-ghost danger-btn">Vider</button>
   </div>
 
   <div class="danger-row">
@@ -241,14 +278,15 @@
       <div class="danger-label">Reset complet</div>
       <div class="danger-desc">Efface toutes les données</div>
     </div>
-    <button class="btn-ghost danger-btn" onclick="resetAllData()">Reset</button>
+    <button class="btn-ghost danger-btn">Reset</button>
+  </div>
   </div>
 </div>
 </div><!-- /pages-wrapper -->
 
 <!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">
-  <button class="btn-ghost" id="save-btn" onclick="saveSession()">💾 Sauvegarder la séance</button>
+  <button class="btn-ghost" id="save-btn">💾 Sauvegarder la séance</button>
 </div>
 
 <!-- TIMER -->
@@ -258,10 +296,10 @@
   <div class="tov-sub" id="tov-sub"></div>
   <div class="tov-rm" id="tov-rm"></div>
   <div class="tpres">
-    <button class="tpre" onclick="changeTimer(30,this)">30s</button>
-    <button class="tpre on" onclick="changeTimer(60,this)">1 min</button>
-    <button class="tpre" onclick="changeTimer(90,this)">1m30</button>
-    <button class="tpre" onclick="changeTimer(120,this)">2 min</button>
+     <button class="tpre" data-timer="30">30s</button>
+     <button class="tpre on" data-timer="60">1 min</button>
+     <button class="tpre" data-timer="90">1m30</button>
+     <button class="tpre" data-timer="120">2 min</button>
   </div>
   <div class="tring">
     <svg width="180" height="180" viewBox="0 0 180 180">
@@ -274,17 +312,17 @@
     </div>
   </div>
   <div class="flex ai-center gap8 mb14 px0-4">
-    <input id="memo-check" onchange="saveMemoTimer()" class="w18 h18 ac-ac cur-pointer fs0" type="checkbox" >
+    <input id="memo-check" class="w18 h18 ac-ac cur-pointer fs0" type="checkbox" >
     <label for="memo-check" class="fs13 text-mu cur-pointer">Mémoriser ce temps pour cet exercice</label>
   </div>
   <div class="tacts">
-    <button class="tbtn bc-blue text-blue" onclick="minimizeTimer()">⤡ Réduire</button>
-    <button class="tbtn go" onclick="closeTimerNoMemo()">Fermer</button>
+      <button class="tbtn bc-blue text-blue" id="btn-timer-minimize">⤡ Réduire</button>
+     <button class="tbtn go" id="btn-timer-close">Fermer</button>
   </div>
 </div>
 
 <!-- MINI TIMER -->
-<div class="tov-mini" id="tov-mini" onclick="expandTimer()">
+<div class="tov-mini" id="tov-mini">
   <div class="tov-mini-ring">
     <svg width="36" height="36" viewBox="0 0 36 36">
       <circle class="tov-mini-trk" cx="18" cy="18" r="15"/>
@@ -293,25 +331,25 @@
     <div class="tov-mini-num" id="tov-mini-num">60</div>
   </div>
   <div class="tov-mini-label" id="tov-mini-label">Repos</div>
-  <button class="tov-mini-expand" onclick="expandTimer(event)" title="Agrandir">⤢</button>
+  <button class="tov-mini-expand" id="btn-mini-expand" title="Agrandir">⤢</button>
 </div>
 
 </div>
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="bn-item" id="bn-accueil" onclick="navTo('accueil')">
+  <button class="bn-item" id="bn-accueil" data-nav="accueil">
     <span class="bn-ico">🏠</span><span class="bn-lbl">Accueil</span>
   </button>
-  <button class="bn-item active" id="bn-seance" onclick="navTo('seance')">
+  <button class="bn-item active" id="bn-seance" data-nav="seance">
     <span class="bn-ico">🏋️</span><span class="bn-lbl">Séance</span>
   </button>
-  <button class="bn-item" id="bn-historique" onclick="navTo('historique')">
+  <button class="bn-item" id="bn-historique" data-nav="historique">
     <span class="bn-ico">📋</span><span class="bn-lbl">Historique</span>
   </button>
-  <button class="bn-item" id="bn-stats" onclick="navTo('stats')">
+  <button class="bn-item" id="bn-stats" data-nav="stats">
     <span class="bn-ico">📊</span><span class="bn-lbl">Stats</span>
   </button>
-  <button class="bn-item" id="bn-params" onclick="navTo('params')">
+  <button class="bn-item" id="bn-params" data-nav="params">
     <span class="bn-ico">⚙️</span><span class="bn-lbl">Params</span>
   </button>
 </nav>

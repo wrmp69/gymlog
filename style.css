@@ -88,7 +88,7 @@ select:focus,input:focus{outline:2px solid var(--ac);border-color:transparent;}
 .vol-total span:first-child{font-size:13px;color:var(--mu);}
 .vol-total span:last-child{font-size:15px;font-weight:700;color:var(--ac);}
 .rm-hint{font-size:11px;color:var(--mu);margin-top:4px;line-height:1.5;}
-.save-bar{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:.8rem 1.2rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;}
+.save-bar{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:.8rem 1.2rem 1rem;background:linear-gradient(transparent,var(--bg) 35%);pointer-events:none;}
 .save-bar>*{pointer-events:all;}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .dl-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:8px;}
@@ -308,12 +308,12 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
 /* Padding */
 .px0-4 { padding:0 4px; }
 .px8-0 { padding:8px 0; }
-.px6-14 { padding:6px 14; }
+.px6-14 { padding:6px 14px; }
 .p10 { padding:10px; }
 .p2r { padding:2rem; }
 .pt1r { padding-top: 1rem; }
 .pt5r { padding-top: 5rem; }
-.pb60 { padding-bottom: 60px; }
+.pb140 { padding-bottom: 140px; }
 
 /* Flex */
 .flex { display:flex; }
@@ -390,3 +390,94 @@ html.light .cardio-card.done{background:linear-gradient(135deg,rgba(34,197,94,0.
 
 /* Z-index */
 .z1000 { z-index:1000; }
+
+/* ─────────────────────────────────────────
+   CLASSES EXTRAITES DES STYLES INLINE JS
+────────────────────────────────────────── */
+
+/* renderSession — tag 1RM réel */
+.tag.rm-reel { border-color:#f59e0b; color:#f59e0b; }
+
+/* renderHistory — bloc cardio */
+.hist-cardio { display:flex; flex-direction:column; gap:8px; padding:9px 13px; border-top:1px solid var(--bd); }
+.hist-cardio-row { display:flex; gap:8px; align-items:center; }
+.hist-cardio-ico { font-size:16px; }
+.hist-cardio-txt { font-size:12px; color:var(--mu); }
+.hist-cardio-del { padding:6px 10px; font-size:12px; border:1px solid var(--rd); color:var(--rd); background:none; border-radius:6px; align-self:flex-start; cursor:pointer; }
+
+/* renderHistory — entête jour */
+.hist-head-info { font-size:13px; font-weight:500; }
+.hist-head-vol { color:var(--pu); }
+
+/* renderHistory — icône exercice */
+.hist-exo-ico { font-size:17px; }
+
+/* renderHistory — tag 1RM réel */
+.dtag.drm-reel { color:#f59e0b; border:1px solid rgba(245,158,11,.2); }
+
+/* renderAccueil — date dernière séance */
+.home-last-date { font-size:12px; color:var(--mu); margin-bottom:8px; }
+
+/* renderAccueil — valeur poids dans la ligne exo */
+.home-exo-val { color:var(--ac); font-weight:500; }
+
+/* renderAccueil — ligne "et X de plus" */
+.home-last-more { font-size:12px; color:var(--mu); margin-top:6px; }
+
+/* renderParamsPage — ligne memo (timer & poids) */
+.memo-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--bd); font-size:13px; }
+.memo-row-val { display:flex; gap:8px; align-items:center; }
+.memo-val { color:var(--ac); }
+.memo-empty { font-size:13px; color:var(--mu); }
+.memo-del { font-size:14px; color:var(--rd); background:none; border:none; cursor:pointer; }
+
+/* ─── TOASTS ─── */
+.toast-container { position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:8px; width:90%; max-width:400px; pointer-events:none; }
+.toast { padding:12px 16px; border-radius:12px; font-size:13px; font-family:'DM Sans',sans-serif; color:#fff; animation:toastIn .25s ease; pointer-events:none; }
+.toast.info  { background:#1a1a1a; border:1px solid var(--bd); }
+.toast.ok    { background:#166534; border:1px solid #22c55e; }
+.toast.error { background:#7f1d1d; border:1px solid var(--rd); }
+.toast.warn  { background:#78350f; border:1px solid #f59e0b; }
+@keyframes toastIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── MODALE CONFIRM ─── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99998; display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease; }
+.modal-box { background:var(--bg); border:1px solid var(--bd); border-radius:16px; padding:1.5rem; width:88%; max-width:340px; animation:slideUp .25s ease; }
+.modal-title { font-size:15px; font-weight:600; margin-bottom:8px; color:var(--tx); }
+.modal-msg { font-size:13px; color:var(--mu); line-height:1.5; margin-bottom:1.25rem; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+.modal-btn { padding:9px 18px; border-radius:10px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--bd); background:none; color:var(--tx); }
+.modal-btn.confirm { background:var(--rd); border-color:var(--rd); color:#fff; }
+.modal-btn.confirm.green { background:var(--ac); border-color:var(--ac); color:#000; }
+
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── EXERCICES CUSTOM ─── */
+.custom-machine-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--bd); font-size:13px; }
+.custom-machine-row:last-child { border-bottom:none; }
+.custom-machine-info { display:flex; flex-direction:column; gap:3px; }
+.custom-machine-name { font-weight:500; color:var(--tx); }
+.custom-machine-meta { font-size:11px; color:var(--mu); }
+.custom-machine-actions { display:flex; gap:8px; }
+.custom-badge { display:inline-block; font-size:9px; padding:1px 5px; border-radius:20px; border:1px solid var(--ac); color:var(--ac); margin-left:4px; vertical-align:middle; }
+
+/* Modale exercice */
+.machine-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99998; display:flex; align-items:flex-end; justify-content:center; animation:fadeIn .2s ease; }
+.machine-modal-box { background:var(--bg); border:1px solid var(--bd); border-radius:20px 20px 0 0; padding:1.5rem; width:100%; max-width:480px; animation:slideUp .25s ease; max-height:85vh; overflow-y:auto; }
+.machine-modal-title { font-size:15px; font-weight:600; margin-bottom:1rem; color:var(--tx); }
+.machine-modal-field { margin-bottom:1rem; }
+.machine-modal-field label { display:block; font-size:12px; color:var(--mu); margin-bottom:4px; }
+.machine-modal-field input,
+.machine-modal-field select { width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--bd); background:var(--s1); color:var(--tx); font-size:14px; box-sizing:border-box; }
+.machine-modal-actions { display:flex; gap:8px; margin-top:1.25rem; }
+.machine-modal-actions .modal-btn { flex:1; text-align:center; }
+.machine-add-form { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--bd); }
+
+.select-with-edit { display:flex; gap:8px; align-items:center; }
+.select-with-edit select { flex:1; }
+.btn-edit-machine { padding:8px 12px; border-radius:10px; border:1px solid var(--bd); background:var(--s1); color:var(--mu); cursor:pointer; font-size:14px; flex-shrink:0; }
+.btn-edit-machine:active { opacity:.7; }
+
+.exo-memo-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.memo-del-small { font-size:11px; padding:2px 6px; border-radius:6px; border:1px solid var(--rd); color:var(--rd); background:none; cursor:pointer; }
