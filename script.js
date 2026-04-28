@@ -2416,7 +2416,7 @@ function init() {
   initTheme();
 
   // Navigation par défaut
-  navTo('seance');
+  navTo('accueil');
 
   // EVENTS GLOBAUX
 
