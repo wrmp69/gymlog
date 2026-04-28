@@ -4,7 +4,7 @@
 //             Network First pour données externes
 // ═══════════════════════════════════════════════
 
-var CACHE_NAME = 'pecday-v5';
+var CACHE_NAME = 'pecday-v6';
 var OFFLINE_URL = 'index.html'; 
 
 // Assets à mettre en cache immédiatement
@@ -14,9 +14,8 @@ var PRECACHE_ASSETS = [
   './script.js',
   './style.css',
   './manifest.json',
-  './pecday-pwa-192.png',
-  './pecday-android-icon-512.png',
-  './pecday-github-banner',
+  './icon-192.png',
+  './icon-512.png',
   'https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
 ];
