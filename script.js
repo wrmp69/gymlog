@@ -1,3 +1,43 @@
+function exportBackup() {
+  const data = {
+    gl_history: loadJSON('gl_history', {}),
+    gl_session: loadJSON('gl_session', []),
+    gl_templates: loadJSON('gl_templates', []),
+    gl_custom_machines: loadJSON('gl_custom_machines', []),
+    gl_machine_overrides: loadJSON('gl_machine_overrides', {}),
+    gl_max_weights: loadJSON('gl_max_weights', {}),
+    gl_exo_timers: loadJSON('gl_exo_timers', {}),
+    gl_cardio: loadJSON('gl_cardio', null),
+    gl_sent_keys: loadJSON('gl_sent_keys', []),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pecday-backup-' + todayKey() + '.json';
+  a.click();
+  toast('Données exportées !', 'ok');
+}
+
+async function importBackup(file) {
+  if (!file) return;
+  if (!await confirm2('Importer ce backup ? Les données actuelles seront écrasées.')) return;
+  const text = await file.text();
+  try {
+    const data = JSON.parse(text);
+    Object.entries(data).forEach(([key, val]) => saveJSON(key, val));
+    invalidateHistory();
+    invalidateMachines();
+    renderAccueil();
+    renderHistory();
+    renderStats();
+    renderSession();
+    renderTemplateList();
+    renderExoMemoList();
+    toast('Données importées !', 'ok');
+  } catch {
+    toast('Fichier invalide.', 'error');
+  }
+}
 // ─────────────────────────────────────────
 // MODULE : MACHINES (BLOC 1)
 // ─────────────────────────────────────────
@@ -2419,7 +2459,13 @@ function init() {
   navTo('accueil');
 
   // EVENTS GLOBAUX
+const btnExport = document.getElementById('btn-export-backup');
+if (btnExport) btnExport.addEventListener('click', exportBackup);
 
+const btnImport = document.getElementById('btn-import-backup');
+const inpImport = document.getElementById('inp-import-backup');
+if (btnImport) btnImport.addEventListener('click', () => inpImport.click());
+if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.files[0]));
   // Mode suivi
   const btnStartFollow = document.getElementById('btn-start-follow');
   if (btnStartFollow) btnStartFollow.addEventListener('click', startFollow);
