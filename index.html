@@ -39,6 +39,14 @@
     <div class="home-last-title">Dernière séance</div>
     <div id="home-last-content"><div class="fs13 text-mu">Aucune séance enregistrée.</div></div>
   </div>
+
+  <!-- TEMPLATES -->
+<div class="home-section">
+  <div class="home-last-title">Mes templates</div>
+  <div id="template-list"></div>
+  <button class="btn-ghost mt8 w100" id="btn-create-template">+ Créer un template</button>
+</div>
+
   <button class="btn-ac mt05" data-nav="seance">🏋️ Commencer la séance</button>
 </div>
 
@@ -109,7 +117,10 @@
 
   <!-- COL 2 : SÉANCE DU JOUR -->
   <div class="seance-col" id="col-session">
-    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center"><span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span><button class="clr" id="btn-clear-session">Effacer</button></span></div>
+    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center">
+      <span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span>
+      <button class="follow-start-btn" id="btn-start-follow">▶</button>
+      <button class="clr" id="btn-clear-session">Effacer</button></span></div>
     <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
     <div id="vol-block" class="dis-none">
       <div class="sh mt14"><span class="stitle">Volume & 1RM</span></div>
@@ -283,6 +294,32 @@
   </div>
 </div>
 </div><!-- /pages-wrapper -->
+
+<!-- MODE SUIVI -->
+<div class="follow-overlay" id="follow-overlay">
+
+  <!-- HEADER -->
+  <div class="follow-header">
+    <button class="follow-close" id="follow-close">✕</button>
+    <div class="follow-title">Mode suivi</div>
+    <div class="follow-progress" id="follow-progress">1 / 4</div>
+  </div>
+
+  <!-- EXERCICE EN COURS -->
+  <div class="follow-current" id="follow-current"></div>
+
+  <!-- EXERCICES SUIVANTS -->
+  <div class="follow-next-list" id="follow-next-list"></div>
+
+  <!-- RECAP -->
+  <div class="follow-recap" id="follow-recap">
+    <div class="follow-recap-title">🏁 Séance terminée !</div>
+    <div class="follow-recap-list" id="follow-recap-list"></div>
+    <button class="btn-ac mt14 w100" id="follow-save">💾 Sauvegarder la séance</button>
+    <button class="btn-ghost mt8 w100" id="follow-discard">Abandonner sans sauvegarder</button>
+  </div>
+
+</div>
 
 <!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">

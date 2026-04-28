@@ -252,6 +252,167 @@ document.getElementById('header-date').textContent =
 
 
 // ─────────────────────────────────────────
+// TEMPLATES
+// ─────────────────────────────────────────
+
+function loadTemplates() {
+  return loadJSON('gl_templates', []);
+}
+
+function saveTemplates(list) {
+  saveJSON('gl_templates', list);
+}
+
+function renderTemplateList() {
+  const list = loadTemplates();
+  const el = document.getElementById('template-list');
+  if (!el) return;
+
+  if (!list.length) {
+    el.innerHTML = `<p class="memo-empty">Aucun template créé.</p>`;
+    return;
+  }
+
+  el.innerHTML = list.map((t, i) => `
+    <div class="template-row">
+      <div class="template-info">
+        <div class="template-name">${t.nom}</div>
+        <div class="template-meta">${t.exercices.length} exercice(s) · Tap ▶ pour commencer</div>
+      </div>
+      <div class="template-actions">
+        <button class="template-btn load" data-action="load-template" data-param="${i}">▶ Charger</button>
+        <button class="template-btn del" data-action="delete-template" data-param="${i}">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadTemplate(index) {
+  const list = loadTemplates();
+  const t = list[index];
+  if (!t) return;
+
+  if (session.length) {
+    const ok = await confirm2(`Charger "${t.nom}" ? La séance en cours sera effacée.`);
+    if (!ok) return;
+    session = [];
+    saveJSON('gl_session', session);
+  }
+
+  startFollowFromTemplate(t);
+}
+
+async function deleteTemplate(index) {
+  if (!await confirm2('Supprimer ce template ?')) return;
+  const list = loadTemplates();
+  list.splice(index, 1);
+  saveTemplates(list);
+  renderTemplateList();
+  toast('Template supprimé.', 'ok');
+}
+
+function openCreateTemplateModal() {
+  let exercices = [];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'machine-modal-overlay';
+
+  function renderExoList() {
+    const listEl = overlay.querySelector('#tpl-exo-list');
+    if (!exercices.length) {
+      listEl.innerHTML = `<p class="memo-empty">Aucun exercice ajouté.</p>`;
+      return;
+    }
+    listEl.innerHTML = exercices.map((e, i) => `
+      <div class="tpl-exo-item">
+        <span>${e.icon} ${e.nom}</span>
+        <button class="tpl-exo-remove" data-remove="${i}">✕</button>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        exercices.splice(parseInt(btn.dataset.remove), 1);
+        renderExoList();
+      });
+    });
+  }
+
+  overlay.innerHTML = `
+    <div class="machine-modal-box">
+      <div class="machine-modal-title">+ Nouveau template</div>
+
+      <div class="machine-modal-field">
+        <label>Nom du template</label>
+        <input type="text" id="tpl-nom" placeholder="Ex: Push day">
+      </div>
+
+      <div class="machine-modal-field">
+        <label>Groupe musculaire</label>
+        <select id="tpl-groupe">
+          ${groupOptions()}
+        </select>
+      </div>
+
+      <div class="machine-modal-field">
+        <label>Exercice</label>
+        <select id="tpl-machine"></select>
+      </div>
+
+      <button class="btn-ghost w100 mb8" id="tpl-add-exo">+ Ajouter cet exercice</button>
+
+      <div class="tpl-exo-list" id="tpl-exo-list"></div>
+
+      <div class="machine-modal-actions">
+        <button class="modal-btn cancel" id="tpl-cancel">Annuler</button>
+        <button class="modal-btn confirm green" id="tpl-save">Sauvegarder</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  renderExoList();
+
+  function updateMachines() {
+    const g = overlay.querySelector('#tpl-groupe').value;
+    const all = getAllMachines();
+    const filtered = g ? all.filter(m => m.groupe === g) : all;
+    overlay.querySelector('#tpl-machine').innerHTML = filtered.map(m =>
+      `<option value="${all.indexOf(m)}">${m.icon} ${m.nom}</option>`
+    ).join('');
+  }
+
+  overlay.querySelector('#tpl-groupe').addEventListener('change', updateMachines);
+  updateMachines();
+
+  overlay.querySelector('#tpl-add-exo').addEventListener('click', () => {
+    const idx = parseInt(overlay.querySelector('#tpl-machine').value);
+    const m = getAllMachines()[idx];
+    if (!m) return;
+    if (exercices.find(e => e.nom === m.nom)) {
+      toast(`${m.nom} déjà ajouté.`, 'warn');
+      return;
+    }
+    exercices.push({ nom: m.nom, icon: m.icon, groupe: m.groupe });
+    renderExoList();
+    toast(`${m.nom} ajouté.`, 'ok');
+  });
+
+  overlay.querySelector('#tpl-cancel').addEventListener('click', () => overlay.remove());
+
+  overlay.querySelector('#tpl-save').addEventListener('click', () => {
+    const nom = overlay.querySelector('#tpl-nom').value.trim();
+    if (!nom) { toast('Donne un nom au template.', 'warn'); return; }
+    if (!exercices.length) { toast('Ajoute au moins un exercice.', 'warn'); return; }
+    const list = loadTemplates();
+    list.push({ nom, exercices });
+    saveTemplates(list);
+    overlay.remove();
+    renderTemplateList();
+    toast(`Template "${nom}" sauvegardé.`, 'ok');
+  });
+}
+  
+// ─────────────────────────────────────────
 // BLOC 4 — UI / DOM (VERSION PROPRE)
 // ─────────────────────────────────────────
 
@@ -646,22 +807,23 @@ function renderSession() {
       : '';
 
     return `
-      <div class="entry-wrap" id="ew-${e.id}" draggable="true">
-        <div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>
-        <div class="entry" id="en-${e.id}">
-          <div class="drag-handle" title="Réorganiser">⠿</div>
-          <div class="eico">${e.icon}</div>
-          <div class="einfo">
-            <div class="ename">${e.nom}</div>
-            <div class="etags">
-              <span class="tag ac">${e.poids} kg</span>
-              <span class="tag">${e.series} s · ${e.reps} r</span>
-              <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
-              ${rmTag}${rmReel}
-            </div>
-          </div>
+  <div class="entry-wrap" id="ew-${e.id}" draggable="true">
+    <div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>
+    <div class="entry" id="en-${e.id}">
+      <div class="drag-handle" title="Réorganiser">⠿</div>
+      <div class="eico">${e.icon}</div>
+      <div class="einfo">
+        <div class="ename">${e.nom}</div>
+        <div class="etags">
+          <span class="tag ac">${e.poids} kg</span>
+          <span class="tag">${e.series} s · ${e.reps} r</span>
+          <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
+          ${rmTag}${rmReel}
         </div>
-      </div>`;
+      </div>
+      <button class="entry-edit-btn" data-action="edit-entry" data-param="${e.id}" title="Modifier">✎</button>
+    </div>
+  </div>`;
   }).join('');
 
   renderVolume();
@@ -1445,6 +1607,81 @@ function openMachineModal(options = {}) {
   });
 }
 
+function openEditEntryModal(id) {
+  const entry = session.find(e => e.id == id);
+  if (!entry) return;
+
+  const m = getAllMachines().find(x => x.nom === entry.nom);
+  const poidsOptions = m
+    ? m.poids.map(p => `<option value="${p}" ${p == entry.poids ? 'selected' : ''}>${p} kg</option>`).join('')
+    : `<option value="${entry.poids}">${entry.poids} kg</option>`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'machine-modal-overlay';
+  overlay.innerHTML = `
+    <div class="machine-modal-box">
+      <div class="machine-modal-title">✎ ${entry.nom}</div>
+
+      <div class="machine-modal-field">
+        <label>Poids (kg)</label>
+        <select id="ee-poids">${poidsOptions}</select>
+      </div>
+
+      <div class="row2">
+        <div class="machine-modal-field">
+          <label>Séries</label>
+          <select id="ee-series">
+            ${[1,2,3,4,5,6].map(n => `<option ${n == entry.series ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="machine-modal-field">
+          <label>Reps</label>
+          <select id="ee-reps">
+            ${Array.from({length:20},(_,i)=>i+1).map(n => `<option ${n == entry.reps ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="machine-modal-field">
+        <label>1RM réel (kg) <span class="text-mu fw400 fs10">optionnel</span></label>
+        <input type="number" id="ee-1rm" placeholder="ex: 120" min="0" max="500" value="${entry.rm1reel || ''}">
+      </div>
+
+      <div class="machine-modal-actions">
+        <button class="modal-btn cancel" id="ee-cancel">Annuler</button>
+        <button class="modal-btn confirm green" id="ee-save">Enregistrer</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#ee-cancel').addEventListener('click', () => overlay.remove());
+
+  overlay.querySelector('#ee-save').addEventListener('click', () => {
+    const poids = parseFloat(overlay.querySelector('#ee-poids').value);
+    const series = parseInt(overlay.querySelector('#ee-series').value);
+    const reps = parseInt(overlay.querySelector('#ee-reps').value);
+    const rm1reel = parseFloat(overlay.querySelector('#ee-1rm').value) || null;
+
+    const idx = session.findIndex(e => e.id == id);
+    if (idx === -1) return;
+
+    session[idx] = {
+      ...session[idx],
+      poids,
+      series,
+      reps,
+      rm1est: calc1RM(poids, reps),
+      rm1reel
+    };
+
+    saveJSON('gl_session', session);
+    overlay.remove();
+    renderSession();
+    toast('Exercice modifié.', 'ok');
+  });
+}
+
 function getAllMachines() {
   if (_machinesCache) return _machinesCache;
   const overrides = loadJSON('gl_machine_overrides', {});
@@ -1671,6 +1908,261 @@ function playBeep() {
   } catch (ex) {}
 }
 
+
+// ─────────────────────────────────────────
+// MODE SUIVI
+// ─────────────────────────────────────────
+
+
+let followState = null;
+
+function startFollowFromTemplate(template) {
+  followState = {
+    exercices: template.exercices.map(e => ({
+      ...e,
+      seriesValidees: [] // [{poids, reps}]
+    })),
+    currentIdx: 0
+  };
+
+  navTo('seance');
+  renderFollow();
+  document.getElementById('follow-overlay').classList.add('open');
+}
+
+function startFollow() {
+  if (!session.length) {
+    toast('Ajoute des exercices d\'abord.', 'warn');
+    return;
+  }
+
+  // Depuis la séance en cours — on crée un pseudo-template
+  followState = {
+    exercices: session.map(e => ({
+      nom: e.nom,
+      icon: e.icon,
+      groupe: e.groupe || '',
+      seriesValidees: []
+    })),
+    currentIdx: 0
+  };
+
+  // Reset la session pour reconstruire en temps réel
+  session = [];
+  saveJSON('gl_session', session);
+  renderSession();
+
+  renderFollow();
+  document.getElementById('follow-overlay').classList.add('open');
+}
+
+function renderFollow() {
+  if (!followState) return;
+
+  const { exercices, currentIdx } = followState;
+  const current = exercices[currentIdx];
+  const total = exercices.length;
+
+  document.getElementById('follow-progress').textContent = `${currentIdx + 1} / ${total}`;
+  document.getElementById('follow-current').style.display = 'block';
+  document.getElementById('follow-next-list').style.display = 'flex';
+  document.getElementById('follow-recap').style.display = 'none';
+
+  // Exercice en cours
+  const seriesHTML = current.seriesValidees.map((s, i) => `
+    <div class="follow-serie-done">
+      <span class="follow-serie-num">Série ${i + 1}</span>
+      <span class="follow-serie-vals">${s.poids} kg · ${s.reps} reps</span>
+    </div>
+  `).join('');
+
+  document.getElementById('follow-current').innerHTML = `
+    <div class="follow-current-name">${current.icon} ${current.nom}</div>
+    <div class="follow-current-meta">${current.seriesValidees.length} série(s) faite(s)</div>
+    <div class="follow-series-done-list">${seriesHTML}</div>
+    <div class="follow-current-actions">
+      <button class="btn-ac w100" id="btn-next-serie">+ Série suivante</button>
+      <button class="btn-ghost w100 mt8 ${currentIdx + 1 >= total ? 'danger' : ''}" id="btn-end-exo">
+        ${currentIdx + 1 >= total ? '🏁 Terminer la séance' : '✓ Terminer cet exercice'}
+      </button>
+    </div>
+  `;
+
+  document.getElementById('btn-next-serie').addEventListener('click', () => openSerieModal(currentIdx));
+  document.getElementById('btn-end-exo').addEventListener('click', () => endCurrentExo());
+
+  // Exercices suivants
+  const nextEl = document.getElementById('follow-next-list');
+  const suivants = exercices.slice(currentIdx + 1);
+  nextEl.innerHTML = suivants.length ? suivants.map((e, i) => `
+    <div class="follow-next-item ${i === 0 ? 'next' : ''}">
+      <span class="follow-next-ico">${e.icon}</span>
+      <div class="follow-next-info">
+        <div class="follow-next-name">${e.nom}</div>
+        <div class="follow-next-meta">${e.seriesValidees.length} série(s) faite(s)</div>
+      </div>
+    </div>
+  `).join('') : '<div class="follow-next-item" style="opacity:.4;font-size:12px;">Dernier exercice</div>';
+}
+
+function openSerieModal(exoIdx) {
+  const exo = followState.exercices[exoIdx];
+  const maxW = loadJSON('gl_max_weights', {});
+  const defaultPoids = maxW[exo.nom] || '';
+  const m = getAllMachines().find(x => x.nom === exo.nom);
+
+  // Poids de la série précédente si dispo
+  const lastSerie = exo.seriesValidees[exo.seriesValidees.length - 1];
+  const defaultPoidsVal = lastSerie ? lastSerie.poids : (defaultPoids || '');
+  const defaultReps = lastSerie ? lastSerie.reps : 10;
+
+  const poidsOptions = m
+    ? m.poids.map(p => `<option value="${p}" ${p == defaultPoidsVal ? 'selected' : ''}>${p} kg</option>`).join('')
+    : `<option value="${defaultPoidsVal}">${defaultPoidsVal} kg</option>`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'machine-modal-overlay';
+  overlay.innerHTML = `
+    <div class="machine-modal-box">
+      <div class="machine-modal-title">${exo.icon} ${exo.nom} — Série ${exo.seriesValidees.length + 1}</div>
+
+      <div class="machine-modal-field">
+        <label>Poids (kg)</label>
+        <select id="serie-poids">${poidsOptions}</select>
+      </div>
+
+      <div class="machine-modal-field">
+        <label>Reps effectuées</label>
+        <select id="serie-reps">
+          ${Array.from({length:30},(_,i)=>i+1).map(n =>
+            `<option ${n == defaultReps ? 'selected' : ''}>${n}</option>`
+          ).join('')}
+        </select>
+      </div>
+
+      <div class="machine-modal-actions">
+        <button class="modal-btn cancel" id="serie-cancel">Annuler</button>
+        <button class="modal-btn confirm green" id="serie-validate">✓ Valider la série</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#serie-cancel').addEventListener('click', () => overlay.remove());
+
+  overlay.querySelector('#serie-validate').addEventListener('click', () => {
+    const poids = parseFloat(overlay.querySelector('#serie-poids').value);
+    const reps = parseInt(overlay.querySelector('#serie-reps').value);
+
+    // Enregistrer la série
+    exo.seriesValidees.push({ poids, reps });
+
+    // Ajouter à la session en temps réel
+    addSerieToSession(exo, poids, reps);
+
+    overlay.remove();
+
+    // Lancer le timer
+    startTimer(exo);
+
+    renderFollow();
+    toast(`Série ${exo.seriesValidees.length} validée ✓`, 'ok');
+  });
+}
+
+function addSerieToSession(exo, poids, reps) {
+  // Chaque série validée = une entrée distincte avec series: 1
+  // La numérotation réelle (Série 1, Série 2…) vient de l'index dans seriesValidees
+  session.push({
+    id: Date.now() + Math.random(),
+    nom: exo.nom,
+    icon: exo.icon,
+    groupe: exo.groupe || '',
+    poids,
+    series: 1,
+    reps,
+    rm1est: calc1RM(poids, reps),
+    rm1reel: null
+  });
+
+  saveJSON('gl_session', session);
+  renderSession();
+}
+
+function endCurrentExo() {
+  if (!followState) return;
+  const { exercices, currentIdx } = followState;
+  const current = exercices[currentIdx];
+
+  if (!current.seriesValidees.length) {
+    toast('Valide au moins une série avant de continuer.', 'warn');
+    return;
+  }
+
+  if (currentIdx + 1 >= exercices.length) {
+    showRecap();
+  } else {
+    followState.currentIdx++;
+    renderFollow();
+  }
+}
+
+function showRecap() {
+  if (!followState) return;
+
+  document.getElementById('follow-current').style.display = 'none';
+  document.getElementById('follow-next-list').style.display = 'none';
+  document.getElementById('follow-progress').textContent = '🏁 Terminé';
+
+  const recap = document.getElementById('follow-recap');
+  recap.style.display = 'block';
+
+  document.getElementById('follow-recap-list').innerHTML = followState.exercices.map(e => {
+    const total = e.seriesValidees.length;
+    const details = e.seriesValidees.map((s, i) =>
+      `<div class="follow-recap-serie">Série ${i+1} : ${s.poids} kg × ${s.reps} reps</div>`
+    ).join('');
+    return `
+      <div class="follow-recap-item">
+        <div class="follow-recap-exo">${e.icon} ${e.nom}</div>
+        <div class="follow-recap-detail">${details}</div>
+        <div class="follow-recap-score ${total ? 'perfect' : ''}">${total} série(s) ✓</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function closeFollow() {
+  document.getElementById('follow-overlay').classList.remove('open');
+  followState = null;
+}
+
+function saveFollow() {
+  // Reconstruire la session proprement depuis les séries validées dans followState
+  session = [];
+  let idCounter = Date.now();
+
+  followState.exercices.forEach(exo => {
+    exo.seriesValidees.forEach((s, idx) => {
+      session.push({
+        id: idCounter++,
+        nom: exo.nom,
+        icon: exo.icon,
+        groupe: exo.groupe || '',
+        poids: s.poids,
+        series: idx + 1,
+        reps: s.reps,
+        rm1est: calc1RM(s.poids, s.reps),
+        rm1reel: null
+      });
+    });
+  });
+
+  saveJSON('gl_session', session);
+  renderSession();
+  closeFollow();
+  saveSession();
+}
 
 
 // ─────────────────────────────────────────
@@ -1914,6 +2406,7 @@ function init() {
   renderMachineSelect();
   filterMachines();
   renderAccueil();
+  renderTemplateList()
   renderHistory();
   renderStats();
   renderSheetsConfig();
@@ -1926,6 +2419,46 @@ function init() {
   navTo('seance');
 
   // EVENTS GLOBAUX
+
+  // Mode suivi
+  const btnStartFollow = document.getElementById('btn-start-follow');
+  if (btnStartFollow) btnStartFollow.addEventListener('click', startFollow);
+
+  const followClose = document.getElementById('follow-close');
+  if (followClose) followClose.addEventListener('click', async () => {
+    if (!await confirm2('Quitter le mode suivi ? La progression sera perdue.')) return;
+    closeFollow();
+  });
+
+  const followSave = document.getElementById('follow-save');
+  if (followSave) followSave.addEventListener('click', saveFollow);
+
+  const followDiscard = document.getElementById('follow-discard');
+  if (followDiscard) followDiscard.addEventListener('click', async () => {
+    if (!await confirm2('Abandonner la séance sans sauvegarder ?')) return;
+    closeFollow();
+  });
+
+  // Délégation — cases séries
+  document.getElementById('follow-current').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action="check-serie"]');
+    if (!btn) return;
+    checkSerie(parseInt(btn.dataset.serie));
+  });
+
+  // Templates
+  const btnCreateTemplate = document.getElementById('btn-create-template');
+  if (btnCreateTemplate) btnCreateTemplate.addEventListener('click', openCreateTemplateModal);
+
+  document.getElementById('template-list').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const { action, param } = btn.dataset;
+    if (action === 'load-template') loadTemplate(parseInt(param));
+    if (action === 'delete-template') deleteTemplate(parseInt(param));
+  });
+
+
   document.querySelectorAll('[data-nav]').forEach(btn => {
     btn.addEventListener('click', () => navTo(btn.dataset.nav));
   });
@@ -2043,6 +2576,13 @@ function init() {
   // Swipe to delete — délégation sur le conteneur
   const entryList = document.getElementById('entry-list');
   let swipeState = null;
+
+  // Délégation click — edit entry
+  entryList.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
+  });
 
   entryList.addEventListener('touchstart', e => {
     const wrap = e.target.closest('.entry-wrap');
