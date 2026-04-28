@@ -1,6 +1,6 @@
 {
-  "name": "GymLog K&J",
-  "short_name": "GymLog",
+  "name": "PecDay",
+  "short_name": "PDay",
   "description": "Suivi de séances de musculation",
   "start_url": "./index.html",
   "display": "standalone",
