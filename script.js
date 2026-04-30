@@ -2747,11 +2747,13 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
 });
 
   entryList.addEventListener('touchstart', e => {
-    const wrap = e.target.closest('.acc-wrap');
-    if (!wrap) return;
-    swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
-    //wrap.querySelector('.entry').classList.add('swiping');
-  }, { passive: true });
+  // Bloquer le swipe si on est dans le corps de l'accordéon (boutons)
+  if (e.target.closest('.acc-body')) return;
+  if (e.target.closest('button')) return;
+  const wrap = e.target.closest('.acc-wrap');
+  if (!wrap) return;
+  swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
+}, { passive: true });
 
   entryList.addEventListener('touchmove', e => {
   if (!swipeState) return;
@@ -2765,12 +2767,6 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
   bg.style.opacity = Math.min(Math.abs(swipeState.curX) / 90, 1);
 }, { passive: false });
 
-entryList.addEventListener('touchstart', e => {
-  if (e.target.closest('button')) return; // ← ne pas swiper si tap sur bouton
-  const wrap = e.target.closest('.acc-wrap');
-  if (!wrap) return;
-  swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
-}, { passive: true });
 
   entryList.addEventListener('touchend', () => {
     if (!swipeState) return;

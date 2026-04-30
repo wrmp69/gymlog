@@ -275,7 +275,7 @@ html.light .btn-ac { color: #fff; }
   border-radius: 13px;
   position: relative;
   z-index: 1;
-  touch-action: pan-y;
+  touch-action: manipulation;
   user-select: none;
   transform: translateX(0);
   transition: transform .22s ease;
@@ -1284,3 +1284,7 @@ html.light .btn-ac[style*="background"] { color: #fff !important; }
 .acc-btn-timer { padding:9px 6px; border-radius:9px; font-size:11px; font-weight:500; cursor:pointer; text-align:center; background:rgba(124,108,250,.1); color:var(--ac); border:1px solid rgba(124,108,250,.25); font-family:'DM Sans',sans-serif; }
 .acc-btn-edit { padding:9px 6px; border-radius:9px; font-size:11px; font-weight:500; cursor:pointer; text-align:center; background:var(--s2); color:var(--tx); border:1px solid var(--bd); font-family:'DM Sans',sans-serif; }
 .acc-btn-del { padding:9px 6px; border-radius:9px; font-size:11px; font-weight:500; cursor:pointer; text-align:center; background:rgba(255,79,106,.08); color:var(--rd); border:1px solid rgba(255,79,106,.2); font-family:'DM Sans',sans-serif; }
+
+.acc-btn-timer,
+.acc-btn-edit,
+.acc-btn-del {touch-action: manipulation;-webkit-tap-highlight-color: transparent;cursor: pointer;}
