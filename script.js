@@ -788,47 +788,66 @@ function removeEntry(id) {
 
 function renderSession() {
   const list = document.getElementById('entry-list');
-  document.getElementById('entry-count').textContent = session.length + ' exo';
+  const countEl = document.getElementById('entry-count');
+  countEl.textContent = session.length + ' exo';
+  countEl.classList.toggle('dis-none', !session.length);
 
   if (!session.length) {
-    list.innerHTML = `
-      <div class="empty">
-        <span class="eico-lg">🏋️</span>
-        Aucun exercice.<br>Lance-toi !
-      </div>`;
+    list.innerHTML = `<div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div>`;
     document.getElementById('vol-block').style.display = 'none';
     return;
   }
 
-  list.innerHTML = session.map(e => {
-    const rmTag = `<span class="tag rm">1RM est. ${e.rm1est} kg</span>`;
-    const rmReel = e.rm1reel
-      ? `<span class="tag rm-reel">1RM réel ${e.rm1reel} kg</span>`        
-      : '';
+  // Garder les accordéons déjà ouverts
+  const openIds = new Set();
+  list.querySelectorAll('.acc-wrap.open').forEach(el => openIds.add(parseInt(el.dataset.id)));
 
+  list.innerHTML = session.map(e => {
+    const color = GROUPE_COLORS[e.groupe] || 'var(--mu)';
+    const isOpen = openIds.has(e.id);
     return `
-  <div class="entry-wrap" id="ew-${e.id}" draggable="true">
-    <div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>
-    <div class="entry" id="en-${e.id}">
-      <div class="drag-handle" title="Réorganiser">⠿</div>
-      <div class="eico">${e.icon}</div>
-      <div class="einfo">
-        <div class="ename">${e.nom}</div>
-        <div class="etags">
-          <span class="tag ac">${e.poids} kg</span>
-          <span class="tag">${e.series} s · ${e.reps} r</span>
-          <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
-          ${rmTag}${rmReel}
+    <div class="acc-wrap${isOpen ? ' open' : ''}" data-id="${e.id}">
+      <div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>
+      <div class="acc-head" onclick="if(!event.target.closest('button'))accToggle(${e.id})">
+        <div class="acc-dot" style="background:${color}"></div>
+        <div class="acc-name">${e.nom}</div>
+        <span class="tag ac">${e.series}×${e.reps}</span>
+        <span class="tag" style="margin-left:4px">${e.poids} kg</span>
+        <span class="acc-chevron">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-grid">
+          <div class="acc-stat"><div class="acc-stat-lbl">Séries × Reps</div><div class="acc-stat-val">${e.series} × ${e.reps}</div></div>
+          <div class="acc-stat"><div class="acc-stat-lbl">Poids</div><div class="acc-stat-val">${e.poids} kg</div></div>
+          <div class="acc-stat"><div class="acc-stat-lbl">Volume</div><div class="acc-stat-val" style="color:var(--ac)">${vol(e).toLocaleString('fr-FR')} kg</div></div>
+          <div class="acc-stat"><div class="acc-stat-lbl">1RM estimé</div><div class="acc-stat-val">${e.rm1est} kg${e.rm1reel ? ` <span style="color:var(--mu);font-size:11px">/ réel ${e.rm1reel}</span>` : ''}</div></div>
+        </div>
+        <div class="acc-actions" onclick="accBtnClick(event)">
+          <button class="acc-btn-timer" data-action="start-timer" data-param="${e.id}">⏱ Repos</button>
+          <button class="acc-btn-edit" data-action="edit-entry" data-param="${e.id}">✎ Modifier</button>
+          <button class="acc-btn-del" data-action="delete-entry" data-param="${e.id}">Supprimer</button>
         </div>
       </div>
-      <button class="entry-edit-btn" data-action="edit-entry" data-param="${e.id}" title="Modifier">✎</button>
-    </div>
-  </div>`;
+    </div>`;
   }).join('');
 
   renderVolume();
   document.getElementById('vol-block').style.display = 'block';
-  attachDragDrop();
+}
+
+function accToggle(id) {
+  const el = document.querySelector(`.acc-wrap[data-id="${id}"]`);
+  if (el) el.classList.toggle('open');
+}
+
+function accBtnClick(e) {
+  e.stopPropagation();
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = parseInt(btn.dataset.param);
+  if (btn.dataset.action === 'start-timer') startTimer(session.find(x => x.id === id));
+  if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
+  if (btn.dataset.action === 'delete-entry') removeEntry(id);
 }
 
 
@@ -981,7 +1000,148 @@ function renderStats() {
   renderChart();
 }
 
+// ─── BOTTOM SHEET ─── //
 
+const GROUPE_COLORS = {
+  'Pectoraux':'#a78bfa','Dos':'#22d98a','Jambes':'#38bdf8',
+  'Épaules':'#fb923c','Biceps':'#e879f9','Triceps':'#f59e0b',
+  'Abdos':'#f87171','Mollets':'#a3e635'
+};
+
+let bsSelectedIdx = null;
+let bsSelectedPoidsIdx = null;
+let bsSeries = 4;
+let bsReps = 10;
+
+function bsOpen() {
+  document.getElementById('bs-overlay').classList.add('open');
+  document.getElementById('bs-sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  bsShowStep1();
+}
+
+function bsClose() {
+  document.getElementById('bs-overlay').classList.remove('open');
+  document.getElementById('bs-sheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function bsShowStep1() {
+  document.getElementById('bs-exo-list').style.display = 'flex';
+  document.getElementById('bs-params').style.display = 'none';
+  bsRenderExos('');
+}
+
+function bsRenderExos(groupe) {
+  const all = getAllMachines();
+  const maxW = loadJSON('gl_max_weights', {});
+  const list = groupe ? all.filter(m => m.groupe === groupe) : all;
+  document.getElementById('bs-exo-list').innerHTML = list.map(m => {
+    const i = all.indexOf(m);
+    const color = GROUPE_COLORS[m.groupe] || 'var(--mu)';
+    const last = maxW[m.nom] ? `Dern: ${maxW[m.nom]} kg` : '';
+    return `<div class="bs-exo-row" onclick="bsSelectExo(${i})">
+      <div class="bs-exo-dot" style="background:${color}"></div>
+      <div class="bs-exo-name">${m.nom}${m.isCustom ? ' ★' : ''}</div>
+      ${last ? `<div class="bs-exo-last">${last}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function bsSelectExo(idx) {
+  bsSelectedIdx = idx;
+  const m = getAllMachines()[idx];
+  const maxW = loadJSON('gl_max_weights', {});
+  const color = GROUPE_COLORS[m.groupe] || 'var(--mu)';
+
+  document.getElementById('bs-selected-name').innerHTML =
+    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};margin-right:8px;vertical-align:middle"></span>${m.nom}`;
+
+  // Poids pills
+  const lastPoids = maxW[m.nom];
+  bsSelectedPoidsIdx = lastPoids ? m.poids.findIndex(p => p == lastPoids) : 0;
+  if (bsSelectedPoidsIdx < 0) bsSelectedPoidsIdx = 0;
+  bsRenderPoids(m);
+
+  // Steppers
+  document.getElementById('bs-series-val').textContent = bsSeries;
+  document.getElementById('bs-reps-val').textContent = bsReps;
+
+  document.getElementById('bs-exo-list').style.display = 'none';
+  document.getElementById('bs-params').style.display = 'block';
+
+  // Scroll vers la pill sélectionnée
+  setTimeout(() => {
+    const pill = document.querySelector('#bs-poids-pills .selected');
+    if (pill) pill.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  }, 60);
+}
+
+function bsRenderPoids(m) {
+  document.getElementById('bs-poids-pills').innerHTML = m.poids.map((p, i) =>
+    `<div class="bs-poids-pill${i === bsSelectedPoidsIdx ? ' selected' : ''}" onclick="bsSelectPoids(${i})">${p}</div>`
+  ).join('');
+}
+
+function bsSelectPoids(i) {
+  bsSelectedPoidsIdx = i;
+  document.querySelectorAll('.bs-poids-pill').forEach((el, idx) =>
+    el.classList.toggle('selected', idx === i)
+  );
+}
+
+function bsConfirm() {
+  if (bsSelectedIdx === null) { toast('Sélectionne un exercice.', 'warn'); return; }
+  const m = getAllMachines()[bsSelectedIdx];
+  const poids = m.poids[bsSelectedPoidsIdx];
+
+  document.getElementById('sel-machine').value = bsSelectedIdx;
+  renderPoidsForMachine();
+  document.getElementById('sel-poids').value = poids;
+  document.getElementById('sel-series').value = bsSeries;
+  document.getElementById('sel-reps').value = bsReps;
+
+  bsSeries = Math.min(bsSeries + 1, 6);
+  bsClose();
+  addEntry();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn-open-bs').addEventListener('click', bsOpen);
+  document.getElementById('bs-close').addEventListener('click', bsClose);
+  document.getElementById('bs-overlay').addEventListener('click', bsClose);
+  document.getElementById('bs-back').addEventListener('click', bsShowStep1);
+  document.getElementById('bs-confirm').addEventListener('click', bsConfirm);
+
+  document.getElementById('bs-series-minus').addEventListener('click', () => {
+    bsSeries = Math.max(1, bsSeries - 1);
+    document.getElementById('bs-series-val').textContent = bsSeries;
+  });
+  document.getElementById('bs-series-plus').addEventListener('click', () => {
+    bsSeries = Math.min(10, bsSeries + 1);
+    document.getElementById('bs-series-val').textContent = bsSeries;
+  });
+  document.getElementById('bs-reps-minus').addEventListener('click', () => {
+    bsReps = Math.max(1, bsReps - 1);
+    document.getElementById('bs-reps-val').textContent = bsReps;
+  });
+  document.getElementById('bs-reps-plus').addEventListener('click', () => {
+    bsReps = Math.min(30, bsReps + 1);
+    document.getElementById('bs-reps-val').textContent = bsReps;
+  });
+
+  document.getElementById('bs-chips').addEventListener('click', e => {
+    const chip = e.target.closest('.bs-chip');
+    if (!chip) return;
+    document.querySelectorAll('.bs-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    bsRenderExos(chip.dataset.groupe);
+  });
+
+  let startY = 0;
+  document.getElementById('bs-handle').addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+  document.getElementById('bs-handle').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - startY > 60) bsClose(); });
+});
 
 // ─────────────────────────────────────────
 // GRAPHIQUES — VERSION PROPRE
@@ -2588,10 +2748,11 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
     if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
+    if (btn.dataset.action === 'delete-entry') removeEntry(parseInt(btn.dataset.param));
   });
 
   entryList.addEventListener('touchstart', e => {
-    const wrap = e.target.closest('.entry-wrap');
+    const wrap = e.target.closest('.acc-wrap');
     if (!wrap) return;
     swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
     wrap.querySelector('.entry').classList.add('swiping');
@@ -2599,7 +2760,7 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
 
   entryList.addEventListener('touchmove', e => {
     if (!swipeState) return;
-    const entry = swipeState.wrap.querySelector('.entry');
+    const entry = swipeState.wrap.querySelector('.acc-head');
     const bg = swipeState.wrap.querySelector('.entry-del-bg');
     swipeState.curX = Math.min(0, e.touches[0].clientX - swipeState.startX);
     entry.style.transform = `translateX(${swipeState.curX}px)`;
@@ -2610,14 +2771,14 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
     if (!swipeState) return;
     const { wrap } = swipeState;  // ← on retire curX ici
     const curX = swipeState.curX; // ← on le lit directement depuis l'objet
-    const entry = wrap.querySelector('.entry');
+    const entry = wrap.querySelector('.acc-head');
     const bg = wrap.querySelector('.entry-del-bg');
-    entry.classList.remove('swiping');
+    //entry.classList.remove('swiping');
 
     if (Math.abs(curX) >= 90) {
       entry.style.transition = 'transform .2s ease';
       entry.style.transform = 'translateX(-110%)';
-      setTimeout(() => removeEntry(parseInt(wrap.id.replace('ew-', ''))), 200);
+      setTimeout(() => removeEntry(parseInt(wrap.dataset.id)), 200);
     } else {
       entry.style.transform = 'translateX(0)';
       bg.style.opacity = 0;

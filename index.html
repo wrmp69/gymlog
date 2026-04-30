@@ -6,59 +6,502 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GymLog K&J">
-<meta name="theme-color" content="#0f0f0f">
-<title>PecDay</title>
+<meta name="theme-color" content="#0c0c0e">
+<title>GymLog</title>
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<style>
+/* ── STYLES SPÉCIFIQUES REFONTE UI ── */
+
+/* TOPBAR */
+.topbar {
+  padding: .65rem 1rem .65rem 1.1rem;
+  border-bottom: 1px solid var(--bd);
+  background: var(--bg);
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-logo-mark {
+  width: 30px;
+  height: 30px;
+  background: var(--ac);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -.02em;
+  color: var(--tx);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.date-badge {
+  font-size: 11px;
+  color: var(--mu);
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+.theme-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.theme-btn:active { background: var(--s2); }
+
+/* TABS */
+.tabs {
+  margin: 10px 14px 8px;
+  border: 1px solid var(--bd);
+}
+
+/* PAGES */
+.page { padding: 0 14px 1rem; }
+
+/* ── PAGE ACCUEIL ── */
+.home-hero {
+  padding: 16px 0 4px;
+}
+.home-greeting {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -.02em;
+  margin-bottom: 2px;
+}
+.home-sub { font-size: 13px; color: var(--mu); margin-bottom: 18px; }
+
+.home-kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.home-kpi {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.home-kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--ac);
+  opacity: .4;
+}
+.home-kpi-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--ac);
+  letter-spacing: -.02em;
+}
+.home-kpi-lbl { font-size: 11px; color: var(--mu); margin-top: 3px; }
+
+.home-last {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--mu);
+}
+.home-exo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bd);
+  font-size: 13px;
+}
+.home-exo-row:last-child { border-bottom: none; }
+.home-exo-name { color: var(--tx); font-weight: 500; }
+.home-exo-val  { color: var(--ac); font-weight: 500; font-size: 12px; }
+
+/* Template card */
+.template-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+/* Bouton CTA accueil */
+.btn-cta-home {
+  width: 100%;
+  padding: 15px;
+  background: var(--ac);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: -.01em;
+  transition: opacity .15s, transform .1s;
+  margin-top: 6px;
+}
+.btn-cta-home:active { opacity: .85; transform: scale(.99); }
+.btn-cta-home-ico {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* ── PAGE SÉANCE ── */
+.seance-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0 10px;
+}
+.seance-page-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+.seance-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.seance-count-pill {
+  font-size: 11px;
+  color: var(--ac);
+  background: rgba(124,108,250,.1);
+  border: 1px solid rgba(124,108,250,.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.btn-icon {
+  width: 30px; height: 30px;
+  background: none;
+  border: 1px solid var(--bd);
+  border-radius: 50%;
+  color: var(--mu);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.btn-icon:active { background: var(--s2); }
+.btn-icon.danger:active { border-color: var(--rd); color: var(--rd); }
+
+/* Formulaire séance redesigné */
+.form-card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.form-card-title {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--mu);
+  margin-bottom: 14px;
+}
+
+/* Labels formulaire */
+.field-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--mu);
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* Séparateur section */
+.section-sep {
+  height: 1px;
+  background: var(--bd);
+  margin: 14px 0;
+}
+
+/* En-tête liste exercices */
+.entry-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 10px;
+}
+.entry-list-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--mu);
+}
+
+/* ── PAGE HISTORIQUE ── */
+.history-page-header {
+  padding: 14px 0 10px;
+}
+.history-page-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+.history-page-sub {
+  font-size: 12px;
+  color: var(--mu);
+  margin-top: 2px;
+}
+
+/* ── PAGE STATS ── */
+.stats-page-header {
+  padding: 14px 0 10px;
+}
+.stats-page-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+.stat {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+}
+
+/* ── PAGE PARAMS ── */
+.params-page-header {
+  padding: 14px 0 10px;
+}
+.params-page-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+.params-section-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--mu);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* MODE SUIVI — header amélioré */
+.follow-header {
+  padding: .85rem 1.1rem;
+}
+.follow-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -.01em;
+}
+
+/* TIMER — améliorations */
+.tov-top {
+  font-size: 10px;
+  letter-spacing: .16em;
+}
+.tnum { letter-spacing: -.03em; }
+
+/* BOTTOM NAV */
+.bottom-nav { height: 62px; }
+.bn-item { gap: 3px; }
+.bn-ico  { font-size: 19px; }
+.bn-item.active::before {
+  left: 30%; right: 30%;
+  height: 2.5px;
+  border-radius: 0 0 4px 4px;
+}
+
+/* Recherche params */
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.search-field-ico { font-size: 14px; color: var(--mu); flex-shrink: 0; }
+.search-field input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--tx);
+  padding: 0;
+  width: 100%;
+}
+.search-field input::placeholder { color: var(--mu); }
+
+/* Light mode */
+html.light .btn-cta-home { color: #fff; }
+html.light .topbar-logo-mark { color: #fff; }
+html.light .home-kpi::before { opacity: .25; }
+</style>
 </head>
 <body>
-  
+
 <div class="app">
 
+<!-- ── TOPBAR ── -->
 <div class="topbar">
-  <div class="topbar-title" id="topbar-title">Séance</div> 
-  <div class="flex ai-center gap8">
+  <div class="topbar-logo">
+    <div class="topbar-logo-mark"></div>
+    <div class="topbar-title" id="topbar-title">GymLog</div>
+  </div>
+  <div class="topbar-right">
     <div class="date-badge" id="header-date"></div>
     <button class="theme-btn" id="theme-btn" title="Thème">🌙</button>
   </div>
 </div>
 
+<!-- ── TABS ── -->
+<div class="tabs">
+  <!-- générées par JS si besoin, sinon navigation bottom nav uniquement -->
+</div>
+
 <div id="pages-wrapper" class="flex1 oy-auto pb140">
 
-<!-- ACCUEIL -->
-<div id="page-accueil" class="page accueil pt1r">
-  <div class="home-greeting" id="home-greeting">Bonjour 👋</div>
-  <div class="home-sub">Vue d'ensemble de tes progrès</div>
+<!-- ════════════════════════════════════════
+     PAGE ACCUEIL
+════════════════════════════════════════ -->
+<div id="page-accueil" class="page accueil">
+
+  <div class="home-hero">
+    <div class="home-greeting" id="home-greeting">Bonjour 👋</div>
+    <div class="home-sub">Vue d'ensemble de tes progrès</div>
+  </div>
+
+  <!-- KPIs -->
   <div class="home-kpi-grid">
-    <div class="home-kpi"><div class="home-kpi-val" id="hk-seances">—</div><div class="home-kpi-lbl">Séances total</div></div>
-    <div class="home-kpi"><div class="home-kpi-val" id="hk-vol">—</div><div class="home-kpi-lbl">Volume total</div></div>
-    <div class="home-kpi"><div class="home-kpi-val" id="hk-month">—</div><div class="home-kpi-lbl">Ce mois-ci</div></div>
-    <div class="home-kpi"><div class="home-kpi-val" id="hk-1rm">—</div><div class="home-kpi-lbl">Meilleur 1RM</div></div>
+    <div class="home-kpi">
+      <div class="home-kpi-val" id="hk-seances">—</div>
+      <div class="home-kpi-lbl">Séances total</div>
+    </div>
+    <div class="home-kpi">
+      <div class="home-kpi-val" id="hk-vol">—</div>
+      <div class="home-kpi-lbl">Volume total</div>
+    </div>
+    <div class="home-kpi">
+      <div class="home-kpi-val" id="hk-month">—</div>
+      <div class="home-kpi-lbl">Ce mois-ci</div>
+    </div>
+    <div class="home-kpi">
+      <div class="home-kpi-val" id="hk-1rm">—</div>
+      <div class="home-kpi-lbl">Meilleur 1RM</div>
+    </div>
   </div>
+
+  <!-- Dernière séance -->
   <div class="home-last">
-    <div class="home-last-title">Dernière séance</div>
-    <div id="home-last-content"><div class="fs13 text-mu">Aucune séance enregistrée.</div></div>
+    <div class="section-head">
+      <span class="section-title">Dernière séance</span>
+    </div>
+    <div id="home-last-content">
+      <div class="fs13 text-mu">Aucune séance enregistrée.</div>
+    </div>
   </div>
 
-  <!-- TEMPLATES -->
-<div class="home-section">
-  <div class="home-last-title">Mes templates</div>
-  <div id="template-list"></div>
-  <button class="btn-ghost mt8 w100" id="btn-create-template">+ Créer un template</button>
+  <!-- Templates -->
+  <div class="template-card">
+    <div class="section-head">
+      <span class="section-title">Mes templates</span>
+    </div>
+    <div id="template-list"></div>
+    <button class="btn-ghost mt8 w100" id="btn-create-template">+ Créer un template</button>
+  </div>
+
+  <!-- CTA -->
+  <button class="btn-cta-home" data-nav="seance">
+    <span class="btn-cta-home-ico">🏋️</span>
+    Commencer la séance
+  </button>
+
 </div>
 
-  <button class="btn-ac mt05" data-nav="seance">🏋️ Commencer la séance</button>
-</div>
 
-<!-- SÉANCE -->
+<!-- ════════════════════════════════════════
+     PAGE SÉANCE
+════════════════════════════════════════ -->
 <div class="page" id="page-seance">
 
+  <!-- Header -->
+  <div class="seance-page-header">
+    <div class="seance-page-title">Séance du jour</div>
+    <div class="seance-page-actions">
+      <span id="entry-count" class="seance-count-pill dis-none"></span>
+      <button class="follow-start-btn btn-icon" id="btn-start-follow" title="Mode suivi">▶</button>
+      <button class="btn-icon danger" id="btn-clear-session" title="Effacer la séance">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <!-- COL 1 : FORMULAIRE -->
-  <div class="seance-col" id="col-form">
-    <div class="seance-col-title">📋 Exercice</div>
-    <div class="card mb0">
+  <div class="seance-col" id="col-form" style="display:none">
+    <div class="form-card">
+      <div class="form-card-title">Ajouter un exercice</div>
+
       <div class="field">
         <span class="lbl">Groupe musculaire</span>
         <select id="sel-groupe">
@@ -73,6 +516,7 @@
           <option value="Triceps">🔱 Triceps</option>
         </select>
       </div>
+
       <div class="field">
         <span class="lbl">Machine / exercice</span>
         <div class="select-with-edit">
@@ -82,6 +526,7 @@
           <button class="btn-edit-machine" id="btn-edit-machine" title="Modifier cet exercice">✎</button>
         </div>
       </div>
+
       <div class="row2">
         <div class="field">
           <span class="lbl">Poids <span id="last-weight-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
@@ -90,11 +535,12 @@
         <div class="field">
           <span class="lbl">Séries</span>
           <select id="sel-series">
-            <option selected>1</option><option>2</option><option>3</option>
-            <option>4</option><option>5</option><option>6</option>
+            <option>1</option><option>2</option><option>3</option>
+            <option selected>4</option><option>5</option><option>6</option>
           </select>
         </div>
       </div>
+
       <div class="row2">
         <div class="field">
           <span class="lbl">Reps / série</span>
@@ -108,33 +554,42 @@
           </select>
         </div>
         <div class="field">
-          <span class="lbl">1RM réel (kg) <span class="text-mu fw400 fs10">optionnel</span></span>
+          <span class="lbl">1RM réel <span class="text-mu fw400 fs10">optionnel</span></span>
           <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500">
         </div>
       </div>
+
       <div class="rm-hint" id="rm-preview"></div>
-      <button  id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
+      <button id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
     </div>
   </div>
 
-  <!-- COL 2 : SÉANCE DU JOUR -->
+ <button id="btn-open-bs">+ Choisir un exercice</button>
+
+  <!-- COL 2 : LISTE EXERCICES -->
   <div class="seance-col" id="col-session">
-    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center">
-      <span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span>
-      <button class="follow-start-btn" id="btn-start-follow">▶</button>
-      <button class="clr" id="btn-clear-session">Effacer</button></span></div>
-    <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
+    <div class="entry-list-header">
+      <span class="entry-list-label">Exercices du jour</span>
+    </div>
+    <div id="entry-list">
+      <div class="empty">
+        <span class="eico-lg">🏋️</span>
+        Aucun exercice.<br>Lance-toi !
+      </div>
+    </div>
     <div id="vol-block" class="dis-none">
-      <div class="sh mt14"><span class="stitle">Volume & 1RM</span></div>
+      <div class="sh mt14">
+        <span class="stitle">Volume & 1RM</span>
+      </div>
       <div class="vol-summary" id="vol-list"></div>
       <div class="vol-total" id="vol-total"></div>
     </div>
   </div>
 
-  <!-- COL 3 : MARCHE -->
+  <!-- COL 3 : CARDIO -->
   <div class="seance-col" id="col-cardio">
-    <div class="seance-col-title">🚶 Marche fin de séance</div>
     <div class="cardio-card mb0" id="cardio-card">
+      <div class="lbl mb10">🚶 Marche fin de séance</div>
       <div id="cardio-form">
         <div class="row3">
           <div class="field">
@@ -150,8 +605,8 @@
             <select id="c-pente">
               <option>0</option><option>1</option><option>2</option><option>3</option>
               <option>4</option><option>5</option><option>6</option><option>7</option>
-              <option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option>
-              <option>13</option><option>14</option><option>15</option>
+              <option>8</option><option>9</option><option>10</option><option>11</option>
+              <option selected>12</option><option>13</option><option>14</option><option>15</option>
             </select>
           </div>
           <div class="field">
@@ -163,7 +618,7 @@
             </select>
           </div>
         </div>
-        <button class="btn-ac bg-ac mt4" id="btn-add-cardio">✓ Marche terminée</button>
+        <button class="btn-ac mt4" id="btn-add-cardio">✓ Marche terminée</button>
       </div>
       <div id="cardio-done" class="dis-none ta-center px8-0">
         <span class="cardio-done-check">✅</span>
@@ -174,20 +629,41 @@
     </div>
   </div>
 
-</div>
+</div><!-- /page-seance -->
 
-<!-- HISTORIQUE -->
+
+<!-- ════════════════════════════════════════
+     PAGE HISTORIQUE
+════════════════════════════════════════ -->
 <div class="page" id="page-historique">
-  <div id="history-list"><div class="empty"><span class="eico-lg">📋</span>Pas encore d'historique.<br>Sauvegarde ta première séance !</div></div>
+  <div class="history-page-header">
+    <div class="history-page-title">Historique</div>
+    <div class="history-page-sub" id="history-sub">Tes séances passées</div>
+  </div>
+  <div id="history-list">
+    <div class="empty">
+      <span class="eico-lg">📋</span>
+      Pas encore d'historique.<br>Sauvegarde ta première séance !
+    </div>
+  </div>
 </div>
 
-<!-- STATS -->
+
+<!-- ════════════════════════════════════════
+     PAGE STATS
+════════════════════════════════════════ -->
 <div class="page" id="page-stats">
+
+  <div class="stats-page-header">
+    <div class="stats-page-title">Statistiques</div>
+  </div>
+
   <div class="stat-row">
     <div class="stat"><div class="stat-val" id="st-seances">0</div><div class="stat-lbl">Séances</div></div>
     <div class="stat"><div class="stat-val" id="st-exos">0</div><div class="stat-lbl">Exercices</div></div>
     <div class="stat"><div class="stat-val" id="st-vol">0</div><div class="stat-lbl">Vol. total</div></div>
   </div>
+
   <div class="card">
     <div class="dl-lbl">Graphique par exercice</div>
     <div class="field mb10">
@@ -212,14 +688,23 @@
     </div>
   </div>
 
-</div>
+</div><!-- /page-stats -->
 
 
-<!-- PARAMÈTRES -->
-<div id="page-params" class="page pt1r">
+<!-- ════════════════════════════════════════
+     PAGE PARAMÈTRES
+════════════════════════════════════════ -->
+<div id="page-params" class="page">
 
-  <div class="card">
-    <div class="dl-lbl mb6">📊 Google Sheets</div>
+  <div class="params-page-header">
+    <div class="params-page-title">Paramètres</div>
+  </div>
+
+  <!-- Google Sheets -->
+  <div class="card mb10">
+    <div class="params-section-lbl">
+      <span>📊</span> Google Sheets
+    </div>
     <div id="sheets-nc">
       <p class="fs13 text-mu mb10 lh16">Colle ton URL Apps Script pour envoyer tes données.</p>
       <input type="url" id="inp-script" placeholder="https://script.google.com/macros/s/..." class="mb10">
@@ -236,109 +721,118 @@
       <div id="export-status" class="fs12 mt4 ta-center dis-none"></div>
       <button id="send-today-btn" class="btn-ghost mb8">Envoyer la séance du jour</button>
       <div id="send-today-status" class="fs12 mt4 ta-center dis-none"></div>
-      <button  id="open-sheet-btn" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
+      <button id="open-sheet-btn" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
     </div>
   </div>
 
- <!-- EXERCICES CUSTOM -->
-<div class="card" id="custom-machines-card">
-  <div class="dl-lbl mb6">💪 Ajouter un exercice</div>
-
-  <div id="custom-machines-list"></div>
-
-  <div class="machine-add-form" id="machine-add-form">
-    <div class="machine-modal-field">
-      <label>Nom de l'exercice</label>
-      <input type="text" id="mm-nom-inline" placeholder="Ex: Curl incliné">
+  <!-- Exercices custom -->
+  <div class="card mb10" id="custom-machines-card">
+    <div class="params-section-lbl">
+      <span>💪</span> Ajouter un exercice
     </div>
-    <div class="machine-modal-field">
-      <label>Groupe musculaire</label>
-      <select id="mm-groupe-inline">
-        <option value="Abdos">🔥 Abdos</option>
-        <option value="Biceps">🦾 Biceps</option>
-        <option value="Dos">🧗‍♂️ Dos</option>
-        <option value="Épaules">🛡️ Épaules</option>
-        <option value="Jambes">🦵 Jambes</option>
-        <option value="Mollets">🐐 Mollets</option>
-        <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
-        <option value="Triceps">🔱 Triceps</option>
-      </select>
+    <div id="custom-machines-list"></div>
+    <div class="machine-add-form" id="machine-add-form">
+      <div class="machine-modal-field">
+        <label>Nom de l'exercice</label>
+        <input type="text" id="mm-nom-inline" placeholder="Ex: Curl incliné">
+      </div>
+      <div class="machine-modal-field">
+        <label>Groupe musculaire</label>
+        <select id="mm-groupe-inline">
+          <option value="Abdos">🔥 Abdos</option>
+          <option value="Biceps">🦾 Biceps</option>
+          <option value="Dos">🧗‍♂️ Dos</option>
+          <option value="Épaules">🛡️ Épaules</option>
+          <option value="Jambes">🦵 Jambes</option>
+          <option value="Mollets">🐐 Mollets</option>
+          <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
+          <option value="Triceps">🔱 Triceps</option>
+        </select>
+      </div>
+      <div class="machine-modal-field">
+        <label>Poids disponibles (séparés par des virgules)</label>
+        <input type="text" id="mm-poids-inline" placeholder="Ex: 5, 10, 15, 20, 25">
+      </div>
+      <button class="btn-ghost green w100" id="btn-add-machine-inline">+ Ajouter</button>
     </div>
-    <div class="machine-modal-field">
-      <label>Poids disponibles (séparés par des virgules)</label>
-      <input type="text" id="mm-poids-inline" placeholder="Ex: 5, 10, 15, 20, 25">
-    </div>
-    <button class="btn-ghost green w100" id="btn-add-machine-inline">+ Ajouter</button>
-  </div>
-</div>
-  
-  <input id="memo-search" type="text" placeholder="🔍 Rechercher un exercice..." class="w100 p10 br8 bd1 bg2 mb12 fs14 text-fg">
-  <div id="exo-memo-list" class="accordion-list"></div><br>
-  
-  <div class="card danger-card">
-  <div class="dl-lbl danger-title">⚠️ Zone dangereuse</div>
-
-  <div class="danger-row bb1">
-    <div>
-      <div class="danger-label">Vider l'historique</div>
-      <div class="danger-desc">Supprime toutes les séances</div>
-    </div>
-    <button class="btn-ghost danger-btn">Vider</button>
   </div>
 
-  <div class="danger-row">
-    <div>
-      <div class="danger-label">Reset complet</div>
-      <div class="danger-desc">Efface toutes les données</div>
+  <!-- Mémos exercices -->
+  <div class="card mb10">
+    <div class="params-section-lbl">
+      <span>📝</span> Mémos exercices
     </div>
-    <button class="btn-ghost danger-btn">Reset</button>
+    <div class="search-field">
+      <span class="search-field-ico">🔍</span>
+      <input id="memo-search" type="text" placeholder="Rechercher un exercice...">
+    </div>
+    <div id="exo-memo-list" class="accordion-list"></div>
   </div>
+
+  <!-- Danger zone -->
+  <div class="card danger-card mb10">
+    <div class="params-section-lbl danger-title">⚠️ Zone dangereuse</div>
+    <div class="danger-row bb1">
+      <div>
+        <div class="danger-label">Vider l'historique</div>
+        <div class="danger-desc">Supprime toutes les séances</div>
+      </div>
+      <button class="danger-btn">Vider</button>
+    </div>
+    <div class="danger-row">
+      <div>
+        <div class="danger-label">Reset complet</div>
+        <div class="danger-desc">Efface toutes les données</div>
+      </div>
+      <button class="danger-btn">Reset</button>
+    </div>
   </div>
-</div>
+
+</div><!-- /page-params -->
 </div><!-- /pages-wrapper -->
 
-<!-- MODE SUIVI -->
-<div class="follow-overlay" id="follow-overlay">
 
-  <!-- HEADER -->
+<!-- ════════════════════════════════════════
+     MODE SUIVI
+════════════════════════════════════════ -->
+<div class="follow-overlay" id="follow-overlay">
   <div class="follow-header">
     <button class="follow-close" id="follow-close">✕</button>
     <div class="follow-title">Mode suivi</div>
     <div class="follow-progress" id="follow-progress">1 / 4</div>
   </div>
-
-  <!-- EXERCICE EN COURS -->
   <div class="follow-current" id="follow-current"></div>
-
-  <!-- EXERCICES SUIVANTS -->
   <div class="follow-next-list" id="follow-next-list"></div>
-
-  <!-- RECAP -->
   <div class="follow-recap" id="follow-recap">
     <div class="follow-recap-title">🏁 Séance terminée !</div>
     <div class="follow-recap-list" id="follow-recap-list"></div>
     <button class="btn-ac mt14 w100" id="follow-save">💾 Sauvegarder la séance</button>
     <button class="btn-ghost mt8 w100" id="follow-discard">Abandonner sans sauvegarder</button>
   </div>
-
 </div>
 
-<!-- SAVE BAR -->
+
+<!-- ════════════════════════════════════════
+     SAVE BAR
+════════════════════════════════════════ -->
 <div class="save-bar" id="bar-seance">
   <button class="btn-ghost" id="save-btn">💾 Sauvegarder la séance</button>
 </div>
 
-<!-- TIMER -->
+
+<!-- ════════════════════════════════════════
+     TIMER
+════════════════════════════════════════ -->
 <div class="tov" id="tov">
   <div class="tov-top">Temps de repos</div>
   <div class="tov-name" id="tov-name">—</div>
   <div class="tov-sub" id="tov-sub"></div>
   <div class="tov-rm" id="tov-rm"></div>
   <div class="tpres">
-     <button class="tpre" data-timer="30">30s</button>
-     <button class="tpre on" data-timer="60">1 min</button>
-     <button class="tpre" data-timer="90">1m30</button>
-     <button class="tpre" data-timer="120">2 min</button>
+    <button class="tpre" data-timer="30">30s</button>
+    <button class="tpre on" data-timer="60">1 min</button>
+    <button class="tpre" data-timer="90">1m30</button>
+    <button class="tpre" data-timer="120">2 min</button>
   </div>
   <div class="tring">
     <svg width="180" height="180" viewBox="0 0 180 180">
@@ -351,16 +845,19 @@
     </div>
   </div>
   <div class="flex ai-center gap8 mb14 px0-4">
-    <input id="memo-check" class="w18 h18 ac-ac cur-pointer fs0" type="checkbox" >
+    <input id="memo-check" class="w18 h18 ac-ac cur-pointer fs0" type="checkbox">
     <label for="memo-check" class="fs13 text-mu cur-pointer">Mémoriser ce temps pour cet exercice</label>
   </div>
   <div class="tacts">
-      <button class="tbtn bc-blue text-blue" id="btn-timer-minimize">⤡ Réduire</button>
-     <button class="tbtn go" id="btn-timer-close">Fermer</button>
+    <button class="tbtn bc-blue text-blue" id="btn-timer-minimize">⤡ Réduire</button>
+    <button class="tbtn go" id="btn-timer-close">Fermer</button>
   </div>
 </div>
 
-<!-- MINI TIMER -->
+
+<!-- ════════════════════════════════════════
+     MINI TIMER
+════════════════════════════════════════ -->
 <div class="tov-mini" id="tov-mini">
   <div class="tov-mini-ring">
     <svg width="36" height="36" viewBox="0 0 36 36">
@@ -373,25 +870,87 @@
   <button class="tov-mini-expand" id="btn-mini-expand" title="Agrandir">⤢</button>
 </div>
 
+<!-- Le bottom sheet -->
+
+<div id="bs-overlay"></div>
+<div id="bs-sheet">
+  <div id="bs-handle"><div id="bs-handle-bar"></div></div>
+  <div id="bs-header">
+    <div id="bs-title">Choisir un exercice</div>
+    <button id="bs-close">✕</button>
+  </div>
+  <div id="bs-body">
+    <div id="bs-chips">
+      <button class="bs-chip active" data-groupe="">Tous</button>
+      <button class="bs-chip" data-groupe="Pectoraux">🏋️ Pecs</button>
+      <button class="bs-chip" data-groupe="Dos">🧗 Dos</button>
+      <button class="bs-chip" data-groupe="Jambes">🦵 Jambes</button>
+      <button class="bs-chip" data-groupe="Épaules">🛡️ Épaules</button>
+      <button class="bs-chip" data-groupe="Biceps">🦾 Biceps</button>
+      <button class="bs-chip" data-groupe="Triceps">🔱 Triceps</button>
+      <button class="bs-chip" data-groupe="Abdos">🔥 Abdos</button>
+      <button class="bs-chip" data-groupe="Mollets">🐐 Mollets</button>
+    </div>
+    <div id="bs-exo-list"></div>
+    <div id="bs-params" style="display:none">
+      <div id="bs-selected-name"></div>
+      <div class="bs-params-grid">
+        <div class="bs-param-card">
+          <div class="bs-param-lbl">Séries</div>
+          <div class="bs-stepper">
+            <button id="bs-series-minus">−</button>
+            <span id="bs-series-val">1</span>
+            <button id="bs-series-plus">+</button>
+          </div>
+        </div>
+        <div class="bs-param-card">
+          <div class="bs-param-lbl">Reps</div>
+          <div class="bs-stepper">
+            <button id="bs-reps-minus">−</button>
+            <span id="bs-reps-val">10</span>
+            <button id="bs-reps-plus">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="bs-param-card bs-param-full">
+        <div class="bs-param-lbl">Poids (kg)</div>
+        <div id="bs-poids-pills"></div>
+      </div>
+      <button id="bs-back">← Retour</button>
+      <button id="bs-confirm" class="btn-ac mt10">+ Ajouter à la séance</button>
+    </div>
+  </div>
 </div>
-<!-- BOTTOM NAV -->
+
+</div><!-- /app -->
+
+
+<!-- ════════════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════════ -->
 <nav class="bottom-nav">
   <button class="bn-item active" id="bn-accueil" data-nav="accueil">
-    <span class="bn-ico">🏠</span><span class="bn-lbl">Accueil</span>
+    <span class="bn-ico">🏠</span>
+    <span class="bn-lbl">Accueil</span>
   </button>
   <button class="bn-item" id="bn-seance" data-nav="seance">
-    <span class="bn-ico">🏋️</span><span class="bn-lbl">Séance</span>
+    <span class="bn-ico">🏋️</span>
+    <span class="bn-lbl">Séance</span>
   </button>
   <button class="bn-item" id="bn-historique" data-nav="historique">
-    <span class="bn-ico">📋</span><span class="bn-lbl">Historique</span>
+    <span class="bn-ico">📋</span>
+    <span class="bn-lbl">Historique</span>
   </button>
   <button class="bn-item" id="bn-stats" data-nav="stats">
-    <span class="bn-ico">📊</span><span class="bn-lbl">Stats</span>
+    <span class="bn-ico">📊</span>
+    <span class="bn-lbl">Stats</span>
   </button>
   <button class="bn-item" id="bn-params" data-nav="params">
-    <span class="bn-ico">⚙️</span><span class="bn-lbl">Params</span>
+    <span class="bn-ico">⚙️</span>
+    <span class="bn-lbl">Params</span>
   </button>
 </nav>
+
 <script src="script.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
