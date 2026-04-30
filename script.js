@@ -822,7 +822,7 @@ function renderSession() {
           <div class="acc-stat"><div class="acc-stat-lbl">Volume</div><div class="acc-stat-val" style="color:var(--ac)">${vol(e).toLocaleString('fr-FR')} kg</div></div>
           <div class="acc-stat"><div class="acc-stat-lbl">1RM estimé</div><div class="acc-stat-val">${e.rm1est} kg${e.rm1reel ? ` <span style="color:var(--mu);font-size:11px">/ réel ${e.rm1reel}</span>` : ''}</div></div>
         </div>
-        <div class="acc-actions" onclick="accBtnClick(event)">
+        <div class="acc-actions">
           <button class="acc-btn-timer" data-action="start-timer" data-param="${e.id}">⏱ Repos</button>
           <button class="acc-btn-edit" data-action="edit-entry" data-param="${e.id}">✎ Modifier</button>
           <button class="acc-btn-del" data-action="delete-entry" data-param="${e.id}">Supprimer</button>
@@ -840,15 +840,7 @@ function accToggle(id) {
   if (el) el.classList.toggle('open');
 }
 
-function accBtnClick(e) {
-  e.stopPropagation();
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  const id = parseInt(btn.dataset.param);
-  if (btn.dataset.action === 'start-timer') startTimer(session.find(x => x.id === id));
-  if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
-  if (btn.dataset.action === 'delete-entry') removeEntry(id);
-}
+
 
 
 
@@ -2745,11 +2737,14 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
 
   // Délégation click — edit entry
   entryList.addEventListener('click', e => {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
-    if (btn.dataset.action === 'delete-entry') removeEntry(parseInt(btn.dataset.param));
-  });
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  e.stopPropagation();
+  const { action, param } = btn.dataset;
+  if (action === 'start-timer') startTimer(session.find(x => x.id === parseInt(param)));
+  if (action === 'edit-entry') openEditEntryModal(param);
+  if (action === 'delete-entry') removeEntry(parseInt(param));
+});
 
   entryList.addEventListener('touchstart', e => {
     const wrap = e.target.closest('.acc-wrap');
