@@ -4,7 +4,7 @@
 //             Network First pour données externes
 // ═══════════════════════════════════════════════
 
-var CACHE_NAME = 'pecday-v6';
+var CACHE_NAME = 'pecday-v7';
 var OFFLINE_URL = 'index.html'; 
 
 // Assets à mettre en cache immédiatement
