@@ -2755,17 +2755,27 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
     const wrap = e.target.closest('.acc-wrap');
     if (!wrap) return;
     swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
-    wrap.querySelector('.entry').classList.add('swiping');
+    //wrap.querySelector('.entry').classList.add('swiping');
   }, { passive: true });
 
   entryList.addEventListener('touchmove', e => {
-    if (!swipeState) return;
-    const entry = swipeState.wrap.querySelector('.acc-head');
-    const bg = swipeState.wrap.querySelector('.entry-del-bg');
-    swipeState.curX = Math.min(0, e.touches[0].clientX - swipeState.startX);
-    entry.style.transform = `translateX(${swipeState.curX}px)`;
-    bg.style.opacity = Math.min(Math.abs(swipeState.curX) / 90, 1);
-  }, { passive: true });
+  if (!swipeState) return;
+  const dx = e.touches[0].clientX - swipeState.startX;
+  // On bloque le scroll vertical seulement si swipe horizontal confirmé
+  if (Math.abs(dx) > 10) e.preventDefault();
+  const entry = swipeState.wrap.querySelector('.acc-head');
+  const bg = swipeState.wrap.querySelector('.entry-del-bg');
+  swipeState.curX = Math.min(0, dx);
+  entry.style.transform = `translateX(${swipeState.curX}px)`;
+  bg.style.opacity = Math.min(Math.abs(swipeState.curX) / 90, 1);
+}, { passive: false });
+
+entryList.addEventListener('touchstart', e => {
+  if (e.target.closest('button')) return; // ← ne pas swiper si tap sur bouton
+  const wrap = e.target.closest('.acc-wrap');
+  if (!wrap) return;
+  swipeState = { wrap, startX: e.touches[0].clientX, curX: 0 };
+}, { passive: true });
 
   entryList.addEventListener('touchend', () => {
     if (!swipeState) return;
