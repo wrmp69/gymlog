@@ -96,6 +96,17 @@ function saveJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+// ─── HELPERS UI ───
+const show = el => el?.classList.remove('dis-none');
+const hide = el => el?.classList.add('dis-none');
+
+function markUnsaved() {
+  const btn = document.getElementById('save-btn');
+  if (!btn) return;
+  btn.className = 'btn-ghost';
+  btn.textContent = '💾 Sauvegarder';
+}
+
 // ─── CACHE HISTORIQUE ───
 let _historyCache = null;
 
@@ -528,22 +539,22 @@ function renderExoMemoList() {
   });
 }
 
-async function deleteExoTimer(exo) {
-  if (!await confirm2(`Supprimer le timer mémorisé pour "${exo}" ?`)) return;
+async function deleteExoTimer(exo, withConfirm = true) {
+  if (withConfirm && !await confirm2(`Supprimer le timer mémorisé pour "${exo}" ?`)) return;
   const timers = loadJSON('gl_exo_timers', {});
   delete timers[exo];
   saveJSON('gl_exo_timers', timers);
   renderExoMemoList();
-  toast('Timer supprimé.', 'ok');
+  if (withConfirm) toast('Timer supprimé.', 'ok');
 }
 
-async function deleteExoPoids(exo) {
-  if (!await confirm2(`Supprimer le poids max mémorisé pour "${exo}" ?`)) return;
+async function deleteExoPoids(exo, withConfirm = true) {
+  if (withConfirm && !await confirm2(`Supprimer le poids max mémorisé pour "${exo}" ?`)) return;
   const maxW = loadJSON('gl_max_weights', {});
   delete maxW[exo];
   saveJSON('gl_max_weights', maxW);
   renderExoMemoList();
-  toast('Poids supprimé.', 'ok');
+  if (withConfirm) toast('Poids supprimé.', 'ok');
 }
 
 async function deleteExoMemo(exo) {
@@ -566,16 +577,15 @@ async function deleteExoMemo(exo) {
 
 // Ajout d’une entrée (nouveau système)
 function addEntry() {
-  const idx = parseInt(document.getElementById('sel-machine').value);
-  if (isNaN(idx)) {
-    document.getElementById('sel-machine').focus();
-    return;
-  }
-
+  const selM = document.getElementById('sel-machine');
+  const idx = parseInt(selM.value);
+  if (isNaN(idx)) { selM.focus(); toast('Choisis un exercice.', 'warn'); return; }
   const m = getAllMachines()[idx];
-  const poids = document.getElementById('sel-poids').value;
-  const series = document.getElementById('sel-series').value;
-  const reps = document.getElementById('sel-reps').value;
+  if (!m) { toast('Exercice introuvable.', 'warn'); return; }
+
+  const poids = parseFloat(document.getElementById('val-poids').textContent) || 0;
+  const series = parseInt(document.getElementById('val-series').textContent) || 1;
+  const reps = parseInt(document.getElementById('val-reps').textContent) || 1;
   const rm1reel = document.getElementById('inp-1rm').value;
 
   const entry = {
@@ -590,17 +600,15 @@ function addEntry() {
     id: Date.now()
   };
 
-  session.push(entry);
+  session.unshift(entry);
   saveJSON('gl_session', session);
 
   document.getElementById('inp-1rm').value = '';
-  const btn = document.getElementById('save-btn');
-  btn.className = 'btn-ghost';
-  btn.textContent = '💾 Sauvegarder';
+  markUnsaved();
 
   // Auto-incrément séries
-  const selS = document.getElementById('sel-series');
-  selS.value = String(Math.min(parseInt(series) + 1, 6));
+ // const selS = document.getElementById('sel-series');
+  //selS.value = String(Math.min(parseInt(series) + 1, 6));
 
   renderSession();
   startTimer(entry);
@@ -688,7 +696,7 @@ function renderMachineSelect() {
 // FILTRER LES MACHINES PAR GROUPE
 // ─────────────────────────────────────────
 function filterMachines() {
-  const g = document.getElementById('sel-groupe').value;
+  const g = document.querySelector('.gchip.on')?.dataset.val ?? '';
   const sel = document.getElementById('sel-machine');
 
   const all = getAllMachines();
@@ -700,33 +708,41 @@ function filterMachines() {
   }).join('');
 
   renderPoidsForMachine();
-  document.getElementById('sel-series').value = '1';
+  
 }
 
 function renderPoidsForMachine() {
   const selM = document.getElementById('sel-machine');
-  const selP = document.getElementById('sel-poids');
-  if (!selM || !selP) return;
+  if (!selM) return;
 
   const idx = parseInt(selM.value);
-  if (isNaN(idx)) {
-    selP.innerHTML = '<option value="">—</option>';
-    return;
-  }
+  if (isNaN(idx)) return;
 
   const m = getAllMachines()[idx];
-  selP.innerHTML = m.poids.map(p => `<option value="${p}">${p} kg</option>`).join('');
+  const maxW = loadJSON('gl_max_weights', {});
 
-   const maxW = loadJSON('gl_max_weights', {});
-  const hint = document.getElementById('last-weight-hint');
-  if (hint) hint.textContent = maxW[m.nom] ? `— dernier : ${maxW[m.nom]} kg` : '';
-  
-   if (maxW[m.nom]) {
-    const match = m.poids.find(p => p == maxW[m.nom]);
-    if (match) selP.value = String(match);
+  // Hint poids
+  const hintPoids = document.getElementById('last-weight-hint');
+  if (hintPoids) hintPoids.textContent = maxW[m.nom] ? `Max : ${maxW[m.nom]} kg` : '';
+
+  // Pré-remplir stepper poids avec le mémo
+    const valPoids = document.getElementById('val-poids');
+  if (valPoids && maxW[m.nom] && valPoids.textContent === '80') {
+    valPoids.textContent = maxW[m.nom];
   }
 
-  document.getElementById('sel-series').value = '1';
+  // Hint reps — cherche la dernière séance avec cet exercice
+  const hintReps = document.getElementById('last-reps-hint');
+  if (hintReps) {
+    const poidsSel = parseFloat(document.getElementById('val-poids').textContent) || 0;
+    const h = getHistory();
+    const allReps = Object.values(h)
+      .flatMap(day => Array.isArray(day) ? day : (day.entries || []))
+      .filter(e => e.nom === m.nom && parseFloat(e.poids) === poidsSel)
+      .map(e => parseInt(e.reps) || 0);
+    const maxReps = allReps.length ? Math.max(...allReps) : null;
+    hintReps.textContent = maxReps ? `(max : ${maxReps} reps à ${poidsSel} kg)` : '';
+  }
 }
 
 
@@ -786,6 +802,7 @@ async function clearSession() {
 function removeEntry(id) {
   session = session.filter(e => e.id !== id);
   saveJSON('gl_session', session);
+  markUnsaved();
   renderSession();
 }
 
@@ -805,7 +822,7 @@ function renderSession() {
         <span class="eico-lg">🏋️</span>
         Aucun exercice.<br>Lance-toi !
       </div>`;
-    document.getElementById('vol-block').style.display = 'none';
+    hide(document.getElementById('vol-block'));
     return;
   }
 
@@ -836,7 +853,7 @@ function renderSession() {
   }).join('');
 
   renderVolume();
-  document.getElementById('vol-block').style.display = 'block';
+  show(document.getElementById('vol-block'));
   attachDragDrop();
 }
 
@@ -1010,11 +1027,11 @@ function renderChart() {
     myChart = null;
   }
 
-  leg.style.display = 'none';
+  hide(leg);
 
   if (!selExo) {
-    cw.style.display = 'none';
-    emp.style.display = 'block';
+    hide(cw);
+    show(emp);
     emp.textContent = 'Choisis un exercice pour voir son évolution.';
     return;
   }
@@ -1028,14 +1045,14 @@ function renderChart() {
   });
 
   if (!filtered.length) {
-    cw.style.display = 'none';
-    emp.style.display = 'block';
+    hide(cw);
+    show(emp);
     emp.textContent = 'Pas de données sur cette période.';
     return;
   }
 
-  cw.style.display = 'block';
-  emp.style.display = 'none';
+  show(cw);
+  hide(emp);
 
   const ctx = document.getElementById('myChart').getContext('2d');
   const labels = filtered.map(fmtDate);
@@ -1082,7 +1099,7 @@ function renderChart() {
     });
 
   } else {
-    leg.style.display = 'block';
+    show(leg);
 
     const dataEst = filtered.map(k => {
       const ex = getEntries(h[k]).filter(e => e.nom === selExo);
@@ -1225,13 +1242,14 @@ async function resetSheetConfig() {
 
 function renderSheetsConfig() {
   const su = localStorage.getItem('gl_script_url') || '';
+  const nc = document.getElementById('sheets-nc');
+  const sc = document.getElementById('sheets-c');
 
-  document.getElementById('sheets-nc').style.display = su ? 'none' : 'block';
-  document.getElementById('sheets-c').style.display = su ? 'block' : 'none';
+  if (su) { hide(nc); show(sc); } else { show(nc); hide(sc); }
 
   if (su) {
-    document.getElementById('open-sheet-btn').style.display =
-      localStorage.getItem('gl_sheet_url') ? 'block' : 'none';
+    const openBtn = document.getElementById('open-sheet-btn');
+    localStorage.getItem('gl_sheet_url') ? show(openBtn) : hide(openBtn);
   }
 }
 
@@ -1485,19 +1503,9 @@ function renderParamsPage() {
   renderSheetsConfig();
 }
 
-function delExoTimer(exo) {
-  const mt = loadJSON('gl_exo_timers', {});
-  delete mt[exo];
-  saveJSON('gl_exo_timers', mt);
-  renderParamsPage();
-}
-
-function delMaxWeight(exo) {
-  const mw = loadJSON('gl_max_weights', {});
-  delete mw[exo];
-  saveJSON('gl_max_weights', mw);
-  renderParamsPage();
-}
+// delExoTimer et delMaxWeight redirigent vers les fonctions unifiées (sans confirm)
+function delExoTimer(exo) { deleteExoTimer(exo, false); renderParamsPage(); }
+function delMaxWeight(exo) { deleteExoPoids(exo, false); renderParamsPage(); }
 
 // ─── EXERCICES CUSTOM ───
 
@@ -1686,6 +1694,7 @@ function openEditEntryModal(id) {
 
     saveJSON('gl_session', session);
     overlay.remove();
+    markUnsaved();
     renderSession();
     toast('Exercice modifié.', 'ok');
   });
@@ -1973,9 +1982,9 @@ function renderFollow() {
   const total = exercices.length;
 
   document.getElementById('follow-progress').textContent = `${currentIdx + 1} / ${total}`;
-  document.getElementById('follow-current').style.display = 'block';
-  document.getElementById('follow-next-list').style.display = 'flex';
-  document.getElementById('follow-recap').style.display = 'none';
+  show(document.getElementById('follow-current'));
+  document.getElementById('follow-next-list').classList.remove('dis-none');
+  hide(document.getElementById('follow-recap'));
 
   // Exercice en cours
   const seriesHTML = current.seriesValidees.map((s, i) => `
@@ -2119,12 +2128,12 @@ function endCurrentExo() {
 function showRecap() {
   if (!followState) return;
 
-  document.getElementById('follow-current').style.display = 'none';
-  document.getElementById('follow-next-list').style.display = 'none';
+  hide(document.getElementById('follow-current'));
+  hide(document.getElementById('follow-next-list'));
   document.getElementById('follow-progress').textContent = '🏁 Terminé';
 
   const recap = document.getElementById('follow-recap');
-  recap.style.display = 'block';
+  recap.classList.add('visible');
 
   document.getElementById('follow-recap-list').innerHTML = followState.exercices.map(e => {
     const total = e.seriesValidees.length;
@@ -2143,6 +2152,7 @@ function showRecap() {
 
 function closeFollow() {
   document.getElementById('follow-overlay').classList.remove('open');
+  document.getElementById('follow-recap').classList.remove('visible');
   followState = null;
 }
 
@@ -2312,15 +2322,12 @@ function navTo(name) {
   if (tt) tt.textContent = PAGE_TITLES[name] || '';
 
   const bar = document.getElementById('bar-seance');
-  if (bar) bar.style.display = name === 'seance' ? 'block' : 'none';
+  if (bar) name === 'seance' ? show(bar) : hide(bar);
 
   if (name === 'historique') renderHistory();
-  if (name === 'stats') {
-    renderStats();
-    renderSheetsConfig();
-  }
-  if (name === 'params') renderParamsPage();
-  if (name === 'accueil') renderAccueil();
+  if (name === 'stats') renderStats();
+  if (name === 'params') { renderParamsPage(); renderExoMemoList(); }
+  if (name === 'accueil') { renderAccueil(); renderTemplateList(); }
 
   const pw = document.getElementById('pages-wrapper');
   if (pw) pw.scrollTop = 0;
@@ -2401,30 +2408,64 @@ async function resetAll() {
   location.reload(); // ici c'est intentionnel : reset total
 }
 
+function exportBackup() {
+  const data = {
+    gl_history:          loadJSON('gl_history', {}),
+    gl_max_weights:      loadJSON('gl_max_weights', {}),
+    gl_exo_timers:       loadJSON('gl_exo_timers', {}),
+    gl_custom_machines:  loadJSON('gl_custom_machines', []),
+    gl_templates:        loadJSON('gl_templates', []),
+    gl_machine_overrides:loadJSON('gl_machine_overrides', {}),
+    exported_at: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `gymlog-backup-${todayKey()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Sauvegarde exportée.', 'ok');
+}
+
+async function importBackup(file) {
+  if (!file) return;
+  const ok = await confirm2('Importer cette sauvegarde ? Les données actuelles seront remplacées.', 'Importer', true);
+  if (!ok) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const allowed = ['gl_history','gl_max_weights','gl_exo_timers',
+                     'gl_custom_machines','gl_templates','gl_machine_overrides'];
+    allowed.forEach(k => { if (data[k] !== undefined) saveJSON(k, data[k]); });
+    invalidateHistory();
+    invalidateMachines();
+    toast('Sauvegarde importée. Rechargement…', 'ok');
+    setTimeout(() => location.reload(), 1500);
+  } catch {
+    toast('Fichier invalide.', 'error');
+  }
+}
+
+
 // ─────────────────────────────────────────
 // INIT FINAL — VERSION PROPRE
 // ─────────────────────────────────────────
 
 function init() {
-  // Charger données
+ 
+  // Charger état
   session = loadJSON('gl_session', []);
   TLEFT = TTOTAL;
 
-  // UI
+  // UI de base (page Séance active dès le départ)
+  filterMachines();     // remplace renderMachineSelect() + filterMachines()
   renderSession();
-  renderMachineSelect();
-  filterMachines();
-  renderAccueil();
-  renderTemplateList()
-  renderHistory();
-  renderStats();
-  renderSheetsConfig();
   renderCardio();
-  renderExoMemoList();
   syncTpre();
   initTheme();
 
-  // Navigation par défaut
+  // Navigation par défaut — déclenche renderAccueil() + les rendus de page
   navTo('accueil');
 
   // EVENTS GLOBAUX
@@ -2574,8 +2615,13 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
   const tovMini = document.getElementById('tov-mini');
   if (tovMini) tovMini.addEventListener('click', () => expandTimer());
 
-  const selGroupe = document.getElementById('sel-groupe');
-  if (selGroupe) selGroupe.addEventListener('change', filterMachines);
+  document.getElementById('groupe-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.gchip');
+  if (!chip) return;
+  document.querySelectorAll('.gchip').forEach(c => c.classList.remove('on'));
+  chip.classList.add('on');
+  filterMachines();
+});
 
   const selChartExo = document.getElementById('sel-chart-exo');
   if (selChartExo) selChartExo.addEventListener('change', renderChart);
@@ -2634,6 +2680,18 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
     swipeState = null;
   });
   
+
+document.querySelectorAll('.ptab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ptab').forEach(t => t.classList.remove('on'));
+    tab.classList.add('on');
+    const target = tab.dataset.ptab;
+    ['exercices', 'donnees'].forEach(id => {
+      document.getElementById('ptab-' + id).classList.toggle('dis-none', id !== target);
+    });
+  });
+});
+
   // Bouton ouvrir modale ajout exercice
   const btnAddMachineInline = document.getElementById('btn-add-machine-inline');
   if (btnAddMachineInline) btnAddMachineInline.addEventListener('click', addCustomMachineInline);
@@ -2659,6 +2717,21 @@ document.getElementById('custom-machines-card').addEventListener('click', e => {
     }
   });
 
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.step-btn');
+    if (!btn) return;
+    const span = document.getElementById(btn.dataset.target);
+    if (!span) return;
+    const step = parseFloat(btn.dataset.step);
+    const current = parseFloat(span.textContent) || 0;
+    const min = btn.dataset.target === 'val-poids' ? 0 : 1;
+    const max = btn.dataset.target === 'val-poids' ? 500 : 30;
+     const isFloat = btn.dataset.target === 'val-poids';
+  const result = Math.min(max, Math.max(min, current + step));
+  span.textContent = isFloat ? +result.toFixed(1) : Math.round(result);
+  if (btn.dataset.target === 'val-poids') renderPoidsForMachine();
+  e.stopPropagation();
+});
 
 }
 // ─────────────────────────────────────────

@@ -61,17 +61,17 @@
     <div class="card mb0">
       <div class="field">
         <span class="lbl">Groupe musculaire</span>
-        <select id="sel-groupe">
-          <option value="">Tous les groupes</option>
-          <option value="Abdos">🔥 Abdos</option>
-          <option value="Biceps">🦾 Biceps</option>
-          <option value="Dos">🧗‍♂️ Dos</option>
-          <option value="Épaules">🛡️ Épaules</option>
-          <option value="Jambes">🦵 Jambes</option>
-          <option value="Mollets">🐐 Mollets</option>
-          <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
-          <option value="Triceps">🔱 Triceps</option>
-        </select>
+        <div id="groupe-chips" class="groupe-chips">
+          <button class="gchip on" data-val="">Tout</button>
+          <button class="gchip" data-val="Abdos">Abdos</button>
+          <button class="gchip" data-val="Biceps">Biceps</button>
+          <button class="gchip" data-val="Dos">Dos</button>
+          <button class="gchip" data-val="Épaules">Épaules</button>
+          <button class="gchip" data-val="Jambes">Jambes</button>
+          <button class="gchip" data-val="Mollets">Mollets</button>
+          <button class="gchip" data-val="Pectoraux">Pecs</button>
+          <button class="gchip" data-val="Triceps">Triceps</button>
+        </div>
       </div>
       <div class="field">
         <span class="lbl">Machine / exercice</span>
@@ -82,36 +82,41 @@
           <button class="btn-edit-machine" id="btn-edit-machine" title="Modifier cet exercice">✎</button>
         </div>
       </div>
+
       <div class="row2">
         <div class="field">
-          <span class="lbl">Poids <span id="last-weight-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
-          <select id="sel-poids"><option value="">—</option></select>
+          <span class="lbl">Poids (kg) <span id="last-weight-hint"
+              class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
+          <div class="stepper" id="stepper-poids">
+            <button class="step-btn" data-target="val-poids" data-step="-2.5">−</button>
+            <span id="val-poids">80</span>
+            <button class="step-btn" data-target="val-poids" data-step="2.5">+</button>
+          </div>
         </div>
         <div class="field">
           <span class="lbl">Séries</span>
-          <select id="sel-series">
-            <option selected>1</option><option>2</option><option>3</option>
-            <option>4</option><option>5</option><option>6</option>
-          </select>
+          <div class="stepper">
+            <button class="step-btn" data-target="val-series" data-step="-1">−</button>
+            <span id="val-series">3</span>
+            <button class="step-btn" data-target="val-series" data-step="1">+</button>
+          </div>
         </div>
       </div>
       <div class="row2">
         <div class="field">
-          <span class="lbl">Reps / série</span>
-          <select id="sel-reps">
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-            <option>9</option><option selected>10</option><option>11</option>
-            <option>12</option><option>13</option><option>14</option><option>15</option>
-            <option>16</option><option>17</option><option>18</option><option>19</option>
-            <option>20</option>
-          </select>
+          <span class="lbl">Reps / série <span id="last-reps-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
+          <div class="stepper">
+            <button class="step-btn" data-target="val-reps" data-step="-1">−</button>
+            <span id="val-reps">10</span>
+            <button class="step-btn" data-target="val-reps" data-step="1">+</button>
+          </div>
         </div>
         <div class="field">
           <span class="lbl">1RM réel (kg) <span class="text-mu fw400 fs10">optionnel</span></span>
           <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500">
         </div>
       </div>
+
       <div class="rm-hint" id="rm-preview"></div>
       <button  id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
     </div>
@@ -121,7 +126,6 @@
   <div class="seance-col" id="col-session">
     <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center">
       <span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span>
-      <button class="follow-start-btn" id="btn-start-follow">▶</button>
       <button class="clr" id="btn-clear-session">Effacer</button></span></div>
     <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
     <div id="vol-block" class="dis-none">
@@ -218,6 +222,54 @@
 <!-- PARAMÈTRES -->
 <div id="page-params" class="page pt1r">
 
+<div class="params-tabs">
+  <button class="ptab on" data-ptab="exercices">Exercices</button>
+  <button class="ptab" data-ptab="donnees">Données</button>
+</div>
+
+<div id="ptab-exercices">
+
+  <!-- EXERCICES CUSTOM -->
+  <div class="card" id="custom-machines-card">
+    <div class="dl-lbl mb6">💪 Ajouter un exercice</div>
+    <div id="custom-machines-list"></div>
+    <div class="machine-add-form" id="machine-add-form">
+      <div class="machine-modal-field">
+        <label>Nom de l'exercice</label>
+        <input type="text" id="mm-nom-inline" placeholder="Ex: Curl incliné">
+      </div>
+      <div class="machine-modal-field">
+        <label>Groupe musculaire</label>
+        <select id="mm-groupe-inline">
+          <option value="Abdos">🔥 Abdos</option>
+          <option value="Biceps">🦾 Biceps</option>
+          <option value="Dos">🧗‍♂️ Dos</option>
+          <option value="Épaules">🛡️ Épaules</option>
+          <option value="Jambes">🦵 Jambes</option>
+          <option value="Mollets">🐐 Mollets</option>
+          <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
+          <option value="Triceps">🔱 Triceps</option>
+        </select>
+      </div>
+      <div class="machine-modal-field">
+        <label>Poids disponibles (séparés par des virgules)</label>
+        <input type="text" id="mm-poids-inline" placeholder="Ex: 5, 10, 15, 20, 25">
+      </div>
+      <button class="btn-ghost green w100" id="btn-add-machine-inline">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="card">
+  <div class="dl-lbl mb6">🔍 Mes exercices mémorisés</div>
+  <input id="memo-search" type="text" placeholder="Rechercher un exercice..." class="w100 p10 br8 bb1 bg2 mb12 fs14 text-fg">
+  <div id="exo-memo-list" class="accordion-list"></div>
+</div>
+
+</div>
+
+<div id="ptab-donnees" class="dis-none">
+
+  <!-- GOOGLE SHEETS -->
   <div class="card">
     <div class="dl-lbl mb6">📊 Google Sheets</div>
     <div id="sheets-nc">
@@ -236,64 +288,37 @@
       <div id="export-status" class="fs12 mt4 ta-center dis-none"></div>
       <button id="send-today-btn" class="btn-ghost mb8">Envoyer la séance du jour</button>
       <div id="send-today-status" class="fs12 mt4 ta-center dis-none"></div>
-      <button  id="open-sheet-btn" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
+      <button id="open-sheet-btn" class="btn-ghost mt8 dis-none">Ouvrir ma feuille</button>
     </div>
   </div>
 
- <!-- EXERCICES CUSTOM -->
-<div class="card" id="custom-machines-card">
-  <div class="dl-lbl mb6">💪 Ajouter un exercice</div>
-
-  <div id="custom-machines-list"></div>
-
-  <div class="machine-add-form" id="machine-add-form">
-    <div class="machine-modal-field">
-      <label>Nom de l'exercice</label>
-      <input type="text" id="mm-nom-inline" placeholder="Ex: Curl incliné">
-    </div>
-    <div class="machine-modal-field">
-      <label>Groupe musculaire</label>
-      <select id="mm-groupe-inline">
-        <option value="Abdos">🔥 Abdos</option>
-        <option value="Biceps">🦾 Biceps</option>
-        <option value="Dos">🧗‍♂️ Dos</option>
-        <option value="Épaules">🛡️ Épaules</option>
-        <option value="Jambes">🦵 Jambes</option>
-        <option value="Mollets">🐐 Mollets</option>
-        <option value="Pectoraux">🏋️‍♂️ Pectoraux</option>
-        <option value="Triceps">🔱 Triceps</option>
-      </select>
-    </div>
-    <div class="machine-modal-field">
-      <label>Poids disponibles (séparés par des virgules)</label>
-      <input type="text" id="mm-poids-inline" placeholder="Ex: 5, 10, 15, 20, 25">
-    </div>
-    <button class="btn-ghost green w100" id="btn-add-machine-inline">+ Ajouter</button>
+  <!-- SAUVEGARDE -->
+  <div class="card">
+    <div class="dl-lbl mb6">💾 Sauvegarde locale</div>
+    <button class="btn-ghost mb8 w100" id="btn-export-backup">⬇️ Exporter mes données (.json)</button>
+    <input type="file" id="inp-import-backup" accept=".json" class="dis-none">
+    <button class="btn-ghost w100" id="btn-import-backup">⬆️ Importer une sauvegarde</button>
   </div>
-</div>
-  
-  <input id="memo-search" type="text" placeholder="🔍 Rechercher un exercice..." class="w100 p10 br8 bd1 bg2 mb12 fs14 text-fg">
-  <div id="exo-memo-list" class="accordion-list"></div><br>
-  
+
+  <!-- ZONE DANGEREUSE -->
   <div class="card danger-card">
-  <div class="dl-lbl danger-title">⚠️ Zone dangereuse</div>
-
-  <div class="danger-row bb1">
-    <div>
-      <div class="danger-label">Vider l'historique</div>
-      <div class="danger-desc">Supprime toutes les séances</div>
+    <div class="dl-lbl danger-title">⚠️ Zone dangereuse</div>
+    <div class="danger-row bb1">
+      <div>
+        <div class="danger-label">Vider l'historique</div>
+        <div class="danger-desc">Supprime toutes les séances</div>
+      </div>
+      <button class="btn-ghost danger-btn">Vider</button>
     </div>
-    <button class="btn-ghost danger-btn">Vider</button>
+    <div class="danger-row">
+      <div>
+        <div class="danger-label">Reset complet</div>
+        <div class="danger-desc">Efface toutes les données</div>
+      </div>
+      <button class="btn-ghost danger-btn">Reset</button>
+    </div>
   </div>
 
-  <div class="danger-row">
-    <div>
-      <div class="danger-label">Reset complet</div>
-      <div class="danger-desc">Efface toutes les données</div>
-    </div>
-    <button class="btn-ghost danger-btn">Reset</button>
-  </div>
-  </div>
 </div>
 </div><!-- /pages-wrapper -->
 
@@ -325,7 +350,10 @@
 
 <!-- SAVE BAR -->
 <div class="save-bar" id="bar-seance">
-  <button class="btn-ghost" id="save-btn">💾 Sauvegarder la séance</button>
+  <div class="save-bar-row">
+    <button class="btn-ac" id="save-btn">💾 Sauvegarder</button>
+    <button class="btn-ghost follow-side-btn" id="btn-start-follow">▶ Suivi</button>
+  </div>
 </div>
 
 <!-- TIMER -->
