@@ -89,7 +89,7 @@
               class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
           <div class="stepper" id="stepper-poids">
             <button class="step-btn" data-target="val-poids" data-step="-2.5">−</button>
-            <span id="val-poids">80</span>
+            <input type="number" id="val-poids" value="80" min="0" max="500" step="0.5" class="stepper-input">
             <button class="step-btn" data-target="val-poids" data-step="2.5">+</button>
           </div>
         </div>
@@ -97,17 +97,17 @@
           <span class="lbl">Séries</span>
           <div class="stepper">
             <button class="step-btn" data-target="val-series" data-step="-1">−</button>
-            <span id="val-series">3</span>
+            <input type="number" id="val-series" value="3" min="1" max="20" class="stepper-input">
             <button class="step-btn" data-target="val-series" data-step="1">+</button>
           </div>
         </div>
       </div>
       <div class="row2">
         <div class="field">
-          <span class="lbl">Reps / série <span id="last-reps-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
+          <span class="lbl">Reps <span id="last-reps-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
           <div class="stepper">
             <button class="step-btn" data-target="val-reps" data-step="-1">−</button>
-            <span id="val-reps">10</span>
+            <input type="number" id="val-reps" value="10" min="1" max="100" class="stepper-input">
             <button class="step-btn" data-target="val-reps" data-step="1">+</button>
           </div>
         </div>

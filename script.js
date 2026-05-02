@@ -583,9 +583,9 @@ function addEntry() {
   const m = getAllMachines()[idx];
   if (!m) { toast('Exercice introuvable.', 'warn'); return; }
 
-  const poids = parseFloat(document.getElementById('val-poids').textContent) || 0;
-  const series = parseInt(document.getElementById('val-series').textContent) || 1;
-  const reps = parseInt(document.getElementById('val-reps').textContent) || 1;
+  const poids = parseFloat(document.getElementById('val-poids').value) || 0;
+  const series = parseInt(document.getElementById('val-series').value) || 1;
+  const reps = parseInt(document.getElementById('val-reps').value) || 1;
   const rm1reel = document.getElementById('inp-1rm').value;
 
   const entry = {
@@ -601,6 +601,11 @@ function addEntry() {
   };
 
   session.unshift(entry);
+  const valSeries = document.getElementById('val-series');
+if (valSeries) {
+  const current = parseInt(valSeries.value) || 1;
+  if (current < 10) valSeries.value = current + 1;
+}
   saveJSON('gl_session', session);
 
   document.getElementById('inp-1rm').value = '';
@@ -727,22 +732,26 @@ function renderPoidsForMachine() {
 
   // Pré-remplir stepper poids avec le mémo
     const valPoids = document.getElementById('val-poids');
-  if (valPoids && maxW[m.nom] && valPoids.textContent === '80') {
-    valPoids.textContent = maxW[m.nom];
-  }
+  if (valPoids && maxW[m.nom] && valPoids.value === '80') {
+  valPoids.value = maxW[m.nom];
+}
 
   // Hint reps — cherche la dernière séance avec cet exercice
   const hintReps = document.getElementById('last-reps-hint');
   if (hintReps) {
-    const poidsSel = parseFloat(document.getElementById('val-poids').textContent) || 0;
+    const poidsSel = parseFloat(document.getElementById('val-poids').value) || 0;
     const h = getHistory();
     const allReps = Object.values(h)
       .flatMap(day => Array.isArray(day) ? day : (day.entries || []))
       .filter(e => e.nom === m.nom && parseFloat(e.poids) === poidsSel)
       .map(e => parseInt(e.reps) || 0);
     const maxReps = allReps.length ? Math.max(...allReps) : null;
-    hintReps.textContent = maxReps ? `(max : ${maxReps} reps à ${poidsSel} kg)` : '';
+    hintReps.textContent = maxReps ? `Max : ${maxReps} reps à ${poidsSel} kg` : '';
   }
+  const valSeries = document.getElementById('val-series');
+  if (valSeries) valSeries.value = '1';
+  const valReps = document.getElementById('val-reps');
+  if (valReps) valReps.value = '10';
 }
 
 
@@ -836,18 +845,44 @@ function renderSession() {
   <div class="entry-wrap" id="ew-${e.id}" draggable="true">
     <div class="entry-del-bg"><span>🗑 SUPPRIMER</span></div>
     <div class="entry" id="en-${e.id}">
-      <div class="drag-handle" title="Réorganiser">⠿</div>
-      <div class="eico">${e.icon}</div>
       <div class="einfo">
-        <div class="ename">${e.nom}</div>
-        <div class="etags">
-          <span class="tag ac">${e.poids} kg</span>
-          <span class="tag">${e.series} s · ${e.reps} r</span>
-          <span class="tag vol">${vol(e).toLocaleString('fr-FR')} kg vol.</span>
-          ${rmTag}${rmReel}
+        <div class="entry-toggle entry-header" data-id="${e.id}">
+          <div class="entry-header-left">
+            <div class="eico">${e.icon}</div>
+            <span class="ename">${e.nom}</span>
+          </div>
+          <div class="entry-header-right">
+            <span class="tag ac">${e.poids} kg</span>
+            <span class="tag">${e.series}s · ${e.reps}r</span>
+            <span class="entry-chevron">›</span>
+          </div>
+        </div>
+        <div class="entry-details dis-none" id="ed-${e.id}">
+          <div class="entry-detail-grid">
+            <div class="entry-detail-cell">
+              <span class="entry-detail-lbl">SÉRIES × REPS</span>
+              <span class="entry-detail-val">${e.series} × ${e.reps}</span>
+            </div>
+            <div class="entry-detail-cell">
+              <span class="entry-detail-lbl">POIDS</span>
+              <span class="entry-detail-val">${e.poids} kg</span>
+            </div>
+            <div class="entry-detail-cell">
+              <span class="entry-detail-lbl">VOLUME</span>
+              <span class="entry-detail-val text-ac">${vol(e).toLocaleString('fr-FR')} kg</span>
+            </div>
+            <div class="entry-detail-cell">
+              <span class="entry-detail-lbl">1RM ESTIMÉ</span>
+              <span class="entry-detail-val">${e.rm1est} kg</span>
+            </div>
+          </div>
+          <div class="entry-actions">
+            <button class="entry-action-btn" data-action="start-timer" data-param="${e.id}">⏱ Repos</button>
+            <button class="entry-action-btn" data-action="edit-entry" data-param="${e.id}">✎ Modifier</button>
+            <button class="entry-action-btn danger" data-action="delete-entry" data-param="${e.id}">Supprimer</button>
+          </div>
         </div>
       </div>
-      <button class="entry-edit-btn" data-action="edit-entry" data-param="${e.id}" title="Modifier">✎</button>
     </div>
   </div>`;
   }).join('');
@@ -2003,24 +2038,87 @@ function renderFollow() {
       <button class="btn-ghost w100 mt8 ${currentIdx + 1 >= total ? 'danger' : ''}" id="btn-end-exo">
         ${currentIdx + 1 >= total ? '🏁 Terminer la séance' : '✓ Terminer cet exercice'}
       </button>
+      ${currentIdx + 1 < total ? `<button class="btn-ghost w100 mt8" id="btn-skip-exo">⏭ Passer cet exercice</button>` : ''}
+      <button class="btn-ghost w100 mt8 danger" id="btn-remove-exo">🗑 Supprimer cet exercice</button>
     </div>
   `;
 
   document.getElementById('btn-next-serie').addEventListener('click', () => openSerieModal(currentIdx));
   document.getElementById('btn-end-exo').addEventListener('click', () => endCurrentExo());
 
+  const btnSkip = document.getElementById('btn-skip-exo');
+  if (btnSkip) btnSkip.addEventListener('click', () => {
+    const exos = followState.exercices;
+    if (followState.currentIdx + 1 < exos.length) {
+      const [moved] = exos.splice(followState.currentIdx, 1);
+      exos.push(moved);
+      renderFollow();
+    }
+  });
+
+   const btnRemove = document.getElementById('btn-remove-exo');
+  if (btnRemove) btnRemove.addEventListener('click', async () => {
+    const ok = await confirm2(`Supprimer "${followState.exercices[followState.currentIdx].nom}" de la séance ?`);
+    if (!ok) return;
+    const exos = followState.exercices;
+    exos.splice(followState.currentIdx, 1);
+    if (exos.length === 0 || followState.currentIdx >= exos.length) {
+      showRecap();
+    } else {
+      renderFollow();
+    }
+  });
+
   // Exercices suivants
   const nextEl = document.getElementById('follow-next-list');
   const suivants = exercices.slice(currentIdx + 1);
   nextEl.innerHTML = suivants.length ? suivants.map((e, i) => `
-    <div class="follow-next-item ${i === 0 ? 'next' : ''}">
+    <div class="follow-next-item ${i === 0 ? 'next' : ''}" data-idx="${currentIdx + 1 + i}" draggable="true">
       <span class="follow-next-ico">${e.icon}</span>
       <div class="follow-next-info">
         <div class="follow-next-name">${e.nom}</div>
         <div class="follow-next-meta">${e.seriesValidees.length} série(s) faite(s)</div>
       </div>
+      <div class="follow-next-btns">
+        <button class="follow-move-btn" data-move="up" data-idx="${currentIdx + 1 + i}">↑</button>
+        <button class="follow-move-btn" data-move="down" data-idx="${currentIdx + 1 + i}">↓</button>
+      </div>
     </div>
   `).join('') : '<div class="follow-next-item" style="opacity:.4;font-size:12px;">Dernier exercice</div>';
+
+  // Glisser-déposer
+  let dragSrcIdx = null;
+  nextEl.querySelectorAll('.follow-next-item[draggable]').forEach(item => {
+    item.addEventListener('dragstart', () => { dragSrcIdx = parseInt(item.dataset.idx); item.style.opacity = '.4'; });
+    item.addEventListener('dragend', () => { item.style.opacity = ''; });
+    item.addEventListener('dragover', e => { e.preventDefault(); item.style.borderTop = '2px solid var(--ac)'; });
+    item.addEventListener('dragleave', () => { item.style.borderTop = ''; });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.style.borderTop = '';
+      const dropIdx = parseInt(item.dataset.idx);
+      if (dragSrcIdx === dropIdx) return;
+      const exos = followState.exercices;
+      const [moved] = exos.splice(dragSrcIdx, 1);
+      exos.splice(dropIdx, 0, moved);
+      renderFollow();
+    });
+  });
+
+  // Boutons ↑ ↓
+  nextEl.querySelectorAll('.follow-move-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      const exos = followState.exercices;
+      if (btn.dataset.move === 'up' && idx > followState.currentIdx + 1) {
+        [exos[idx - 1], exos[idx]] = [exos[idx], exos[idx - 1]];
+      } else if (btn.dataset.move === 'down' && idx < exos.length - 1) {
+        [exos[idx], exos[idx + 1]] = [exos[idx + 1], exos[idx]];
+      }
+      renderFollow();
+    });
+  });
 }
 
 function openSerieModal(exoIdx) {
@@ -2639,10 +2737,25 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
   let swipeState = null;
 
   // Délégation click — edit entry
-  entryList.addEventListener('click', e => {
+   entryList.addEventListener('click', e => {
     const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    if (btn.dataset.action === 'edit-entry') openEditEntryModal(btn.dataset.param);
+    if (btn) {
+      if (btn.dataset.action === 'edit-entry') { openEditEntryModal(btn.dataset.param); return; }
+      if (btn.dataset.action === 'delete-entry') { removeEntry(parseInt(btn.dataset.param)); return; }
+      if (btn.dataset.action === 'start-timer') {
+        const entry = session.find(ex => ex.id === parseInt(btn.dataset.param));
+        if (entry) startTimer(entry);
+        return;
+      }
+    }
+
+    const toggle = e.target.closest('.entry-toggle');
+    if (toggle) {
+      const details = document.getElementById('ed-' + toggle.dataset.id);
+      if (details) details.classList.toggle('dis-none');
+      const chevron = toggle.querySelector('.entry-chevron');
+      if (chevron) chevron.style.transform = details.classList.contains('dis-none') ? '' : 'rotate(90deg)';
+    }
   });
 
   entryList.addEventListener('touchstart', e => {
@@ -2723,12 +2836,12 @@ document.getElementById('custom-machines-card').addEventListener('click', e => {
     const span = document.getElementById(btn.dataset.target);
     if (!span) return;
     const step = parseFloat(btn.dataset.step);
-    const current = parseFloat(span.textContent) || 0;
+    const current = parseFloat(span.value) || 0;
     const min = btn.dataset.target === 'val-poids' ? 0 : 1;
     const max = btn.dataset.target === 'val-poids' ? 500 : 30;
      const isFloat = btn.dataset.target === 'val-poids';
   const result = Math.min(max, Math.max(min, current + step));
-  span.textContent = isFloat ? +result.toFixed(1) : Math.round(result);
+  span.value = isFloat ? +result.toFixed(1) : Math.round(result);
   if (btn.dataset.target === 'val-poids') renderPoidsForMachine();
   e.stopPropagation();
 });
