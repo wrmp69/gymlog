@@ -55,130 +55,202 @@
 <!-- SÉANCE -->
 <div class="page" id="page-seance">
 
-  <!-- COL 1 : FORMULAIRE -->
-  <div class="seance-col" id="col-form">
-    <div class="seance-col-title">📋 Exercice</div>
-    <div class="card mb0">
-      <div class="field">
-        <span class="lbl">Groupe musculaire</span>
-        <div id="groupe-chips" class="groupe-chips">
-          <button class="gchip on" data-val="">Tout</button>
-          <button class="gchip" data-val="Abdos">Abdos</button>
-          <button class="gchip" data-val="Biceps">Biceps</button>
-          <button class="gchip" data-val="Dos">Dos</button>
-          <button class="gchip" data-val="Épaules">Épaules</button>
-          <button class="gchip" data-val="Jambes">Jambes</button>
-          <button class="gchip" data-val="Mollets">Mollets</button>
-          <button class="gchip" data-val="Pectoraux">Pecs</button>
-          <button class="gchip" data-val="Triceps">Triceps</button>
-        </div>
-      </div>
-      <div class="field">
-        <span class="lbl">Machine / exercice</span>
-        <div class="select-with-edit">
-          <select id="sel-machine">
-            <option value="">— Choisir —</option>
-          </select>
-          <button class="btn-edit-machine" id="btn-edit-machine" title="Modifier cet exercice">✎</button>
-        </div>
-      </div>
-
-      <div class="row2">
-        <div class="field">
-          <span class="lbl">Poids (kg) <span id="last-weight-hint"
-              class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
-          <div class="stepper" id="stepper-poids">
-            <button class="step-btn" data-target="val-poids" data-step="-2.5">−</button>
-            <input type="number" id="val-poids" value="80" min="0" max="500" step="0.5" class="stepper-input">
-            <button class="step-btn" data-target="val-poids" data-step="2.5">+</button>
-          </div>
-        </div>
-        <div class="field">
-          <span class="lbl">Séries</span>
-          <div class="stepper">
-            <button class="step-btn" data-target="val-series" data-step="-1">−</button>
-            <input type="number" id="val-series" value="3" min="1" max="20" class="stepper-input">
-            <button class="step-btn" data-target="val-series" data-step="1">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field">
-          <span class="lbl">Reps <span id="last-reps-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
-          <div class="stepper">
-            <button class="step-btn" data-target="val-reps" data-step="-1">−</button>
-            <input type="number" id="val-reps" value="10" min="1" max="100" class="stepper-input">
-            <button class="step-btn" data-target="val-reps" data-step="1">+</button>
-          </div>
-        </div>
-        <div class="field">
-          <span class="lbl">1RM réel (kg) <span class="text-mu fw400 fs10">optionnel</span></span>
-          <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500">
-        </div>
-      </div>
-
-      <div class="rm-hint" id="rm-preview"></div>
-      <button  id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
-    </div>
+  <!-- ONGLETS SÉANCE -->
+  <div class="seance-tabs">
+    <button class="stab on" data-stab="exercices">🏋️ Exercices</button>
+    <button class="stab" data-stab="cardio">❤️ Cardio</button>
   </div>
 
-  <!-- COL 2 : SÉANCE DU JOUR -->
-  <div class="seance-col" id="col-session">
-    <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour <span class="flex gap10 ai-center">
-      <span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span>
-      <button class="clr" id="btn-clear-session">Effacer</button></span></div>
-    <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
-    <div id="vol-block" class="dis-none">
-      <div class="sh mt14"><span class="stitle">Volume & 1RM</span></div>
-      <div class="vol-summary" id="vol-list"></div>
-      <div class="vol-total" id="vol-total"></div>
-    </div>
-  </div>
+  <!-- ONGLET EXERCICES -->
+  <div id="stab-exercices">
 
-  <!-- COL 3 : MARCHE -->
-  <div class="seance-col" id="col-cardio">
-    <div class="seance-col-title">🚶 Marche fin de séance</div>
+    <!-- COL 1 : FORMULAIRE -->
+    <div class="seance-col" id="col-form">
+      <div class="seance-col-title">📋 Exercice</div>
+      <div class="card mb0">
+        <div class="field">
+          <span class="lbl">Groupe musculaire</span>
+          <div id="groupe-chips" class="groupe-chips">
+            <button class="gchip on" data-val="">Tout</button>
+            <button class="gchip" data-val="Abdos">Abdos</button>
+            <button class="gchip" data-val="Biceps">Biceps</button>
+            <button class="gchip" data-val="Dos">Dos</button>
+            <button class="gchip" data-val="Épaules">Épaules</button>
+            <button class="gchip" data-val="Jambes">Jambes</button>
+            <button class="gchip" data-val="Mollets">Mollets</button>
+            <button class="gchip" data-val="Pectoraux">Pecs</button>
+            <button class="gchip" data-val="Triceps">Triceps</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">Machine / exercice</span>
+          <div class="select-with-edit">
+            <select id="sel-machine">
+              <option value="">— Choisir —</option>
+            </select>
+            <button class="btn-edit-machine" id="btn-edit-machine" title="Modifier cet exercice">✎</button>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <span class="lbl">Poids (kg) <span id="last-weight-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
+            <div class="stepper" id="stepper-poids">
+              <button class="step-btn" data-target="val-poids" data-step="-2.5">−</button>
+              <input type="number" id="val-poids" value="80" min="0" max="500" step="0.5" class="stepper-input">
+              <button class="step-btn" data-target="val-poids" data-step="2.5">+</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl">Séries</span>
+            <div class="stepper">
+              <button class="step-btn" data-target="val-series" data-step="-1">−</button>
+              <input type="number" id="val-series" value="3" min="1" max="20" class="stepper-input">
+              <button class="step-btn" data-target="val-series" data-step="1">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <span class="lbl">Reps <span id="last-reps-hint" class="text-blue fw400 fs10 ls0 tt-none ff-dm"></span></span>
+            <div class="stepper">
+              <button class="step-btn" data-target="val-reps" data-step="-1">−</button>
+              <input type="number" id="val-reps" value="10" min="1" max="100" class="stepper-input">
+              <button class="step-btn" data-target="val-reps" data-step="1">+</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl">1RM réel (kg) <span class="text-mu fw400 fs10">optionnel</span></span>
+            <div class="stepper">
+              <input type="number" id="inp-1rm" placeholder="ex: 120" min="0" max="500" class="stepper-input">
+            </div>
+          </div>
+        </div>
+        <div class="rm-hint" id="rm-preview"></div>
+        <button id="btn-add-entry" class="btn-ac mt10">+ Ajouter</button>
+      </div>
+    </div>
+
+    <!-- COL 2 : SÉANCE DU JOUR -->
+    <div class="seance-col" id="col-session">
+      <div class="seance-col-title flex jc-sbetween ai-center">🏋️ Séance du jour
+        <span class="flex gap10 ai-center">
+          <span id="entry-count" class="text-mu fw400 fs11 ff-dm tt-none ls0"></span>
+          <button class="clr" id="btn-clear-session">Effacer</button>
+        </span>
+      </div>
+      <div id="entry-list"><div class="empty"><span class="eico-lg">🏋️</span>Aucun exercice.<br>Lance-toi !</div></div>
+      <div id="vol-block" class="dis-none">
+        <div class="sh mt14"><span class="stitle">Volume & 1RM</span></div>
+        <div class="vol-summary" id="vol-list"></div>
+        <div class="vol-total" id="vol-total"></div>
+      </div>
+    </div>
+
+  </div><!-- fin stab-exercices -->
+
+  <!-- ONGLET CARDIO -->
+  <div id="stab-cardio" class="dis-none">
     <div class="cardio-card mb0" id="cardio-card">
       <div id="cardio-form">
-        <div class="row3">
-          <div class="field">
-            <span class="lbl">Durée (min)</span>
-            <select id="c-duree">
-              <option>5</option><option>10</option><option>15</option><option selected>20</option>
-              <option>25</option><option>30</option><option>35</option><option>40</option>
-              <option>45</option><option>50</option><option>55</option><option>60</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="lbl">Pente (%)</span>
-            <select id="c-pente">
-              <option>0</option><option>1</option><option>2</option><option>3</option>
-              <option>4</option><option>5</option><option>6</option><option>7</option>
-              <option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option>
-              <option>13</option><option>14</option><option>15</option>
-            </select>
-          </div>
-          <div class="field">
-            <span class="lbl">Vitesse (km/h)</span>
-            <select id="c-vitesse">
-              <option>3</option><option>3.5</option><option selected>4</option><option>4.5</option>
-              <option>5</option><option>5.5</option><option>6</option><option>6.5</option>
-              <option>7</option><option>8</option>
-            </select>
+
+        <span class="lbl">Type</span>
+        <div class="cardio-chips" id="cardio-type-chips">
+          <button class="cchip on" data-type="marche">🚶 Marche</button>
+          <button class="cchip" data-type="course">🏃 Course</button>
+          <button class="cchip" data-type="velo">🚴 Vélo</button>
+          <button class="cchip" data-type="escalier">🧗 Escalier</button>
+        </div>
+
+        <!-- MARCHE / COURSE -->
+        <div class="cardio-fields" id="cf-marche-course">
+          <div class="row3">
+            <div class="field">
+              <span class="lbl">Durée (min)</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-duree" data-step="-5">−</button>
+                <input type="number" id="c-duree" value="20" min="1" max="180" class="stepper-input">
+                <button class="step-btn" data-target="c-duree" data-step="5">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">Vitesse (km/h)</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-vitesse" data-step="-0.5">−</button>
+                <input type="number" id="c-vitesse" value="6" min="1" max="30" step="0.5" class="stepper-input">
+                <button class="step-btn" data-target="c-vitesse" data-step="0.5">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">Pente (%)</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-pente" data-step="-1">−</button>
+                <input type="number" id="c-pente" value="0" min="0" max="15" class="stepper-input">
+                <button class="step-btn" data-target="c-pente" data-step="1">+</button>
+              </div>
+            </div>
           </div>
         </div>
-        <button class="btn-ac bg-ac mt4" id="btn-add-cardio">✓ Marche terminée</button>
-      </div>
-      <div id="cardio-done" class="dis-none ta-center px8-0">
-        <span class="cardio-done-check">✅</span>
-        <div class="cardio-done-summary" id="cardio-done-summary">20 min · 12% · 4 km/h</div>
-        <div class="cardio-done-detail">Marche enregistrée pour cette séance</div>
-        <button class="cardio-modify-btn" id="btn-edit-cardio">✎ Modifier</button>
-      </div>
-    </div>
-  </div>
 
-</div>
+        <!-- VÉLO -->
+        <div class="cardio-fields dis-none" id="cf-velo">
+          <div class="row3">
+            <div class="field">
+              <span class="lbl">Durée (min)</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-duree-velo" data-step="-5">−</button>
+                <input type="number" id="c-duree-velo" value="20" min="1" max="180" class="stepper-input">
+                <button class="step-btn" data-target="c-duree-velo" data-step="5">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">Résistance</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-resistance" data-step="-1">−</button>
+                <input type="number" id="c-resistance" value="5" min="1" max="20" class="stepper-input">
+                <button class="step-btn" data-target="c-resistance" data-step="1">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">RPM</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-rpm" data-step="-5">−</button>
+                <input type="number" id="c-rpm" value="80" min="20" max="200" class="stepper-input">
+                <button class="step-btn" data-target="c-rpm" data-step="5">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ESCALIER -->
+        <div class="cardio-fields dis-none" id="cf-escalier">
+          <div class="row2">
+            <div class="field">
+              <span class="lbl">Durée (min)</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-duree-esc" data-step="-5">−</button>
+                <input type="number" id="c-duree-esc" value="20" min="1" max="180" class="stepper-input">
+                <button class="step-btn" data-target="c-duree-esc" data-step="5">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="lbl">Étages</span>
+              <div class="stepper">
+                <button class="step-btn" data-target="c-etages" data-step="-5">−</button>
+                <input type="number" id="c-etages" value="20" min="1" max="500" class="stepper-input">
+                <button class="step-btn" data-target="c-etages" data-step="5">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-ghost green mt8 w100" id="btn-add-cardio">✓ Enregistrer</button>
+      </div>
+
+      <div id="cardio-done" class="dis-none"></div>
+    </div>
+  </div><!-- fin stab-cardio -->
+
+</div><!-- fin page-seance -->
 
 <!-- HISTORIQUE -->
 <div class="page" id="page-historique">

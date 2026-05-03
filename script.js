@@ -962,17 +962,26 @@ function renderHistory() {
   c.innerHTML = keys.map(key => {
     const raw = h[key];
     const entries = getEntries(raw);
-    const cardio = Array.isArray(raw) ? null : (raw.cardio || null);
+    const cardioList = Array.isArray(raw) ? [] : (Array.isArray(raw.cardio) ? raw.cardio : (raw.cardio ? [raw.cardio] : []));
 
     const tv = entries.reduce((a, e) => a + vol(e), 0);
 
-    const cardioStr = cardio ? `
+    const icons = { marche:'🚶', course:'🏃', velo:'🚴', escalier:'🧗' };
+
+function cardioSummary(c) {
+  if (c.type === 'marche' || c.type === 'course') return `${icons[c.type]||'🚶'} ${c.duree} min · ${c.vitesse} km/h · ${c.pente}% pente`;
+  if (c.type === 'velo') return `🚴 ${c.duree} min · résistance ${c.resistance} · ${c.rpm} rpm`;
+  if (c.type === 'escalier') return `🧗 ${c.duree} min · ${c.etages} étages`;
+  return `🚶 ${c.duree} min`;
+}
+
+const cardioStr = cardioList.length ? `
   <div class="hist-cardio">
-    <div class="hist-cardio-row">
-      <span class="hist-cardio-ico">🚶</span>
-      <span class="hist-cardio-txt">${cardio.duree} min · ${cardio.pente}% pente · ${cardio.vitesse} km/h</span>
-    </div>
-    <button class="hist-cardio-del" data-action="clear-cardio">❌ Supprimer la marche</button>
+    ${cardioList.map(c => `
+      <div class="hist-cardio-row">
+        <span class="hist-cardio-txt">${cardioSummary(c)}</span>
+        <button class="hist-cardio-del" data-action="clear-cardio" data-id="${c.id}" data-key="${key}">✕</button>
+      </div>`).join('')}
   </div>` : '';
 
     return `
@@ -2287,38 +2296,43 @@ function saveFollow() {
 // ─────────────────────────────────────────
 
 function clearCardio() {
-  localStorage.removeItem('gl_cardio');
+  const all = loadJSON('gl_cardio', []);
+  saveJSON('gl_cardio', all.filter(c => c.date !== todayKey()));
   const h = getHistory();
   const key = todayKey();
-  if (h[key] && h[key].cardio) {
-    delete h[key].cardio;
-    saveHistory(h);
-  }
+  if (h[key]) { h[key].cardio = []; saveHistory(h); }
   renderCardio();
   renderHistory();
 }
 
-// APRÈS (version finale)
 function addCardio() {
-  const duree = parseInt(document.getElementById('c-duree').value);
-  const pente = parseFloat(document.getElementById('c-pente').value);
-  const vitesse = parseFloat(document.getElementById('c-vitesse').value);
+  const type = document.querySelector('.cchip.on')?.dataset.type || 'marche';
+  let item = { type, id: Date.now() };
 
-  const cardio = { duree, pente, vitesse };
+  if (type === 'marche' || type === 'course') {
+    item.duree   = parseFloat(document.getElementById('c-duree').value) || 0;
+    item.vitesse = parseFloat(document.getElementById('c-vitesse').value) || 0;
+    item.pente   = parseFloat(document.getElementById('c-pente').value) || 0;
+  } else if (type === 'velo') {
+    item.duree      = parseFloat(document.getElementById('c-duree-velo').value) || 0;
+    item.resistance = parseFloat(document.getElementById('c-resistance').value) || 0;
+    item.rpm        = parseFloat(document.getElementById('c-rpm').value) || 0;
+  } else if (type === 'escalier') {
+    item.duree  = parseFloat(document.getElementById('c-duree-esc').value) || 0;
+    item.etages = parseFloat(document.getElementById('c-etages').value) || 0;
+  }
 
-  saveJSON('gl_cardio', {
-    date: todayKey(),
-    duree,
-    pente,
-    vitesse
-  });
+  const list = loadJSON('gl_cardio', []);
+  const today = Array.isArray(list) ? list.filter(c => c.date === todayKey()) : [];
+  today.push({ ...item, date: todayKey() });
+  const other = Array.isArray(list) ? list.filter(c => c.date !== todayKey()) : [];
+  saveJSON('gl_cardio', [...other, ...today]);
 
   const h = getHistory();
   const key = todayKey();
-
-  const existing = h[key] || { entries: [], cardio: null };
-  existing.cardio = cardio;
-
+  const existing = h[key] || { entries: [], cardio: [] };
+  if (!Array.isArray(existing.cardio)) existing.cardio = [];
+  existing.cardio.push(item);
   h[key] = existing;
   saveHistory(h);
 
@@ -2348,49 +2362,58 @@ function editCardio() {
   document.getElementById('cardio-card').classList.remove('done');
 }
 
-function removeCardio() {
-  localStorage.removeItem('gl_cardio');
-
+function removeCardioById(id, key) {
+  const all = loadJSON('gl_cardio', []);
+  saveJSON('gl_cardio', all.filter(c => c.id !== id));
   const h = getHistory();
-  const key = todayKey();
-
-  if (h[key]) {
-    if (Array.isArray(h[key])) h[key] = { entries: h[key], cardio: null };
-    else h[key].cardio = null;
-
+  if (h[key] && Array.isArray(h[key].cardio)) {
+    h[key].cardio = h[key].cardio.filter(c => c.id !== id);
     saveHistory(h);
   }
-
   renderCardio();
+  renderHistory();
 }
 
 function renderCardio() {
-  let c = loadJSON('gl_cardio', null);
+  const icons = { marche:'🚶', course:'🏃', velo:'🚴', escalier:'🧗' };
 
-  if (c && c.date !== todayKey()) {
-    localStorage.removeItem('gl_cardio');
-    c = null;
+  function cardioSummary(c) {
+    if (c.type === 'marche' || c.type === 'course')
+      return `${icons[c.type]} ${c.duree} min · ${c.vitesse} km/h · ${c.pente}% pente`;
+    if (c.type === 'velo')
+      return `🚴 ${c.duree} min · résistance ${c.resistance} · ${c.rpm} rpm`;
+    if (c.type === 'escalier')
+      return `🧗 ${c.duree} min · ${c.etages} étages`;
+    return '';
   }
 
-  const form = document.getElementById('cardio-form');
-  const done = document.getElementById('cardio-done');
-  const card = document.getElementById('cardio-card');
+  const all = loadJSON('gl_cardio', []);
+  const today = Array.isArray(all) ? all.filter(c => c.date === todayKey()) : [];
 
-  if (!form || !done) return;
+  const doneEl = document.getElementById('cardio-done');
+  const formEl = document.getElementById('cardio-form');
 
-  if (!c) {
-    form.classList.remove('dis-none');
-    done.classList.add('dis-none');
-    card.classList.remove('done');
-    return;
+  if (today.length) {
+    doneEl.innerHTML = today.map(c => `
+      <div class="cardio-done-item">
+        <span class="cardio-done-txt">${cardioSummary(c)}</span>
+        <button class="cardio-del-btn" data-id="${c.id}">✕</button>
+      </div>
+    `).join('') + `<button class="cardio-add-more" id="btn-add-more-cardio">+ Ajouter un cardio</button>`;
+    show(doneEl);
+    hide(formEl);
+
+    doneEl.querySelectorAll('.cardio-del-btn').forEach(btn => {
+      btn.addEventListener('click', () => removeCardioById(parseInt(btn.dataset.id)));
+    });
+
+    document.getElementById('btn-add-more-cardio')?.addEventListener('click', () => {
+      show(formEl);
+    });
+  } else {
+    hide(doneEl);
+    show(formEl);
   }
-
-  document.getElementById('cardio-done-summary').textContent =
-    `${c.duree} min · ${c.pente}% pente · ${c.vitesse} km/h`;
-
-  form.classList.add('dis-none');
-  done.classList.remove('dis-none');
-  card.classList.add('done');
 }
 
 
@@ -2623,7 +2646,11 @@ if (inpImport) inpImport.addEventListener('change', e => importBackup(e.target.f
     if (!btn) return;
     const { action, param } = btn.dataset;
     if (action === 'delete-day') deleteDay(param);
-    if (action === 'clear-cardio') clearCardio();
+    if (action === 'clear-cardio') {
+      const id = parseInt(btn.dataset.id);
+      const key = btn.dataset.key;
+      removeCardioById(id, key);
+}
   });
 
   // Délégation — accordéon mémos (page Paramètres)
@@ -2835,16 +2862,57 @@ document.getElementById('custom-machines-card').addEventListener('click', e => {
     if (!btn) return;
     const span = document.getElementById(btn.dataset.target);
     if (!span) return;
+
+    if (btn.dataset.target === 'val-poids') {
+      const selM = document.getElementById('sel-machine');
+      const idx = parseInt(selM.value);
+      const m = getAllMachines()[idx];
+      if (m && m.poids && m.poids.length) {
+        const poidsList = m.poids.map(Number).sort((a, b) => a - b);
+        const current = parseFloat(span.value) || poidsList[0];
+        const curIdx = poidsList.indexOf(current);
+        if (btn.dataset.step > 0) {
+          span.value = poidsList[Math.min(curIdx + 1, poidsList.length - 1)];
+        } else {
+          span.value = poidsList[Math.max(curIdx - 1, 0)];
+        }
+        renderPoidsForMachine();
+      }
+      e.stopPropagation();
+      return;
+    }
+
     const step = parseFloat(btn.dataset.step);
     const current = parseFloat(span.value) || 0;
-    const min = btn.dataset.target === 'val-poids' ? 0 : 1;
-    const max = btn.dataset.target === 'val-poids' ? 500 : 30;
-     const isFloat = btn.dataset.target === 'val-poids';
-  const result = Math.min(max, Math.max(min, current + step));
-  span.value = isFloat ? +result.toFixed(1) : Math.round(result);
-  if (btn.dataset.target === 'val-poids') renderPoidsForMachine();
-  e.stopPropagation();
-});
+    const min = 1;
+    const max = btn.dataset.target === 'val-reps' ? 100 : 20;
+    span.value = Math.min(max, Math.max(min, current + step));
+    e.stopPropagation();
+  });
+
+document.getElementById('cardio-type-chips').addEventListener('click', e => {
+    const chip = e.target.closest('.cchip');
+    if (!chip) return;
+    document.querySelectorAll('.cchip').forEach(c => c.classList.remove('on'));
+    chip.classList.add('on');
+    const type = chip.dataset.type;
+    document.querySelectorAll('.cardio-fields').forEach(f => f.classList.add('dis-none'));
+    if (type === 'marche' || type === 'course') show(document.getElementById('cf-marche-course'));
+    else if (type === 'velo') show(document.getElementById('cf-velo'));
+    else if (type === 'escalier') show(document.getElementById('cf-escalier'));
+  });
+
+//Onglet Cardio
+  document.querySelectorAll('.stab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.stab').forEach(t => t.classList.remove('on'));
+      tab.classList.add('on');
+      const target = tab.dataset.stab;
+      ['exercices', 'cardio'].forEach(id => {
+        document.getElementById('stab-' + id).classList.toggle('dis-none', id !== target);
+      });
+    });
+  });
 
 }
 // ─────────────────────────────────────────
